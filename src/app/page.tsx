@@ -31,6 +31,10 @@ import {
   parseCommunicationInput,
 } from "@/lib/communication-input";
 import { parseBudgetInput } from "@/lib/budget-input";
+import {
+  EVENT_PROVIDER_STATUSES,
+  parseEventProviderInput,
+} from "@/lib/event-provider-input";
 
 export const dynamic = "force-dynamic";
 
@@ -66,6 +70,12 @@ async function getEvents() {
           dienstleister: true,
         },
         orderBy: [{ bezeichnung: "asc" }, { id: "asc" }],
+      },
+      eventDienstleister: {
+        include: {
+          dienstleister: true,
+        },
+        orderBy: [{ dienstleisterId: "asc" }],
       },
     },
     orderBy: [{ datum: "asc" }, { erstelltAm: "desc" }],
@@ -414,6 +424,73 @@ async function deleteBudgetPosition(formData: FormData) {
   revalidatePath("/");
 }
 
+async function createEventProvider(formData: FormData) {
+  "use server";
+
+  const input = parseEventProviderInput({
+    eventId: String(formData.get("eventId") ?? ""),
+    dienstleisterId: String(formData.get("dienstleisterId") ?? ""),
+    status: String(formData.get("status") ?? "angefragt"),
+    vertragsUrl: String(formData.get("vertragsUrl") ?? ""),
+    stornofrist: String(formData.get("stornofrist") ?? ""),
+  });
+
+  await prisma.eventDienstleister.create({
+    data: input,
+  });
+
+  revalidatePath("/");
+}
+
+async function updateEventProvider(formData: FormData) {
+  "use server";
+
+  const input = parseEventProviderInput({
+    eventId: String(formData.get("eventId") ?? ""),
+    dienstleisterId: String(formData.get("dienstleisterId") ?? ""),
+    status: String(formData.get("status") ?? "angefragt"),
+    vertragsUrl: String(formData.get("vertragsUrl") ?? ""),
+    stornofrist: String(formData.get("stornofrist") ?? ""),
+  });
+
+  await prisma.eventDienstleister.update({
+    where: {
+      eventId_dienstleisterId: {
+        eventId: input.eventId,
+        dienstleisterId: input.dienstleisterId,
+      },
+    },
+    data: {
+      status: input.status,
+      vertragsUrl: input.vertragsUrl,
+      stornofrist: input.stornofrist,
+    },
+  });
+
+  revalidatePath("/");
+}
+
+async function deleteEventProvider(formData: FormData) {
+  "use server";
+
+  const eventId = parseId(String(formData.get("eventId") ?? ""), "Event-ID");
+  const dienstleisterId = parseId(
+    String(formData.get("dienstleisterId") ?? ""),
+    "Dienstleister-ID",
+  );
+
+  await prisma.eventDienstleister.delete({
+    where: {
+      eventId_dienstleisterId: {
+        eventId,
+        dienstleisterId,
+      },
+    },
+  });
+
+  revalidatePath("/");
+}
+
 export default async function Home() {
   const [events, providers] = await Promise.all([getEvents(), getProviders()]);
   const totalBudget = events.reduce(
@@ -650,6 +727,12 @@ function EventCard({
     "betragBestaetigt",
   );
   const paidBudget = sumBudgetAmount(event.budgetPositionen, "betragBezahlt");
+  const assignedProviderIds = new Set(
+    event.eventDienstleister.map((assignment) => assignment.dienstleisterId),
+  );
+  const availableProviders = providers.filter(
+    (provider) => !assignedProviderIds.has(provider.id),
+  );
 
   return (
     <article className={styles.eventCard}>
@@ -803,6 +886,166 @@ function EventCard({
                     Loeschen
                   </button>
                 </form>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section
+        className={styles.guestSection}
+        aria-label={`Dienstleister ${event.name}`}
+      >
+        <div className={styles.subHeader}>
+          <h4>Dienstleister</h4>
+          <span>{event.eventDienstleister.length} Zuordnungen</span>
+        </div>
+
+        {providers.length === 0 ? (
+          <p className={styles.emptyGuests}>
+            Lege zuerst zentrale Dienstleister an.
+          </p>
+        ) : (
+          <form
+            action={createEventProvider}
+            className={styles.assignmentForm}
+          >
+            <input type="hidden" name="eventId" value={event.id} />
+            <label className={styles.wideField}>
+              Dienstleister
+              <select
+                name="dienstleisterId"
+                required
+                defaultValue={availableProviders[0]?.id ?? ""}
+                disabled={availableProviders.length === 0}
+              >
+                {availableProviders.length === 0 ? (
+                  <option value="">Alle zugeordnet</option>
+                ) : (
+                  availableProviders.map((provider) => (
+                    <option key={provider.id} value={provider.id}>
+                      {provider.name}
+                    </option>
+                  ))
+                )}
+              </select>
+            </label>
+            <label>
+              Status
+              <select name="status" defaultValue="angefragt">
+                {EVENT_PROVIDER_STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {formatEventProviderStatus(status)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.wideField}>
+              Vertrags-URL
+              <input
+                name="vertragsUrl"
+                type="url"
+                placeholder="https://..."
+                disabled={availableProviders.length === 0}
+              />
+            </label>
+            <label>
+              Stornofrist
+              <input
+                name="stornofrist"
+                type="date"
+                disabled={availableProviders.length === 0}
+              />
+            </label>
+            <button type="submit" disabled={availableProviders.length === 0}>
+              Dienstleister zuordnen
+            </button>
+          </form>
+        )}
+
+        {event.eventDienstleister.length === 0 ? (
+          <p className={styles.emptyGuests}>
+            Noch keine Dienstleister zugeordnet.
+          </p>
+        ) : (
+          <div className={styles.assignmentList}>
+            {event.eventDienstleister.map((assignment) => (
+              <article
+                key={`${assignment.eventId}-${assignment.dienstleisterId}`}
+                className={styles.assignmentItem}
+              >
+                <div>
+                  <span className={styles.status}>
+                    {formatEventProviderStatus(assignment.status)}
+                  </span>
+                  <strong>{assignment.dienstleister.name}</strong>
+                  <p>
+                    {formatProviderCategory(assignment.dienstleister.kategorie)} ·{" "}
+                    Stornofrist:{" "}
+                    {assignment.stornofrist
+                      ? formatDate(assignment.stornofrist)
+                      : "nicht gesetzt"}
+                  </p>
+                  <p>
+                    Vertrag:{" "}
+                    {assignment.vertragsUrl ? (
+                      <a href={assignment.vertragsUrl}>{assignment.vertragsUrl}</a>
+                    ) : (
+                      "nicht hinterlegt"
+                    )}
+                  </p>
+                </div>
+
+                <div className={styles.assignmentActions}>
+                  <form action={updateEventProvider}>
+                    <input type="hidden" name="eventId" value={event.id} />
+                    <input
+                      type="hidden"
+                      name="dienstleisterId"
+                      value={assignment.dienstleisterId}
+                    />
+                    <label>
+                      Status
+                      <select name="status" defaultValue={assignment.status}>
+                        {EVENT_PROVIDER_STATUSES.map((status) => (
+                          <option key={status} value={status}>
+                            {formatEventProviderStatus(status)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      Vertrags-URL
+                      <input
+                        name="vertragsUrl"
+                        type="url"
+                        defaultValue={assignment.vertragsUrl ?? ""}
+                        placeholder="https://..."
+                      />
+                    </label>
+                    <label>
+                      Stornofrist
+                      <input
+                        name="stornofrist"
+                        type="date"
+                        defaultValue={formatDateInput(assignment.stornofrist)}
+                      />
+                    </label>
+                    <button type="submit">Speichern</button>
+                  </form>
+
+                  <form action={deleteEventProvider}>
+                    <input type="hidden" name="eventId" value={event.id} />
+                    <input
+                      type="hidden"
+                      name="dienstleisterId"
+                      value={assignment.dienstleisterId}
+                    />
+                    <button className={styles.dangerButton} type="submit">
+                      Loeschen
+                    </button>
+                  </form>
+                </div>
               </article>
             ))}
           </div>
@@ -1292,6 +1535,14 @@ function formatDate(date: Date) {
   }).format(date);
 }
 
+function formatDateInput(date: Date | null) {
+  if (!date) {
+    return "";
+  }
+
+  return date.toISOString().slice(0, 10);
+}
+
 function formatTimeRange(start: Date, end: Date | null) {
   const formatter = new Intl.DateTimeFormat("de-DE", {
     day: "2-digit",
@@ -1377,6 +1628,17 @@ function formatProviderCategory(category: string) {
   };
 
   return labels[category] ?? category;
+}
+
+function formatEventProviderStatus(status: string) {
+  const labels: Record<string, string> = {
+    angefragt: "Angefragt",
+    vertrag_offen: "Vertrag offen",
+    bestaetigt: "Bestaetigt",
+    storniert: "Storniert",
+  };
+
+  return labels[status] ?? status;
 }
 
 function formatTaskStatus(status: string) {

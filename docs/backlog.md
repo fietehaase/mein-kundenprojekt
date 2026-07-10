@@ -56,7 +56,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F008 - Event-Dienstleister-Zuordnung
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Events und Dienstleister sollen ueber eine n:m-Zuordnung verbunden werden. Pro Zuordnung werden Status, Vertrags-URL und Stornofrist dokumentiert. Diese Verbindung bildet die Grundlage fuer Dienstleisterplanung, Vertragsuebersicht und spaetere Ausfallbehandlung.
 

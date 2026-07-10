@@ -117,6 +117,8 @@
 .communicationActions,
 .budgetForm label,
 .budgetActions,
+.assignmentForm label,
+.assignmentActions form,
 .inlineActions {
   display: grid;
   gap: 7px;
@@ -127,7 +129,9 @@
 .scheduleForm label,
 .taskForm label,
 .communicationForm label,
-.budgetForm label {
+.budgetForm label,
+.assignmentForm label,
+.assignmentActions label {
   color: #394150;
   font-size: 13px;
   font-weight: 700;
@@ -148,6 +152,10 @@
 .communicationForm textarea,
 .budgetForm input,
 .budgetForm select,
+.assignmentForm input,
+.assignmentForm select,
+.assignmentActions input,
+.assignmentActions select,
 .taskActions select {
   width: 100%;
   border: 1px solid #cbd3df;
@@ -179,6 +187,10 @@
 .communicationForm textarea:focus,
 .budgetForm input:focus,
 .budgetForm select:focus,
+.assignmentForm input:focus,
+.assignmentForm select:focus,
+.assignmentActions input:focus,
+.assignmentActions select:focus,
 .taskActions select:focus {
   border-color: #2563eb;
   outline: 2px solid rgba(37, 99, 235, 0.14);
@@ -196,6 +208,8 @@
 .communicationActions button,
 .budgetForm button,
 .budgetActions button,
+.assignmentForm button,
+.assignmentActions button,
 .inlineActions button {
   border: 0;
   border-radius: 6px;
@@ -220,8 +234,15 @@
 .communicationActions button:hover,
 .budgetForm button:hover,
 .budgetActions button:hover,
+.assignmentForm button:hover,
+.assignmentActions button:hover,
 .inlineActions button:hover {
   background: #174a96;
+}
+
+.assignmentForm button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
 }
 
 .eventList {
@@ -334,6 +355,7 @@
 .taskActions .dangerButton:hover,
 .communicationActions .dangerButton:hover,
 .budgetActions .dangerButton:hover,
+.assignmentActions .dangerButton:hover,
 .inlineActions .dangerButton:hover {
   background: #8f1c13;
 }
@@ -388,6 +410,10 @@
 }
 
 .budgetForm .wideField {
+  grid-column: span 2;
+}
+
+.assignmentForm .wideField {
   grid-column: span 2;
 }
 
@@ -723,6 +749,66 @@
   background: #b42318;
 }
 
+.assignmentForm {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 14px;
+}
+
+.assignmentForm button {
+  align-self: end;
+}
+
+.assignmentList {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.assignmentItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  gap: 12px;
+  border: 1px solid #e3e8ef;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.assignmentItem strong {
+  display: block;
+  font-size: 16px;
+  margin-top: 6px;
+}
+
+.assignmentItem p {
+  color: #596273;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+
+.assignmentItem a {
+  color: #174a96;
+  font-weight: 700;
+}
+
+.assignmentActions {
+  display: grid;
+  gap: 8px;
+}
+
+.assignmentActions form:first-child {
+  grid-template-columns: 1fr;
+}
+
+.assignmentActions .dangerButton {
+  background: #b42318;
+}
+
 .providerGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -813,6 +899,9 @@
   .budgetForm,
   .budgetForm .wideField,
   .budgetItem,
+  .assignmentForm,
+  .assignmentForm .wideField,
+  .assignmentItem,
   .providerGrid,
   .providerFacts {
     grid-template-columns: 1fr;
@@ -839,6 +928,10 @@
   }
 
   .budgetForm .wideField {
+    grid-column: auto;
+  }
+
+  .assignmentForm .wideField {
     grid-column: auto;
   }
 }

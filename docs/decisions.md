@@ -257,6 +257,27 @@ Budgetpositionen werden innerhalb der Event-Karten gepflegt. Pro Event werden Su
 
 ---
 
+## 2026-07-10 - Event-Dienstleister-Zuordnung in Event-Karten
+
+**Kontext:** F008 verlangt eine n:m-Zuordnung zwischen Events und Dienstleistern mit Status, Vertrags-URL und Stornofrist.
+
+### Entscheidung
+
+Event-Dienstleister-Zuordnungen werden innerhalb der Event-Karten gepflegt. Die Zuordnung nutzt die zentrale Dienstleister-Stammdatenverwaltung und speichert Status, optionale Vertrags-URL und optionale Stornofrist im bestehenden `EventDienstleister`-Modell.
+
+### Alternativen verworfen
+
+- Dienstleisterdaten pro Event duplizieren: Wuerde Stammdaten und Event-Zuordnung vermischen.
+- Zuordnungen nur ueber Budgetpositionen abbilden: Nicht ausreichend fuer Vertragsstatus und Stornofrist.
+
+### Konsequenzen
+
+- F008 ist als nutzbare Event-Dienstleister-Zuordnung umgesetzt.
+- Dienstleister koennen pro Event angelegt, bearbeitet und entfernt werden, ohne die Stammdaten zu loeschen.
+- Ausfall- und Eskalationslogik bleibt F014.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung
