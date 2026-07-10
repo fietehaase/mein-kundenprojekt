@@ -30,6 +30,7 @@ import {
   COMMUNICATION_CHANNELS,
   parseCommunicationInput,
 } from "@/lib/communication-input";
+import { parseBudgetInput } from "@/lib/budget-input";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,12 @@ async function getEvents() {
       },
       kommunikationen: {
         orderBy: [{ datum: "desc" }, { id: "desc" }],
+      },
+      budgetPositionen: {
+        include: {
+          dienstleister: true,
+        },
+        orderBy: [{ bezeichnung: "asc" }, { id: "asc" }],
       },
     },
     orderBy: [{ datum: "asc" }, { erstelltAm: "desc" }],
@@ -376,6 +383,37 @@ async function deleteCommunication(formData: FormData) {
   revalidatePath("/");
 }
 
+async function createBudgetPosition(formData: FormData) {
+  "use server";
+
+  const input = parseBudgetInput({
+    eventId: String(formData.get("eventId") ?? ""),
+    bezeichnung: String(formData.get("bezeichnung") ?? ""),
+    betragAngebot: String(formData.get("betragAngebot") ?? ""),
+    betragBestaetigt: String(formData.get("betragBestaetigt") ?? ""),
+    betragBezahlt: String(formData.get("betragBezahlt") ?? ""),
+    dienstleisterId: String(formData.get("dienstleisterId") ?? ""),
+  });
+
+  await prisma.budgetPosition.create({
+    data: input,
+  });
+
+  revalidatePath("/");
+}
+
+async function deleteBudgetPosition(formData: FormData) {
+  "use server";
+
+  const id = parseId(String(formData.get("id") ?? ""), "Budgetposition-ID");
+
+  await prisma.budgetPosition.delete({
+    where: { id },
+  });
+
+  revalidatePath("/");
+}
+
 export default async function Home() {
   const [events, providers] = await Promise.all([getEvents(), getProviders()]);
   const totalBudget = events.reduce(
@@ -494,7 +532,7 @@ export default async function Home() {
           ) : (
             <div className={styles.cards}>
               {events.map((event) => (
-                <EventCard key={event.id} event={event} />
+                <EventCard key={event.id} event={event} providers={providers} />
               ))}
             </div>
           )}
@@ -595,11 +633,23 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 
-function EventCard({ event }: { event: EventListItem }) {
+function EventCard({
+  event,
+  providers,
+}: {
+  event: EventListItem;
+  providers: ProviderListItem[];
+}) {
   const activeGuests = countActiveGuests(event);
   const currentSchedule = event.ablaufplaene.find(
     (schedule) => schedule.istAktuell,
   );
+  const offeredBudget = sumBudgetAmount(event.budgetPositionen, "betragAngebot");
+  const confirmedBudget = sumBudgetAmount(
+    event.budgetPositionen,
+    "betragBestaetigt",
+  );
+  const paidBudget = sumBudgetAmount(event.budgetPositionen, "betragBezahlt");
 
   return (
     <article className={styles.eventCard}>
@@ -650,6 +700,114 @@ function EventCard({ event }: { event: EventListItem }) {
           </button>
         </form>
       </div>
+
+      <section
+        className={styles.guestSection}
+        aria-label={`Budget ${event.name}`}
+      >
+        <div className={styles.subHeader}>
+          <h4>Budget</h4>
+          <span>{event.budgetPositionen.length} Positionen</span>
+        </div>
+
+        <dl className={styles.budgetSummary}>
+          <div>
+            <dt>Angebote</dt>
+            <dd>{formatCurrency(offeredBudget)}</dd>
+          </div>
+          <div>
+            <dt>Bestaetigt</dt>
+            <dd>{formatCurrency(confirmedBudget)}</dd>
+          </div>
+          <div>
+            <dt>Bezahlt</dt>
+            <dd>{formatCurrency(paidBudget)}</dd>
+          </div>
+        </dl>
+
+        <form action={createBudgetPosition} className={styles.budgetForm}>
+          <input type="hidden" name="eventId" value={event.id} />
+          <label className={styles.wideField}>
+            Position
+            <input name="bezeichnung" required placeholder="Catering" />
+          </label>
+          <label>
+            Angebot
+            <input
+              name="betragAngebot"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </label>
+          <label>
+            Bestaetigt
+            <input
+              name="betragBestaetigt"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </label>
+          <label>
+            Bezahlt
+            <input
+              name="betragBezahlt"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </label>
+          <label className={styles.wideField}>
+            Dienstleister
+            <select name="dienstleisterId" defaultValue="">
+              <option value="">Keiner</option>
+              {providers.map((provider) => (
+                <option key={provider.id} value={provider.id}>
+                  {provider.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button type="submit">Budgetposition hinzufuegen</button>
+        </form>
+
+        {event.budgetPositionen.length === 0 ? (
+          <p className={styles.emptyGuests}>
+            Noch keine Budgetpositionen erfasst.
+          </p>
+        ) : (
+          <div className={styles.budgetList}>
+            {event.budgetPositionen.map((position) => (
+              <article key={position.id} className={styles.budgetItem}>
+                <div>
+                  <strong>{position.bezeichnung}</strong>
+                  <p>
+                    Angebot: {formatOptionalCurrency(position.betragAngebot)} ·{" "}
+                    Bestaetigt:{" "}
+                    {formatOptionalCurrency(position.betragBestaetigt)} ·{" "}
+                    Bezahlt: {formatOptionalCurrency(position.betragBezahlt)}
+                  </p>
+                  <p>
+                    Dienstleister:{" "}
+                    {position.dienstleister?.name || "nicht zugeordnet"}
+                  </p>
+                </div>
+
+                <form action={deleteBudgetPosition} className={styles.budgetActions}>
+                  <input type="hidden" name="id" value={position.id} />
+                  <button className={styles.dangerButton} type="submit">
+                    Loeschen
+                  </button>
+                </form>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
 
       <section className={styles.guestSection} aria-label={`Gaeste ${event.name}`}>
         <div className={styles.subHeader}>
@@ -1064,6 +1222,16 @@ function countActiveGuests(event: EventListItem) {
     .length;
 }
 
+function sumBudgetAmount(
+  positions: EventListItem["budgetPositionen"],
+  field: "betragAngebot" | "betragBestaetigt" | "betragBezahlt",
+) {
+  return positions.reduce((sum, position) => {
+    const amount = position[field];
+    return sum + (amount ? Number(amount) : 0);
+  }, 0);
+}
+
 function ProviderCard({ provider }: { provider: ProviderListItem }) {
   return (
     <article className={styles.providerCard}>
@@ -1154,6 +1322,14 @@ function formatCurrency(amount: number) {
     currency: "EUR",
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+function formatOptionalCurrency(amount: unknown) {
+  if (amount === null || amount === undefined) {
+    return "offen";
+  }
+
+  return formatCurrency(Number(amount));
 }
 
 function formatStatus(status: string) {

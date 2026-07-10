@@ -115,6 +115,8 @@
 .taskActions form,
 .communicationForm label,
 .communicationActions,
+.budgetForm label,
+.budgetActions,
 .inlineActions {
   display: grid;
   gap: 7px;
@@ -124,7 +126,8 @@
 .guestForm label,
 .scheduleForm label,
 .taskForm label,
-.communicationForm label {
+.communicationForm label,
+.budgetForm label {
   color: #394150;
   font-size: 13px;
   font-weight: 700;
@@ -143,6 +146,8 @@
 .communicationForm input,
 .communicationForm select,
 .communicationForm textarea,
+.budgetForm input,
+.budgetForm select,
 .taskActions select {
   width: 100%;
   border: 1px solid #cbd3df;
@@ -172,6 +177,8 @@
 .communicationForm input:focus,
 .communicationForm select:focus,
 .communicationForm textarea:focus,
+.budgetForm input:focus,
+.budgetForm select:focus,
 .taskActions select:focus {
   border-color: #2563eb;
   outline: 2px solid rgba(37, 99, 235, 0.14);
@@ -187,6 +194,8 @@
 .taskActions button,
 .communicationForm button,
 .communicationActions button,
+.budgetForm button,
+.budgetActions button,
 .inlineActions button {
   border: 0;
   border-radius: 6px;
@@ -209,6 +218,8 @@
 .taskActions button:hover,
 .communicationForm button:hover,
 .communicationActions button:hover,
+.budgetForm button:hover,
+.budgetActions button:hover,
 .inlineActions button:hover {
   background: #174a96;
 }
@@ -322,6 +333,7 @@
 .scheduleItem .dangerButton:hover,
 .taskActions .dangerButton:hover,
 .communicationActions .dangerButton:hover,
+.budgetActions .dangerButton:hover,
 .inlineActions .dangerButton:hover {
   background: #8f1c13;
 }
@@ -372,6 +384,10 @@
 }
 
 .communicationForm .wideField {
+  grid-column: span 2;
+}
+
+.budgetForm .wideField {
   grid-column: span 2;
 }
 
@@ -632,6 +648,81 @@
   color: #475569;
 }
 
+.budgetSummary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.budgetSummary div {
+  border-radius: 6px;
+  background: #f3f5f8;
+  padding: 12px;
+}
+
+.budgetSummary dt {
+  color: #687284;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.budgetSummary dd {
+  margin-top: 3px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.budgetForm {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 14px;
+}
+
+.budgetForm button {
+  align-self: end;
+}
+
+.budgetList {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.budgetItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  border: 1px solid #e3e8ef;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.budgetItem strong {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.budgetItem p {
+  color: #596273;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-top: 4px;
+}
+
+.budgetActions {
+  align-self: end;
+}
+
+.budgetActions .dangerButton {
+  background: #b42318;
+}
+
 .providerGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -718,6 +809,10 @@
   .communicationForm,
   .communicationForm .wideField,
   .communicationItem,
+  .budgetSummary,
+  .budgetForm,
+  .budgetForm .wideField,
+  .budgetItem,
   .providerGrid,
   .providerFacts {
     grid-template-columns: 1fr;
@@ -740,6 +835,10 @@
   }
 
   .communicationForm .wideField {
+    grid-column: auto;
+  }
+
+  .budgetForm .wideField {
     grid-column: auto;
   }
 }

@@ -236,6 +236,27 @@ Kommunikation wird innerhalb der Event-Karten protokolliert. Pro Event koennen E
 
 ---
 
+## 2026-07-10 - Budgetuebersicht in Event-Karten
+
+**Kontext:** F007 verlangt Budgetpositionen pro Event mit Angebotsbetrag, bestaetigtem Betrag, bezahltem Betrag und optionalem Dienstleisterbezug.
+
+### Entscheidung
+
+Budgetpositionen werden innerhalb der Event-Karten gepflegt. Pro Event werden Summen fuer Angebot, bestaetigte Kosten und bezahlte Kosten angezeigt; einzelne Positionen koennen optional einem zentralen Dienstleister zugeordnet werden.
+
+### Alternativen verworfen
+
+- Eigenes Budgetmodul vor dem MVP: Fuer den aktuellen Kernumfang zu gross.
+- Budget als Freitext am Event: Nicht auswertbar fuer Zahlungsstand und Dienstleisterbezug.
+
+### Konsequenzen
+
+- F007 ist als nutzbare Budgetuebersicht umgesetzt.
+- Budgetpositionen bleiben eventbezogen und nutzen die vorhandene Dienstleister-Stammdatenverwaltung.
+- Die Pruefbedarfsregel bei Gaestezahlsaenderungen bleibt F010.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung

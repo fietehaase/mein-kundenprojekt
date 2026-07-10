@@ -50,7 +50,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F007 - Budgetuebersicht
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Kosten sollen pro Event als Budget-Positionen geplant und nachverfolgt werden. Je Position werden Angebotsbetrag, bestaetigter Betrag, bezahlter Betrag und optionaler Dienstleisterbezug gespeichert. Dadurch wird sichtbar, welche Kosten geplant, bestaetigt und bereits bezahlt sind.
 
