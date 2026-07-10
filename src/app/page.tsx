@@ -21,6 +21,11 @@ import {
   parseScheduleItemInput,
   parseSchedulePlanInput,
 } from "@/lib/schedule-input";
+import {
+  TASK_STATUSES,
+  parseTaskInput,
+  parseTaskStatus,
+} from "@/lib/task-input";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +45,13 @@ async function getEvents() {
           },
         },
         orderBy: [{ version: "desc" }],
+      },
+      aufgaben: {
+        include: {
+          abhaengigVon: true,
+          blockiert: true,
+        },
+        orderBy: [{ faelligAm: "asc" }, { id: "asc" }],
       },
     },
     orderBy: [{ datum: "asc" }, { erstelltAm: "desc" }],
@@ -270,6 +282,52 @@ async function deleteScheduleItem(formData: FormData) {
   const id = parseId(String(formData.get("id") ?? ""), "Ablaufpunkt-ID");
 
   await prisma.ablaufpunkt.delete({
+    where: { id },
+  });
+
+  revalidatePath("/");
+}
+
+async function createTask(formData: FormData) {
+  "use server";
+
+  const input = parseTaskInput({
+    eventId: String(formData.get("eventId") ?? ""),
+    bezeichnung: String(formData.get("bezeichnung") ?? ""),
+    faelligAm: String(formData.get("faelligAm") ?? ""),
+    status: String(formData.get("status") ?? "offen"),
+    abhaengigVonId: String(formData.get("abhaengigVonId") ?? ""),
+    zugewiesenAn: String(formData.get("zugewiesenAn") ?? ""),
+    erinnerungAm: String(formData.get("erinnerungAm") ?? ""),
+  });
+
+  await prisma.aufgabe.create({
+    data: input,
+  });
+
+  revalidatePath("/");
+}
+
+async function updateTaskStatus(formData: FormData) {
+  "use server";
+
+  const id = parseId(String(formData.get("id") ?? ""), "Aufgaben-ID");
+  const status = parseTaskStatus(String(formData.get("status") ?? ""));
+
+  await prisma.aufgabe.update({
+    where: { id },
+    data: { status },
+  });
+
+  revalidatePath("/");
+}
+
+async function deleteTask(formData: FormData) {
+  "use server";
+
+  const id = parseId(String(formData.get("id") ?? ""), "Aufgaben-ID");
+
+  await prisma.aufgabe.delete({
     where: { id },
   });
 
@@ -749,6 +807,112 @@ function EventCard({ event }: { event: EventListItem }) {
           </form>
         )}
       </section>
+
+      <section
+        className={styles.guestSection}
+        aria-label={`Aufgaben ${event.name}`}
+      >
+        <div className={styles.subHeader}>
+          <h4>Aufgaben</h4>
+          <span>{event.aufgaben.length} Eintraege</span>
+        </div>
+
+        <form action={createTask} className={styles.taskForm}>
+          <input type="hidden" name="eventId" value={event.id} />
+          <label className={styles.wideField}>
+            Aufgabe
+            <input
+              name="bezeichnung"
+              required
+              placeholder="Catering bestaetigen"
+            />
+          </label>
+          <label>
+            Faellig
+            <input name="faelligAm" type="datetime-local" />
+          </label>
+          <label>
+            Status
+            <select name="status" defaultValue="offen">
+              {TASK_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {formatTaskStatus(status)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Abhaengig von
+            <select name="abhaengigVonId" defaultValue="">
+              <option value="">Keine</option>
+              {event.aufgaben.map((task) => (
+                <option key={task.id} value={task.id}>
+                  {task.bezeichnung}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Zugewiesen an
+            <input name="zugewiesenAn" placeholder="Team Planung" />
+          </label>
+          <label>
+            Erinnerung
+            <input name="erinnerungAm" type="datetime-local" />
+          </label>
+          <button type="submit">Aufgabe hinzufuegen</button>
+        </form>
+
+        {event.aufgaben.length === 0 ? (
+          <p className={styles.emptyGuests}>Noch keine Aufgaben erfasst.</p>
+        ) : (
+          <div className={styles.taskList}>
+            {event.aufgaben.map((task) => (
+              <article key={task.id} className={styles.taskItem}>
+                <div>
+                  <span className={styles.status}>
+                    {formatTaskStatus(task.status)}
+                  </span>
+                  <strong>{task.bezeichnung}</strong>
+                  <p>
+                    Faellig: {task.faelligAm ? formatDateTime(task.faelligAm) : "offen"} ·{" "}
+                    Zugewiesen: {task.zugewiesenAn || "nicht gesetzt"}
+                  </p>
+                  <p>
+                    Abhaengig von: {task.abhaengigVon?.bezeichnung || "keiner"} ·{" "}
+                    Erinnerung:{" "}
+                    {task.erinnerungAm ? formatDateTime(task.erinnerungAm) : "keine"}
+                  </p>
+                  {task.blockiert.length > 0 ? (
+                    <p>Blockiert: {task.blockiert.length} Aufgabe(n)</p>
+                  ) : null}
+                </div>
+
+                <div className={styles.taskActions}>
+                  <form action={updateTaskStatus}>
+                    <input type="hidden" name="id" value={task.id} />
+                    <select name="status" defaultValue={task.status}>
+                      {TASK_STATUSES.map((status) => (
+                        <option key={status} value={status}>
+                          {formatTaskStatus(status)}
+                        </option>
+                      ))}
+                    </select>
+                    <button type="submit">Status</button>
+                  </form>
+
+                  <form action={deleteTask}>
+                    <input type="hidden" name="id" value={task.id} />
+                    <button className={styles.dangerButton} type="submit">
+                      Loeschen
+                    </button>
+                  </form>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
     </article>
   );
 }
@@ -833,6 +997,15 @@ function formatTimeRange(start: Date, end: Date | null) {
   return `${formatter.format(start)} - ${formatter.format(end)}`;
 }
 
+function formatDateTime(date: Date) {
+  return new Intl.DateTimeFormat("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat("de-DE", {
     style: "currency",
@@ -886,4 +1059,14 @@ function formatProviderCategory(category: string) {
   };
 
   return labels[category] ?? category;
+}
+
+function formatTaskStatus(status: string) {
+  const labels: Record<string, string> = {
+    offen: "Offen",
+    erledigt: "Erledigt",
+    ueberfaellig: "Ueberfaellig",
+  };
+
+  return labels[status] ?? status;
 }

@@ -111,6 +111,8 @@
 .guestForm label,
 .guestActions form,
 .scheduleForm label,
+.taskForm label,
+.taskActions form,
 .inlineActions {
   display: grid;
   gap: 7px;
@@ -118,7 +120,8 @@
 
 .form label,
 .guestForm label,
-.scheduleForm label {
+.scheduleForm label,
+.taskForm label {
   color: #394150;
   font-size: 13px;
   font-weight: 700;
@@ -131,7 +134,10 @@
 .guestForm input,
 .guestForm select,
 .guestActions select,
-.scheduleForm input {
+.scheduleForm input,
+.taskForm input,
+.taskForm select,
+.taskActions select {
   width: 100%;
   border: 1px solid #cbd3df;
   border-radius: 6px;
@@ -153,7 +159,10 @@
 .guestForm input:focus,
 .guestForm select:focus,
 .guestActions select:focus,
-.scheduleForm input:focus {
+.scheduleForm input:focus,
+.taskForm input:focus,
+.taskForm select:focus,
+.taskActions select:focus {
   border-color: #2563eb;
   outline: 2px solid rgba(37, 99, 235, 0.14);
 }
@@ -164,6 +173,8 @@
 .guestActions button,
 .scheduleForm button,
 .scheduleItem button,
+.taskForm button,
+.taskActions button,
 .inlineActions button {
   border: 0;
   border-radius: 6px;
@@ -182,6 +193,8 @@
 .guestActions button:hover,
 .scheduleForm button:hover,
 .scheduleItem button:hover,
+.taskForm button:hover,
+.taskActions button:hover,
 .inlineActions button:hover {
   background: #174a96;
 }
@@ -293,6 +306,7 @@
 .cardActions .dangerButton:hover,
 .guestActions .dangerButton:hover,
 .scheduleItem .dangerButton:hover,
+.taskActions .dangerButton:hover,
 .inlineActions .dangerButton:hover {
   background: #8f1c13;
 }
@@ -336,6 +350,10 @@
 .guestForm .wideField,
 .scheduleForm .wideField {
   grid-column: span 2;
+}
+
+.taskForm .wideField {
+  grid-column: span 3;
 }
 
 .guestForm button {
@@ -464,6 +482,63 @@
   background: #b42318;
 }
 
+.taskForm {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 14px;
+}
+
+.taskForm button {
+  align-self: end;
+}
+
+.taskList {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.taskItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  border: 1px solid #e3e8ef;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.taskItem strong {
+  display: block;
+  font-size: 16px;
+  margin-top: 6px;
+}
+
+.taskItem p {
+  color: #596273;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-top: 4px;
+}
+
+.taskActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.taskActions form:first-child {
+  grid-template-columns: minmax(140px, 180px) auto;
+}
+
+.taskActions .dangerButton {
+  background: #b42318;
+}
+
 .providerGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -543,6 +618,10 @@
   .scheduleForm,
   .scheduleForm .wideField,
   .scheduleItem,
+  .taskForm,
+  .taskForm .wideField,
+  .taskItem,
+  .taskActions form:first-child,
   .providerGrid,
   .providerFacts {
     grid-template-columns: 1fr;
@@ -557,6 +636,10 @@
   }
 
   .scheduleForm .wideField {
+    grid-column: auto;
+  }
+
+  .taskForm .wideField {
     grid-column: auto;
   }
 }

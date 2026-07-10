@@ -38,7 +38,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F005 - Aufgabensteuerung
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Aufgaben sollen pro Event mit Faelligkeit, Status, Zuweisung und Erinnerung gepflegt werden. Optional kann eine Aufgabe von einer anderen Aufgabe abhaengen. Damit wird sichtbar, was bis wann erledigt werden muss und welche Arbeit blockiert ist.
 

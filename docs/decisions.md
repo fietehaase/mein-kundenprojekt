@@ -194,6 +194,27 @@ Ablaufplanung wird innerhalb der Event-Karten gepflegt. Pro Event kann ein aktue
 
 ---
 
+## 2026-07-10 - Aufgabensteuerung in Event-Karten
+
+**Kontext:** F005 verlangt Aufgaben pro Event mit Faelligkeit, Status, optionaler Abhaengigkeit, Zuweisung und Erinnerung.
+
+### Entscheidung
+
+Aufgaben werden innerhalb der Event-Karten gepflegt. Pro Event koennen Aufgaben angelegt, im Status geaendert, geloescht und optional mit einer Vorgaenger-Aufgabe verknuepft werden.
+
+### Alternativen verworfen
+
+- Eigenes Aufgabenmodul vor dem MVP: Zu gross fuer den aktuellen Arbeitsschritt.
+- Abhaengigkeiten nur als Text speichern: Nicht ausreichend fuer spaetere Regelpruefung.
+
+### Konsequenzen
+
+- F005 ist als nutzbare Aufgabensteuerung umgesetzt.
+- Abhaengigkeiten sind strukturiert im Datenmodell vorhanden.
+- Die harte Regel, dass abhaengige Aufgaben erst nach erledigter Vorgaenger-Aufgabe erledigt werden duerfen, bleibt F013.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung
