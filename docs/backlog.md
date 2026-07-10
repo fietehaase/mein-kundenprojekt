@@ -14,13 +14,13 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F001 - Event-Zentrale
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Das System braucht ein zentrales Event-Objekt als Einstieg in alle weiteren Arbeitsbereiche. Ein Event haelt Name, Datum, Status, geplante und aktuelle Gaestezahl, Gesamtbudget, Notizen und Erstellzeitpunkt fest. Darauf beziehen sich Ablauf, Aufgaben, Kommunikation, Budget und Dienstleister.
 
 ### F002 - Gaesteverwaltung
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Gaeste sollen einem Event zugeordnet und mit Kontaktdaten, Typ, Anmeldestatus und relevanten Anforderungen gepflegt werden. Dazu gehoeren Ernaehrung, Allergien, Tischzuweisung und VIP-Anforderungen. Die Funktion bildet die Grundlage fuer Gaestezahlen, Planung und spaetere Wartelistenlogik.
 

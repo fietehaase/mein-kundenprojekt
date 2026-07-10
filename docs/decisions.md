@@ -110,6 +110,48 @@ Der Prisma Client wird mit `@prisma/adapter-better-sqlite3` initialisiert. Der g
 
 ---
 
+## 2026-07-10 - Event-Zentrale als Root-Dashboard
+
+**Kontext:** F001 verlangt ein zentrales Event-Objekt als Einstieg in alle weiteren Arbeitsbereiche.
+
+### Entscheidung
+
+Die Startseite `/` ist die Event-Zentrale. Sie liest Events serverseitig ueber Prisma, bietet ein Formular zum Anlegen, Statuswechsel und Loeschen per Server Actions und zeigt Kennzahlen fuer Events, Gaeste und Budget.
+
+### Alternativen verworfen
+
+- Separate Detailseiten vor F002-F008: Fuer F001 zu gross und noch ohne fachliche Detailfunktionen.
+- Clientseitige API-Schicht: Nicht noetig, Server Components und Server Actions reichen fuer diesen MVP-Schritt.
+
+### Konsequenzen
+
+- F001 ist als nutzbarer Event-Einstieg umgesetzt.
+- Die Seite ist `force-dynamic`, damit SQLite-Daten nicht als Build-Snapshot ausgeliefert werden.
+- Detailfunktionen fuer Gaeste, Ablauf, Aufgaben, Kommunikation, Budget und Dienstleister bleiben eigene Backlog-Features.
+
+---
+
+## 2026-07-10 - Gaesteverwaltung in Event-Karten
+
+**Kontext:** F002 verlangt eine Gaesteverwaltung, die direkt an Events haengt und Grundlage fuer Gaestezahlen sowie spaetere Wartelistenlogik ist.
+
+### Entscheidung
+
+Gaeste werden innerhalb der Event-Karten gepflegt. Pro Event koennen Gaeste angelegt, mit Kontaktdaten, Typ, Anmeldestatus und Anforderungen erfasst, im Status geaendert und geloescht werden.
+
+### Alternativen verworfen
+
+- Eigene Gast-Detailseiten: Fuer den MVP-Schritt zu schwergewichtig.
+- Gaeste als freie Notizen am Event: Nicht strukturiert genug fuer Status, Typen und spaetere Wartelistenlogik.
+
+### Konsequenzen
+
+- F002 ist als nutzbare Event-bezogene Gaesteverwaltung umgesetzt.
+- Die aktuelle Gaestezahl wird aus nicht abgesagten Gaesten synchronisiert.
+- Die Pruefbedarfsregel bei Gaestezahlsaenderungen bleibt F010.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung
