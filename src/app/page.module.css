@@ -113,6 +113,8 @@
 .scheduleForm label,
 .taskForm label,
 .taskActions form,
+.communicationForm label,
+.communicationActions,
 .inlineActions {
   display: grid;
   gap: 7px;
@@ -121,7 +123,8 @@
 .form label,
 .guestForm label,
 .scheduleForm label,
-.taskForm label {
+.taskForm label,
+.communicationForm label {
   color: #394150;
   font-size: 13px;
   font-weight: 700;
@@ -137,6 +140,9 @@
 .scheduleForm input,
 .taskForm input,
 .taskForm select,
+.communicationForm input,
+.communicationForm select,
+.communicationForm textarea,
 .taskActions select {
   width: 100%;
   border: 1px solid #cbd3df;
@@ -148,7 +154,8 @@
   padding: 9px 10px;
 }
 
-.form textarea {
+.form textarea,
+.communicationForm textarea {
   resize: vertical;
 }
 
@@ -162,6 +169,9 @@
 .scheduleForm input:focus,
 .taskForm input:focus,
 .taskForm select:focus,
+.communicationForm input:focus,
+.communicationForm select:focus,
+.communicationForm textarea:focus,
 .taskActions select:focus {
   border-color: #2563eb;
   outline: 2px solid rgba(37, 99, 235, 0.14);
@@ -175,6 +185,8 @@
 .scheduleItem button,
 .taskForm button,
 .taskActions button,
+.communicationForm button,
+.communicationActions button,
 .inlineActions button {
   border: 0;
   border-radius: 6px;
@@ -195,6 +207,8 @@
 .scheduleItem button:hover,
 .taskForm button:hover,
 .taskActions button:hover,
+.communicationForm button:hover,
+.communicationActions button:hover,
 .inlineActions button:hover {
   background: #174a96;
 }
@@ -307,6 +321,7 @@
 .guestActions .dangerButton:hover,
 .scheduleItem .dangerButton:hover,
 .taskActions .dangerButton:hover,
+.communicationActions .dangerButton:hover,
 .inlineActions .dangerButton:hover {
   background: #8f1c13;
 }
@@ -354,6 +369,10 @@
 
 .taskForm .wideField {
   grid-column: span 3;
+}
+
+.communicationForm .wideField {
+  grid-column: span 2;
 }
 
 .guestForm button {
@@ -539,6 +558,80 @@
   background: #b42318;
 }
 
+.communicationForm {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 14px;
+}
+
+.communicationForm button {
+  align-self: end;
+}
+
+.communicationList {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.communicationItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  border: 1px solid #e3e8ef;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.communicationItem strong {
+  display: block;
+  font-size: 15px;
+  margin-top: 6px;
+}
+
+.communicationItem p {
+  color: #596273;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-top: 4px;
+}
+
+.communicationActions {
+  align-self: end;
+}
+
+.communicationActions .dangerButton {
+  background: #b42318;
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.bindingBadge,
+.noteBadge {
+  display: inline-flex;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 8px;
+}
+
+.bindingBadge {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.noteBadge {
+  background: #f1f5f9;
+  color: #475569;
+}
+
 .providerGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -622,6 +715,9 @@
   .taskForm .wideField,
   .taskItem,
   .taskActions form:first-child,
+  .communicationForm,
+  .communicationForm .wideField,
+  .communicationItem,
   .providerGrid,
   .providerFacts {
     grid-template-columns: 1fr;
@@ -640,6 +736,10 @@
   }
 
   .taskForm .wideField {
+    grid-column: auto;
+  }
+
+  .communicationForm .wideField {
     grid-column: auto;
   }
 }

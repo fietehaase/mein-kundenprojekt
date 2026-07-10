@@ -26,6 +26,10 @@ import {
   parseTaskInput,
   parseTaskStatus,
 } from "@/lib/task-input";
+import {
+  COMMUNICATION_CHANNELS,
+  parseCommunicationInput,
+} from "@/lib/communication-input";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +56,9 @@ async function getEvents() {
           blockiert: true,
         },
         orderBy: [{ faelligAm: "asc" }, { id: "asc" }],
+      },
+      kommunikationen: {
+        orderBy: [{ datum: "desc" }, { id: "desc" }],
       },
     },
     orderBy: [{ datum: "asc" }, { erstelltAm: "desc" }],
@@ -328,6 +335,41 @@ async function deleteTask(formData: FormData) {
   const id = parseId(String(formData.get("id") ?? ""), "Aufgaben-ID");
 
   await prisma.aufgabe.delete({
+    where: { id },
+  });
+
+  revalidatePath("/");
+}
+
+async function createCommunication(formData: FormData) {
+  "use server";
+
+  const input = parseCommunicationInput({
+    eventId: String(formData.get("eventId") ?? ""),
+    kanal: String(formData.get("kanal") ?? "email"),
+    datum: String(formData.get("datum") ?? ""),
+    inhalt: String(formData.get("inhalt") ?? ""),
+    istVerbindlich: formData.get("istVerbindlich") ? "on" : null,
+    beteiligte: String(formData.get("beteiligte") ?? ""),
+    erstelltVon: String(formData.get("erstelltVon") ?? ""),
+  });
+
+  await prisma.kommunikation.create({
+    data: input,
+  });
+
+  revalidatePath("/");
+}
+
+async function deleteCommunication(formData: FormData) {
+  "use server";
+
+  const id = parseId(
+    String(formData.get("id") ?? ""),
+    "Kommunikations-ID",
+  );
+
+  await prisma.kommunikation.delete({
     where: { id },
   });
 
@@ -913,6 +955,106 @@ function EventCard({ event }: { event: EventListItem }) {
           </div>
         )}
       </section>
+
+      <section
+        className={styles.guestSection}
+        aria-label={`Kommunikation ${event.name}`}
+      >
+        <div className={styles.subHeader}>
+          <h4>Kommunikation</h4>
+          <span>{event.kommunikationen.length} Eintraege</span>
+        </div>
+
+        <form action={createCommunication} className={styles.communicationForm}>
+          <input type="hidden" name="eventId" value={event.id} />
+          <label>
+            Kanal
+            <select name="kanal" defaultValue="email">
+              {COMMUNICATION_CHANNELS.map((channel) => (
+                <option key={channel} value={channel}>
+                  {formatCommunicationChannel(channel)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Datum
+            <input name="datum" type="datetime-local" required />
+          </label>
+          <label className={styles.wideField}>
+            Inhalt
+            <textarea
+              name="inhalt"
+              rows={3}
+              required
+              placeholder="Absprache oder Notiz"
+            />
+          </label>
+          <label>
+            Beteiligte
+            <input name="beteiligte" placeholder="Kunde, Dienstleister" />
+          </label>
+          <label>
+            Erstellt von
+            <input name="erstelltVon" placeholder="Event-Team" />
+          </label>
+          <label className={styles.checkboxLabel}>
+            <input name="istVerbindlich" type="checkbox" />
+            Verbindlich
+          </label>
+          <button type="submit">Kommunikation erfassen</button>
+        </form>
+
+        {event.kommunikationen.length === 0 ? (
+          <p className={styles.emptyGuests}>
+            Noch keine Kommunikation erfasst.
+          </p>
+        ) : (
+          <div className={styles.communicationList}>
+            {event.kommunikationen.map((communication) => (
+              <article
+                key={communication.id}
+                className={styles.communicationItem}
+              >
+                <div>
+                  <div className={styles.badgeRow}>
+                    <span className={styles.status}>
+                      {formatCommunicationChannel(communication.kanal)}
+                    </span>
+                    <span
+                      className={
+                        communication.istVerbindlich
+                          ? styles.bindingBadge
+                          : styles.noteBadge
+                      }
+                    >
+                      {communication.istVerbindlich
+                        ? "Verbindlich"
+                        : "Notiz"}
+                    </span>
+                  </div>
+                  <strong>{formatDateTime(communication.datum)}</strong>
+                  <p>{communication.inhalt}</p>
+                  <p>
+                    Beteiligte: {communication.beteiligte || "nicht erfasst"} ·{" "}
+                    Erstellt von: {communication.erstelltVon || "nicht erfasst"}
+                  </p>
+                </div>
+
+                <form
+                  action={deleteCommunication}
+                  className={styles.communicationActions}
+                >
+                  <input type="hidden" name="id" value={communication.id} />
+                  <button className={styles.dangerButton} type="submit">
+                    Loeschen
+                  </button>
+                </form>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
     </article>
   );
 }
@@ -1069,4 +1211,15 @@ function formatTaskStatus(status: string) {
   };
 
   return labels[status] ?? status;
+}
+
+function formatCommunicationChannel(channel: string) {
+  const labels: Record<string, string> = {
+    email: "E-Mail",
+    whatsapp: "WhatsApp",
+    telefon: "Telefon",
+    vor_ort: "Vor Ort",
+  };
+
+  return labels[channel] ?? channel;
 }

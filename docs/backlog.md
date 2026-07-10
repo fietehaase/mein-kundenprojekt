@@ -44,7 +44,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F006 - Kommunikationsprotokoll
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Kommunikationsvorgaenge zu einem Event sollen protokolliert werden. Erfasst werden Kanal, Datum, Inhalt, Beteiligte, Ersteller und ob die Kommunikation verbindlich ist. So bleiben Absprachen nachvollziehbar und koennen spaeter von unverbindlichen Notizen getrennt werden.
 

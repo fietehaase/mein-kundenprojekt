@@ -215,6 +215,27 @@ Aufgaben werden innerhalb der Event-Karten gepflegt. Pro Event koennen Aufgaben 
 
 ---
 
+## 2026-07-10 - Kommunikationsprotokoll in Event-Karten
+
+**Kontext:** F006 verlangt nachvollziehbare Kommunikationsvorgaenge pro Event mit Kanal, Datum, Inhalt, Beteiligten, Ersteller und Verbindlichkeitskennzeichen.
+
+### Entscheidung
+
+Kommunikation wird innerhalb der Event-Karten protokolliert. Pro Event koennen Eintraege angelegt, geloescht und nach Datum absteigend angezeigt werden.
+
+### Alternativen verworfen
+
+- Separate Kommunikationsseiten: Fuer den MVP zu schwergewichtig.
+- Kommunikation als Event-Notiz: Nicht strukturiert genug fuer Kanal, Beteiligte und Verbindlichkeit.
+
+### Konsequenzen
+
+- F006 ist als nutzbares Kommunikationsprotokoll umgesetzt.
+- Verbindliche Eintraege sind sichtbar von unverbindlichen Notizen getrennt.
+- Die fachliche Regel, dass nur verbindliche Kommunikation als Grundlage gilt, bleibt F012.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung
