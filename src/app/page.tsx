@@ -17,6 +17,10 @@ import {
   PROVIDER_CATEGORIES,
   parseProviderInput,
 } from "@/lib/provider-input";
+import {
+  parseScheduleItemInput,
+  parseSchedulePlanInput,
+} from "@/lib/schedule-input";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +32,14 @@ async function getEvents() {
     include: {
       gaeste: {
         orderBy: [{ name: "asc" }],
+      },
+      ablaufplaene: {
+        include: {
+          ablaufpunkte: {
+            orderBy: [{ uhrzeitStart: "asc" }],
+          },
+        },
+        orderBy: [{ version: "desc" }],
       },
     },
     orderBy: [{ datum: "asc" }, { erstelltAm: "desc" }],
@@ -198,6 +210,66 @@ async function deleteProvider(formData: FormData) {
   const id = parseId(String(formData.get("id") ?? ""), "Dienstleister-ID");
 
   await prisma.dienstleister.delete({
+    where: { id },
+  });
+
+  revalidatePath("/");
+}
+
+async function createSchedulePlan(formData: FormData) {
+  "use server";
+
+  const input = parseSchedulePlanInput({
+    eventId: String(formData.get("eventId") ?? ""),
+  });
+  const existingCurrentPlan = await prisma.ablaufplan.findFirst({
+    where: {
+      eventId: input.eventId,
+      istAktuell: true,
+    },
+  });
+
+  if (!existingCurrentPlan) {
+    await prisma.ablaufplan.create({
+      data: {
+        eventId: input.eventId,
+        version: 1,
+        istAktuell: true,
+      },
+    });
+  }
+
+  revalidatePath("/");
+}
+
+async function createScheduleItem(formData: FormData) {
+  "use server";
+
+  const input = parseScheduleItemInput({
+    ablaufplanId: String(formData.get("ablaufplanId") ?? ""),
+    uhrzeitStart: String(formData.get("uhrzeitStart") ?? ""),
+    uhrzeitEnde: String(formData.get("uhrzeitEnde") ?? ""),
+    bezeichnung: String(formData.get("bezeichnung") ?? ""),
+    verantwortlich: String(formData.get("verantwortlich") ?? ""),
+    istPuffer: formData.get("istPuffer") ? "on" : null,
+    sichtbarFuerDienstleister: formData.get("sichtbarFuerDienstleister")
+      ? "on"
+      : null,
+  });
+
+  await prisma.ablaufpunkt.create({
+    data: input,
+  });
+
+  revalidatePath("/");
+}
+
+async function deleteScheduleItem(formData: FormData) {
+  "use server";
+
+  const id = parseId(String(formData.get("id") ?? ""), "Ablaufpunkt-ID");
+
+  await prisma.ablaufpunkt.delete({
     where: { id },
   });
 
@@ -425,6 +497,9 @@ function Metric({ label, value }: { label: string; value: string }) {
 
 function EventCard({ event }: { event: EventListItem }) {
   const activeGuests = countActiveGuests(event);
+  const currentSchedule = event.ablaufplaene.find(
+    (schedule) => schedule.istAktuell,
+  );
 
   return (
     <article className={styles.eventCard}>
@@ -588,6 +663,92 @@ function EventCard({ event }: { event: EventListItem }) {
           </div>
         )}
       </section>
+
+      <section
+        className={styles.guestSection}
+        aria-label={`Ablauf ${event.name}`}
+      >
+        <div className={styles.subHeader}>
+          <h4>Ablauf</h4>
+          <span>
+            {currentSchedule
+              ? `Version ${currentSchedule.version}`
+              : "Kein Ablaufplan"}
+          </span>
+        </div>
+
+        {currentSchedule ? (
+          <>
+            <form action={createScheduleItem} className={styles.scheduleForm}>
+              <input
+                type="hidden"
+                name="ablaufplanId"
+                value={currentSchedule.id}
+              />
+              <label>
+                Start
+                <input name="uhrzeitStart" type="datetime-local" required />
+              </label>
+              <label>
+                Ende
+                <input name="uhrzeitEnde" type="datetime-local" />
+              </label>
+              <label className={styles.wideField}>
+                Bezeichnung
+                <input name="bezeichnung" required placeholder="Einlass" />
+              </label>
+              <label>
+                Verantwortlich
+                <input name="verantwortlich" placeholder="Event-Team" />
+              </label>
+              <label className={styles.checkboxLabel}>
+                <input name="istPuffer" type="checkbox" />
+                Puffer
+              </label>
+              <label className={styles.checkboxLabel}>
+                <input name="sichtbarFuerDienstleister" type="checkbox" />
+                Fuer Dienstleister sichtbar
+              </label>
+              <button type="submit">Ablaufpunkt hinzufuegen</button>
+            </form>
+
+            {currentSchedule.ablaufpunkte.length === 0 ? (
+              <p className={styles.emptyGuests}>
+                Noch keine Ablaufpunkte erfasst.
+              </p>
+            ) : (
+              <ol className={styles.scheduleList}>
+                {currentSchedule.ablaufpunkte.map((item) => (
+                  <li key={item.id} className={styles.scheduleItem}>
+                    <div>
+                      <time>{formatTimeRange(item.uhrzeitStart, item.uhrzeitEnde)}</time>
+                      <strong>{item.bezeichnung}</strong>
+                      <p>
+                        {item.verantwortlich || "Keine Verantwortung"} ·{" "}
+                        {item.istPuffer ? "Puffer" : "Programmpunkt"} ·{" "}
+                        {item.sichtbarFuerDienstleister
+                          ? "Dienstleister sichtbar"
+                          : "Intern"}
+                      </p>
+                    </div>
+                    <form action={deleteScheduleItem}>
+                      <input type="hidden" name="id" value={item.id} />
+                      <button className={styles.dangerButton} type="submit">
+                        Loeschen
+                      </button>
+                    </form>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </>
+        ) : (
+          <form action={createSchedulePlan} className={styles.inlineActions}>
+            <input type="hidden" name="eventId" value={event.id} />
+            <button type="submit">Ablaufplan v1 erstellen</button>
+          </form>
+        )}
+      </section>
     </article>
   );
 }
@@ -655,6 +816,21 @@ function formatDate(date: Date) {
     month: "2-digit",
     year: "numeric",
   }).format(date);
+}
+
+function formatTimeRange(start: Date, end: Date | null) {
+  const formatter = new Intl.DateTimeFormat("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  if (!end) {
+    return formatter.format(start);
+  }
+
+  return `${formatter.format(start)} - ${formatter.format(end)}`;
 }
 
 function formatCurrency(amount: number) {

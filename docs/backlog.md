@@ -32,7 +32,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F004 - Ablaufplanung
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Fuer jedes Event soll ein Ablaufplan mit einzelnen Programmpunkten gepflegt werden. Ablaufpunkte enthalten Start- und Endzeit, Bezeichnung, Verantwortliche, Pufferkennzeichen und Sichtbarkeit fuer Dienstleister. Die Funktion macht den operativen Event-Ablauf planbar und nachvollziehbar.
 

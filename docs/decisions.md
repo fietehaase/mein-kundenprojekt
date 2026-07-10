@@ -173,6 +173,27 @@ Dienstleister werden in einem eigenen Bereich auf der Startseite gepflegt. Anbie
 
 ---
 
+## 2026-07-10 - Ablaufplanung pro Event
+
+**Kontext:** F004 verlangt Ablaufplaene pro Event mit einzelnen Ablaufpunkten, Zeiten, Verantwortlichen, Pufferkennzeichen und Dienstleister-Sichtbarkeit.
+
+### Entscheidung
+
+Ablaufplanung wird innerhalb der Event-Karten gepflegt. Pro Event kann ein aktueller Ablaufplan v1 angelegt werden; darin koennen Ablaufpunkte erfasst und geloescht werden.
+
+### Alternativen verworfen
+
+- Separate Ablaufseiten: Fuer den MVP zu schwergewichtig.
+- Versionierung direkt in F004 bauen: Gehoert laut Backlog zu F011.
+
+### Konsequenzen
+
+- F004 ist als nutzbare Ablaufplanung umgesetzt.
+- Ablaufpunkte werden chronologisch sortiert angezeigt.
+- Versionierung, Wechsel der aktuellen Version und Historie bleiben F011.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung
