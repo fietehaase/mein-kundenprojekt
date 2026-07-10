@@ -1,3 +1,5 @@
+import { optionalId, optionalText } from "./form-input";
+
 export const PROVIDER_CATEGORIES = [
   "catering",
   "technik",
@@ -46,7 +48,7 @@ export function parseProviderInput(
     telefonMobil: optionalText(input.telefonMobil),
     email: optionalText(input.email),
     zuverlaessigkeitsNotiz: optionalText(input.zuverlaessigkeitsNotiz),
-    backupFuerId: optionalId(input.backupFuerId),
+    backupFuerId: optionalId(input.backupFuerId, "Backup-Dienstleister"),
   };
 }
 
@@ -56,25 +58,4 @@ export function parseProviderCategory(category: string): ProviderCategory {
   }
 
   throw new Error("Ungueltige Dienstleister-Kategorie.");
-}
-
-function optionalText(value: string): string | null {
-  const trimmedValue = value.trim();
-  return trimmedValue || null;
-}
-
-function optionalId(value: string): number | null {
-  const trimmedValue = value.trim();
-
-  if (!trimmedValue) {
-    return null;
-  }
-
-  const id = Number(trimmedValue);
-
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new Error("Backup-Dienstleister ist ungueltig.");
-  }
-
-  return id;
 }

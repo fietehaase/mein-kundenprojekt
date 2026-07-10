@@ -1,3 +1,4 @@
+import { optionalDateTime, optionalText, requiredDateTime } from "./form-input";
 import { parseId } from "./guest-input";
 
 export type SchedulePlanFormInput = {
@@ -40,12 +41,9 @@ export function parseScheduleItemInput(
   input: ScheduleItemFormInput,
 ): ParsedScheduleItemInput {
   const ablaufplanId = parseId(input.ablaufplanId, "Ablaufplan-ID");
-  const uhrzeitStart = parseDateTimeInput(input.uhrzeitStart, "Startzeit");
-  const uhrzeitEnde = input.uhrzeitEnde
-    ? parseDateTimeInput(input.uhrzeitEnde, "Endzeit")
-    : null;
+  const uhrzeitStart = requiredDateTime(input.uhrzeitStart, "Startzeit");
+  const uhrzeitEnde = optionalDateTime(input.uhrzeitEnde, "Endzeit");
   const bezeichnung = input.bezeichnung.trim();
-  const verantwortlich = input.verantwortlich.trim();
 
   if (!bezeichnung) {
     throw new Error("Die Bezeichnung des Ablaufpunkts ist erforderlich.");
@@ -60,22 +58,8 @@ export function parseScheduleItemInput(
     uhrzeitStart,
     uhrzeitEnde,
     bezeichnung,
-    verantwortlich: verantwortlich || null,
+    verantwortlich: optionalText(input.verantwortlich),
     istPuffer: input.istPuffer === "on",
     sichtbarFuerDienstleister: input.sichtbarFuerDienstleister === "on",
   };
-}
-
-function parseDateTimeInput(value: string, label: string): Date {
-  if (!value) {
-    throw new Error(`${label} ist erforderlich.`);
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    throw new Error(`${label} ist ungueltig.`);
-  }
-
-  return date;
 }

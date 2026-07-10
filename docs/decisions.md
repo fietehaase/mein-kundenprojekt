@@ -299,6 +299,27 @@ SQLite bleibt die lokale Datenbank unter `prisma/dev.db`. Prisma verwaltet das r
 
 ---
 
+## 2026-07-10 - Formular-Parser-Helfer zentralisieren
+
+**Kontext:** Beim Codequalitaetsdurchlauf nach F009 fielen mehrfach duplizierte Hilfsfunktionen fuer optionale Texte, IDs, Datumswerte und Geldwerte in den fachlichen Input-Parsern auf.
+
+### Entscheidung
+
+Neutrale Formular-Normalisierung liegt zentral in `src/lib/form-input.ts`. Fachliche Parser behalten ihre Pflichtfeld-, Status- und Entitaetsregeln, verwenden aber gemeinsame Helfer fuer wiederkehrende Eingabetypen.
+
+### Alternativen verworfen
+
+- Duplikate in jedem Parser behalten: Erhoeht Wartungsaufwand und Risiko auseinanderlaufender Validierung.
+- Parser komplett generisch machen: Fuer den aktuellen Scope zu abstrakt und schlechter lesbar.
+
+### Konsequenzen
+
+- Die Parser enthalten weniger doppelte Logik.
+- Bestehendes Verhalten bleibt durch die vorhandenen Unit-Tests abgesichert.
+- Neue Formular-Parser koennen gemeinsame Helfer wiederverwenden.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung

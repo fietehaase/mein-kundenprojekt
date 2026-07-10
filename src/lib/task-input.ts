@@ -1,3 +1,4 @@
+import { optionalDateTime, optionalId, optionalText } from "./form-input";
 import { parseId } from "./guest-input";
 
 export const TASK_STATUSES = ["offen", "erledigt", "ueberfaellig"] as const;
@@ -48,39 +49,4 @@ export function parseTaskStatus(status: string): TaskStatus {
   }
 
   throw new Error("Ungueltiger Aufgabenstatus.");
-}
-
-function optionalText(value: string): string | null {
-  const trimmedValue = value.trim();
-  return trimmedValue || null;
-}
-
-function optionalId(value: string, label: string): number | null {
-  const trimmedValue = value.trim();
-
-  if (!trimmedValue) {
-    return null;
-  }
-
-  const id = Number(trimmedValue);
-
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new Error(`${label} ist ungueltig.`);
-  }
-
-  return id;
-}
-
-function optionalDateTime(value: string, label: string): Date | null {
-  if (!value) {
-    return null;
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    throw new Error(`${label} ist ungueltig.`);
-  }
-
-  return date;
 }

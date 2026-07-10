@@ -1,3 +1,5 @@
+import { optionalText, requiredMoney } from "./form-input";
+
 export const EVENT_STATUSES = [
   "geplant",
   "laufend",
@@ -39,8 +41,7 @@ export function parseEventInput(input: EventFormInput): ParsedEventInput {
     input.gaesteanzahlAktuell,
     "Aktuelle Gaestezahl",
   );
-  const budgetGesamt = parseMoneyInput(input.budgetGesamt);
-  const notizen = input.notizen.trim();
+  const budgetGesamt = requiredMoney(input.budgetGesamt, "Das Gesamtbudget");
 
   if (!name) {
     throw new Error("Der Event-Name ist erforderlich.");
@@ -59,7 +60,7 @@ export function parseEventInput(input: EventFormInput): ParsedEventInput {
     gaesteanzahlGeplant,
     gaesteanzahlAktuell,
     budgetGesamt,
-    notizen: notizen || null,
+    notizen: optionalText(input.notizen),
   };
 }
 
@@ -93,15 +94,4 @@ function parseNonNegativeInteger(value: string, label: string): number {
   }
 
   return numberValue;
-}
-
-function parseMoneyInput(value: string): string {
-  const normalizedValue = value.replace(",", ".").trim();
-  const numberValue = Number(normalizedValue);
-
-  if (!normalizedValue || Number.isNaN(numberValue) || numberValue < 0) {
-    throw new Error("Das Gesamtbudget muss eine Zahl ab 0 sein.");
-  }
-
-  return numberValue.toFixed(2);
 }

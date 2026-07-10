@@ -1,3 +1,4 @@
+import { optionalId, optionalMoney } from "./form-input";
 import { parseId } from "./guest-input";
 
 export type BudgetFormInput = {
@@ -36,36 +37,4 @@ export function parseBudgetInput(input: BudgetFormInput): ParsedBudgetInput {
     betragBezahlt: optionalMoney(input.betragBezahlt, "Bezahlter Betrag"),
     dienstleisterId: optionalId(input.dienstleisterId, "Dienstleister"),
   };
-}
-
-function optionalMoney(value: string, label: string): string | null {
-  const normalizedValue = value.replace(",", ".").trim();
-
-  if (!normalizedValue) {
-    return null;
-  }
-
-  const numberValue = Number(normalizedValue);
-
-  if (Number.isNaN(numberValue) || numberValue < 0) {
-    throw new Error(`${label} muss eine Zahl ab 0 sein.`);
-  }
-
-  return numberValue.toFixed(2);
-}
-
-function optionalId(value: string, label: string): number | null {
-  const trimmedValue = value.trim();
-
-  if (!trimmedValue) {
-    return null;
-  }
-
-  const id = Number(trimmedValue);
-
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new Error(`${label} ist ungueltig.`);
-  }
-
-  return id;
 }

@@ -1,3 +1,4 @@
+import { optionalText, requiredDateTime } from "./form-input";
 import { parseId } from "./guest-input";
 
 export const COMMUNICATION_CHANNELS = [
@@ -41,7 +42,7 @@ export function parseCommunicationInput(
   return {
     eventId: parseId(input.eventId, "Event-ID"),
     kanal: parseCommunicationChannel(input.kanal),
-    datum: parseDateTimeInput(input.datum, "Kommunikationsdatum"),
+    datum: requiredDateTime(input.datum, "Kommunikationsdatum"),
     inhalt,
     istVerbindlich: input.istVerbindlich === "on",
     beteiligte: optionalText(input.beteiligte),
@@ -57,23 +58,4 @@ export function parseCommunicationChannel(
   }
 
   throw new Error("Ungueltiger Kommunikationskanal.");
-}
-
-function optionalText(value: string): string | null {
-  const trimmedValue = value.trim();
-  return trimmedValue || null;
-}
-
-function parseDateTimeInput(value: string, label: string): Date {
-  if (!value) {
-    throw new Error(`${label} ist erforderlich.`);
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    throw new Error(`${label} ist ungueltig.`);
-  }
-
-  return date;
 }

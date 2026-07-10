@@ -1,3 +1,4 @@
+import { optionalDate } from "./form-input";
 import { parseId } from "./guest-input";
 
 export const EVENT_PROVIDER_STATUSES = [
@@ -65,18 +66,4 @@ function optionalUrl(value: string): string | null {
   }
 
   throw new Error("Die Vertrags-URL ist ungueltig.");
-}
-
-function optionalDate(value: string, label: string): Date | null {
-  if (!value) {
-    return null;
-  }
-
-  const date = new Date(`${value}T00:00:00.000`);
-
-  if (Number.isNaN(date.getTime())) {
-    throw new Error(`${label} ist ungueltig.`);
-  }
-
-  return date;
 }
