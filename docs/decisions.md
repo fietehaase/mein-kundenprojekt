@@ -84,7 +84,7 @@ Das initiale Prisma-Schema bildet Event, Gast, Dienstleister, Ablaufplan, Ablauf
 ### Konsequenzen
 
 - F001 bis F009 sind im Datenbankschema begonnen, aber noch keine fertigen Nutzer-Workflows.
-- F010 ist als lokale SQLite-Persistenz umgesetzt.
+- F009 ist als lokale SQLite-Persistenz umgesetzt.
 - Geschaeftsregeln aus Phase 2 bleiben separat zu implementieren.
 
 ---
@@ -317,6 +317,27 @@ Neutrale Formular-Normalisierung liegt zentral in `src/lib/form-input.ts`. Fachl
 - Die Parser enthalten weniger doppelte Logik.
 - Bestehendes Verhalten bleibt durch die vorhandenen Unit-Tests abgesichert.
 - Neue Formular-Parser koennen gemeinsame Helfer wiederverwenden.
+
+---
+
+## 2026-07-10 - Pruefbedarf bei Gaestezahlsaenderung
+
+**Kontext:** F010 verlangt, dass Aenderungen der aktuellen Gaestezahl betroffene Aufgaben und Budgetbereiche als pruefbeduerftig markieren.
+
+### Entscheidung
+
+Die Gaestezahl-Synchronisierung vergleicht den neu berechneten Wert mit der gespeicherten aktuellen Gaestezahl. Nur bei einer echten Aenderung werden das Event, alle Aufgaben des Events und alle Budgetpositionen des Events als pruefbeduerftig markiert.
+
+### Alternativen verworfen
+
+- Immer nach jeder Gaesteaktion markieren: Wuerde auch Statuswechsel ohne Auswirkung unnoetig eskalieren.
+- Nur das Event markieren: Aufgaben und Budgetpositionen waeren nicht direkt sichtbar betroffen.
+
+### Konsequenzen
+
+- F010 ist als Geschaeftsregel umgesetzt.
+- Pruefbedarf ist in Event-Karten, Aufgaben und Budgetpositionen sichtbar.
+- Eine spaetere Funktion zum Zuruecksetzen von Pruefbedarf ist noch nicht Teil des Backlogs.
 
 ---
 

@@ -35,6 +35,7 @@ import {
   EVENT_PROVIDER_STATUSES,
   parseEventProviderInput,
 } from "@/lib/event-provider-input";
+import { hasGuestCountChanged } from "@/lib/guest-impact";
 
 export const dynamic = "force-dynamic";
 
@@ -203,19 +204,46 @@ async function deleteGuest(formData: FormData) {
 }
 
 async function syncEventGuestCount(eventId: number) {
-  const activeGuests = await prisma.gast.count({
-    where: {
-      eventId,
-      anmeldestatus: {
-        not: "abgesagt",
+  const [activeGuests, event] = await Promise.all([
+    prisma.gast.count({
+      where: {
+        eventId,
+        anmeldestatus: {
+          not: "abgesagt",
+        },
       },
-    },
-  });
+    }),
+    prisma.event.findUnique({
+      where: { id: eventId },
+      select: { gaesteanzahlAktuell: true },
+    }),
+  ]);
 
-  await prisma.event.update({
-    where: { id: eventId },
-    data: { gaesteanzahlAktuell: activeGuests },
-  });
+  if (!event) {
+    throw new Error("Event nicht gefunden.");
+  }
+
+  if (!hasGuestCountChanged(event.gaesteanzahlAktuell, activeGuests)) {
+    return;
+  }
+
+  await prisma.$transaction([
+    prisma.event.update({
+      where: { id: eventId },
+      data: {
+        gaesteanzahlAktuell: activeGuests,
+        budgetPruefbeduerftig: true,
+      },
+    }),
+    prisma.aufgabe.updateMany({
+      where: { eventId },
+      data: { pruefbeduerftig: true },
+    }),
+    prisma.budgetPosition.updateMany({
+      where: { eventId },
+      data: { pruefbeduerftig: true },
+    }),
+  ]);
 }
 
 async function createProvider(formData: FormData) {
@@ -739,6 +767,9 @@ function EventCard({
       <div className={styles.cardMain}>
         <div>
           <span className={styles.status}>{formatStatus(event.status)}</span>
+          {event.budgetPruefbeduerftig ? (
+            <span className={styles.reviewBadge}>Pruefbedarf</span>
+          ) : null}
           <h3>{event.name}</h3>
         </div>
         <p>{formatDate(event.datum)}</p>
@@ -867,6 +898,9 @@ function EventCard({
             {event.budgetPositionen.map((position) => (
               <article key={position.id} className={styles.budgetItem}>
                 <div>
+                  {position.pruefbeduerftig ? (
+                    <span className={styles.reviewBadge}>Pruefbedarf</span>
+                  ) : null}
                   <strong>{position.bezeichnung}</strong>
                   <p>
                     Angebot: {formatOptionalCurrency(position.betragAngebot)} ·{" "}
@@ -1313,9 +1347,14 @@ function EventCard({
             {event.aufgaben.map((task) => (
               <article key={task.id} className={styles.taskItem}>
                 <div>
-                  <span className={styles.status}>
-                    {formatTaskStatus(task.status)}
-                  </span>
+                  <div className={styles.badgeRow}>
+                    <span className={styles.status}>
+                      {formatTaskStatus(task.status)}
+                    </span>
+                    {task.pruefbeduerftig ? (
+                      <span className={styles.reviewBadge}>Pruefbedarf</span>
+                    ) : null}
+                  </div>
                   <strong>{task.bezeichnung}</strong>
                   <p>
                     Faellig: {task.faelligAm ? formatDateTime(task.faelligAm) : "offen"} ·{" "}

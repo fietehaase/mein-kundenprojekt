@@ -70,7 +70,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F010 - Pruefbedarf bei Gaestezahlsaenderung
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Wenn sich die aktuelle Gaestezahl eines Events aendert, sollen betroffene Aufgaben und Budgetbereiche als pruefbeduerftig markiert werden. Dadurch werden Auswirkungen auf Planung, Kapazitaeten und Kosten sichtbar. Die Regel verhindert, dass relevante Anpassungen nach Gaesteaenderungen uebersehen werden.
 
