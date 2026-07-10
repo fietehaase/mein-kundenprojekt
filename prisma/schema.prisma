@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Event {
+  id                    Int      @id @default(autoincrement())
+  name                  String
+  datum                 DateTime
+  status                String   @default("geplant")
+  gaesteanzahlGeplant   Int
+  gaesteanzahlAktuell   Int
+  budgetGesamt          Decimal
+  notizen               String?
+  erstelltAm            DateTime @default(now())
+  budgetPruefbeduerftig Boolean  @default(false)
+
+  gaeste             Gast[]
+  ablaufplaene       Ablaufplan[]
+  aufgaben           Aufgabe[]
+  kommunikationen    Kommunikation[]
+  budgetPositionen   BudgetPosition[]
+  eventDienstleister EventDienstleister[]
+
+  @@map("events")
+}
+
+model Gast {
+  id               Int     @id @default(autoincrement())
+  eventId          Int
+  name             String
+  email            String?
+  telefon          String?
+  typ              String  @default("standard")
+  anmeldestatus    String  @default("angemeldet")
+  ernaehrung       String?
+  allergien        String?
+  tischzuweisung   String?
+  vipAnforderungen String?
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("gaeste")
+}
+
+model Dienstleister {
+  id                     Int     @id @default(autoincrement())
+  name                   String
+  kategorie              String
+  ansprechpartner        String?
+  telefonMobil           String?
+  email                  String?
+  zuverlaessigkeitsNotiz String?
+  backupFuerId           Int?
+
+  backupFuer          Dienstleister?       @relation("DienstleisterBackup", fields: [backupFuerId], references: [id])
+  backupDienstleister Dienstleister[]      @relation("DienstleisterBackup")
+  budgetPositionen    BudgetPosition[]
+  eventDienstleister  EventDienstleister[]
+
+  @@map("dienstleister")
+}
+
+model Ablaufplan {
+  id         Int      @id @default(autoincrement())
+  eventId    Int
+  version    Int
+  istAktuell Boolean  @default(false)
+  erstelltAm DateTime @default(now())
+
+  event        Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  ablaufpunkte Ablaufpunkt[]
+
+  @@unique([eventId, version])
+  @@map("ablaufplaene")
+}
+
+model Ablaufpunkt {
+  id                        Int       @id @default(autoincrement())
+  ablaufplanId              Int
+  uhrzeitStart              DateTime
+  uhrzeitEnde               DateTime?
+  bezeichnung               String
+  verantwortlich            String?
+  istPuffer                 Boolean   @default(false)
+  sichtbarFuerDienstleister Boolean   @default(false)
+  eskaliert                 Boolean   @default(false)
+
+  ablaufplan Ablaufplan @relation(fields: [ablaufplanId], references: [id], onDelete: Cascade)
+
+  @@map("ablaufpunkte")
+}
+
+model Aufgabe {
+  id              Int       @id @default(autoincrement())
+  eventId         Int
+  bezeichnung     String
+  faelligAm       DateTime?
+  status          String    @default("offen")
+  abhaengigVonId  Int?
+  zugewiesenAn    String?
+  erinnerungAm    DateTime?
+  pruefbeduerftig Boolean   @default(false)
+  eskaliert       Boolean   @default(false)
+
+  event        Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  abhaengigVon Aufgabe?  @relation("AufgabenAbhaengigkeit", fields: [abhaengigVonId], references: [id])
+  blockiert    Aufgabe[] @relation("AufgabenAbhaengigkeit")
+
+  @@map("aufgaben")
+}
+
+model Kommunikation {
+  id             Int      @id @default(autoincrement())
+  eventId        Int
+  kanal          String
+  datum          DateTime
+  inhalt         String
+  istVerbindlich Boolean  @default(false)
+  beteiligte     String?
+  erstelltVon    String?
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("kommunikationen")
+}
+
+model BudgetPosition {
+  id               Int      @id @default(autoincrement())
+  eventId          Int
+  bezeichnung      String
+  betragAngebot    Decimal?
+  betragBestaetigt Decimal?
+  betragBezahlt    Decimal?
+  dienstleisterId  Int?
+  pruefbeduerftig  Boolean  @default(false)
+
+  event         Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  dienstleister Dienstleister? @relation(fields: [dienstleisterId], references: [id])
+
+  @@map("budget_positionen")
+}
+
+model EventDienstleister {
+  eventId         Int
+  dienstleisterId Int
+  status          String
+  vertragsUrl     String?
+  stornofrist     DateTime?
+  kritisch        Boolean   @default(false)
+
+  event         Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  dienstleister Dienstleister @relation(fields: [dienstleisterId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, dienstleisterId])
+  @@map("event_dienstleister")
+}
