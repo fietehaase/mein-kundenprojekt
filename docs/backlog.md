@@ -26,7 +26,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F003 - Dienstleisterverwaltung
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Externe Anbieter sollen mit Kategorie, Ansprechpartner, Kontaktinformationen und Zuverlaessigkeitsnotiz verwaltet werden. Dienstleister koennen Events zugeordnet werden und optional einen Backup-Dienstleister referenzieren. Damit entsteht die Grundlage fuer Ausfall- und Eskalationslogik.
 

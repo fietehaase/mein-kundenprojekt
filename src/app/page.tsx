@@ -13,10 +13,15 @@ import {
   parseGuestStatus,
   parseId,
 } from "@/lib/guest-input";
+import {
+  PROVIDER_CATEGORIES,
+  parseProviderInput,
+} from "@/lib/provider-input";
 
 export const dynamic = "force-dynamic";
 
 type EventListItem = Awaited<ReturnType<typeof getEvents>>[number];
+type ProviderListItem = Awaited<ReturnType<typeof getProviders>>[number];
 
 async function getEvents() {
   return prisma.event.findMany({
@@ -26,6 +31,16 @@ async function getEvents() {
       },
     },
     orderBy: [{ datum: "asc" }, { erstelltAm: "desc" }],
+  });
+}
+
+async function getProviders() {
+  return prisma.dienstleister.findMany({
+    include: {
+      backupFuer: true,
+      backupDienstleister: true,
+    },
+    orderBy: [{ kategorie: "asc" }, { name: "asc" }],
   });
 }
 
@@ -155,8 +170,42 @@ async function syncEventGuestCount(eventId: number) {
   });
 }
 
+async function createProvider(formData: FormData) {
+  "use server";
+
+  const input = parseProviderInput({
+    name: String(formData.get("name") ?? ""),
+    kategorie: String(formData.get("kategorie") ?? "sonstige"),
+    ansprechpartner: String(formData.get("ansprechpartner") ?? ""),
+    telefonMobil: String(formData.get("telefonMobil") ?? ""),
+    email: String(formData.get("email") ?? ""),
+    zuverlaessigkeitsNotiz: String(
+      formData.get("zuverlaessigkeitsNotiz") ?? "",
+    ),
+    backupFuerId: String(formData.get("backupFuerId") ?? ""),
+  });
+
+  await prisma.dienstleister.create({
+    data: input,
+  });
+
+  revalidatePath("/");
+}
+
+async function deleteProvider(formData: FormData) {
+  "use server";
+
+  const id = parseId(String(formData.get("id") ?? ""), "Dienstleister-ID");
+
+  await prisma.dienstleister.delete({
+    where: { id },
+  });
+
+  revalidatePath("/");
+}
+
 export default async function Home() {
-  const events = await getEvents();
+  const [events, providers] = await Promise.all([getEvents(), getProviders()]);
   const totalBudget = events.reduce(
     (sum, event) => sum + Number(event.budgetGesamt),
     0,
@@ -274,6 +323,88 @@ export default async function Home() {
             <div className={styles.cards}>
               {events.map((event) => (
                 <EventCard key={event.id} event={event} />
+              ))}
+            </div>
+          )}
+        </section>
+      </section>
+
+      <section className={styles.providerWorkspace} aria-label="Dienstleister">
+        <section className={styles.panel} aria-labelledby="new-provider-heading">
+          <h2 id="new-provider-heading">Neuer Dienstleister</h2>
+          <form action={createProvider} className={styles.form}>
+            <label>
+              Name
+              <input name="name" required placeholder="Licht & Ton GmbH" />
+            </label>
+
+            <div className={styles.formGrid}>
+              <label>
+                Kategorie
+                <select name="kategorie" defaultValue="sonstige">
+                  {PROVIDER_CATEGORIES.map((category) => (
+                    <option key={category} value={category}>
+                      {formatProviderCategory(category)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Backup fuer
+                <select name="backupFuerId" defaultValue="">
+                  <option value="">Keinen</option>
+                  {providers.map((provider) => (
+                    <option key={provider.id} value={provider.id}>
+                      {provider.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <label>
+              Ansprechpartner
+              <input name="ansprechpartner" placeholder="Eva Technik" />
+            </label>
+
+            <div className={styles.formGrid}>
+              <label>
+                Mobiltelefon
+                <input name="telefonMobil" placeholder="+49 ..." />
+              </label>
+              <label>
+                E-Mail
+                <input name="email" type="email" placeholder="kontakt@..." />
+              </label>
+            </div>
+
+            <label>
+              Zuverlaessigkeit
+              <textarea
+                name="zuverlaessigkeitsNotiz"
+                rows={4}
+                placeholder="Erfahrungen, Risiken, Backup-Hinweise"
+              />
+            </label>
+
+            <button type="submit">Dienstleister anlegen</button>
+          </form>
+        </section>
+
+        <section className={styles.eventList} aria-labelledby="providers-heading">
+          <div className={styles.listHeader}>
+            <h2 id="providers-heading">Dienstleister</h2>
+            <span>{providers.length} Eintraege</span>
+          </div>
+
+          {providers.length === 0 ? (
+            <p className={styles.emptyState}>
+              Noch keine Dienstleister erfasst.
+            </p>
+          ) : (
+            <div className={styles.providerGrid}>
+              {providers.map((provider) => (
+                <ProviderCard key={provider.id} provider={provider} />
               ))}
             </div>
           )}
@@ -466,6 +597,58 @@ function countActiveGuests(event: EventListItem) {
     .length;
 }
 
+function ProviderCard({ provider }: { provider: ProviderListItem }) {
+  return (
+    <article className={styles.providerCard}>
+      <div className={styles.cardMain}>
+        <div>
+          <span className={styles.status}>
+            {formatProviderCategory(provider.kategorie)}
+          </span>
+          <h3>{provider.name}</h3>
+        </div>
+      </div>
+
+      <dl className={styles.providerFacts}>
+        <div>
+          <dt>Ansprechpartner</dt>
+          <dd>{provider.ansprechpartner || "Nicht hinterlegt"}</dd>
+        </div>
+        <div>
+          <dt>Mobil</dt>
+          <dd>{provider.telefonMobil || "Nicht hinterlegt"}</dd>
+        </div>
+        <div>
+          <dt>E-Mail</dt>
+          <dd>{provider.email || "Nicht hinterlegt"}</dd>
+        </div>
+        <div>
+          <dt>Backup fuer</dt>
+          <dd>{provider.backupFuer?.name || "Keinen"}</dd>
+        </div>
+      </dl>
+
+      {provider.zuverlaessigkeitsNotiz ? (
+        <p className={styles.notes}>{provider.zuverlaessigkeitsNotiz}</p>
+      ) : null}
+
+      {provider.backupDienstleister.length > 0 ? (
+        <p className={styles.notes}>
+          Backup-Dienstleister:{" "}
+          {provider.backupDienstleister.map((backup) => backup.name).join(", ")}
+        </p>
+      ) : null}
+
+      <form action={deleteProvider} className={styles.inlineActions}>
+        <input type="hidden" name="id" value={provider.id} />
+        <button className={styles.dangerButton} type="submit">
+          Loeschen
+        </button>
+      </form>
+    </article>
+  );
+}
+
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("de-DE", {
     day: "2-digit",
@@ -513,4 +696,18 @@ function formatGuestStatus(status: string) {
   };
 
   return labels[status] ?? status;
+}
+
+function formatProviderCategory(category: string) {
+  const labels: Record<string, string> = {
+    catering: "Catering",
+    technik: "Technik",
+    location: "Location",
+    dekoration: "Dekoration",
+    moderation: "Moderation",
+    security: "Security",
+    sonstige: "Sonstige",
+  };
+
+  return labels[category] ?? category;
 }

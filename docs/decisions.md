@@ -152,6 +152,27 @@ Gaeste werden innerhalb der Event-Karten gepflegt. Pro Event koennen Gaeste ange
 
 ---
 
+## 2026-07-10 - Zentrale Dienstleisterverwaltung
+
+**Kontext:** F003 verlangt eine Verwaltung externer Anbieter mit Kategorie, Kontaktinformationen, Zuverlaessigkeitsnotiz und optionalem Backup-Bezug.
+
+### Entscheidung
+
+Dienstleister werden in einem eigenen Bereich auf der Startseite gepflegt. Anbieter koennen angelegt und geloescht werden; ein Dienstleister kann als Backup fuer einen anderen Dienstleister referenziert werden.
+
+### Alternativen verworfen
+
+- Dienstleister direkt in Event-Karten verwalten: Vermischt Stammdaten mit der spaeteren Event-Zuordnung aus F008.
+- Backup-Beziehungen als Freitext erfassen: Nicht belastbar fuer spaetere Ausfall- und Eskalationslogik.
+
+### Konsequenzen
+
+- F003 ist als zentrale Dienstleister-Stammdatenverwaltung umgesetzt.
+- Event-spezifische Vertragsdaten, Status und Stornofristen bleiben F008.
+- Die Ausfalleskalation bleibt F014.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung
