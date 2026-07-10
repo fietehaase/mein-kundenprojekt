@@ -62,7 +62,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F009 - Lokale SQLite-Persistenz
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Das Backend muss SQLite als lokale Datenbank verwenden. Das Datenmodell soll die fachlichen Kernobjekte aus der Spec relational abbilden. Damit entsteht eine belastbare Grundlage fuer ein minimal lauffaehiges System.
 

@@ -278,6 +278,27 @@ Event-Dienstleister-Zuordnungen werden innerhalb der Event-Karten gepflegt. Die 
 
 ---
 
+## 2026-07-10 - Lokale SQLite-Persistenz als Kernbasis
+
+**Kontext:** F009 verlangt SQLite als lokale Datenbank und eine relationale Abbildung der fachlichen Kernobjekte aus `docs/spec.md`.
+
+### Entscheidung
+
+SQLite bleibt die lokale Datenbank unter `prisma/dev.db`. Prisma verwaltet das relationale Kernmodell ueber `prisma/schema.prisma` und Migrationen unter `prisma/migrations/`; der Zugriff erfolgt zentral ueber `src/lib/prisma.ts`.
+
+### Alternativen verworfen
+
+- Andere Datenbank fuer den MVP: Widerspricht der Spec-Vorgabe.
+- Persistenz ohne Migrationen: Nicht nachvollziehbar genug fuer ein wachsendes Kernmodell.
+
+### Konsequenzen
+
+- F009 ist als technische Persistenzbasis umgesetzt.
+- Die lokale Datenbankdatei bleibt nicht versioniert.
+- Ein Test prueft SQLite-Konfiguration und vorhandene Kernmodelle.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung
