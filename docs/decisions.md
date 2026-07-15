@@ -530,6 +530,27 @@ Die Dienstleister-Ausfalleskalation nutzt eine zentrale Konfiguration in `src/li
 
 ---
 
+## 2026-07-15 - Anzeigeformatierung aus der Startseite extrahieren
+
+**Kontext:** Beim projektweiten Codequalitaetsdurchlauf fiel auf, dass `src/app/page.tsx` neben Server Actions und UI auch alle Datums-, Waehrungs- und Label-Formatierer enthielt.
+
+### Entscheidung
+
+Anzeigeformatierung liegt zentral in `src/lib/formatters.ts`. `src/app/page.tsx` importiert diese Helfer und enthaelt dadurch weniger nicht-seitenspezifische Logik.
+
+### Alternativen verworfen
+
+- Formatierer in der Seite belassen: Erhoeht die Groesse und erschwert Wiederverwendung.
+- Formatierung in mehrere fachliche Einzelmodule zerlegen: Fuer den aktuellen Umfang zu kleinteilig.
+
+### Konsequenzen
+
+- Die Startseite ist kuerzer und fokussierter.
+- Formatierungslogik kann spaeter in weiteren Views wiederverwendet werden.
+- Die Geldvalidierung in `src/lib/form-input.ts` nutzt intern eine gemeinsame Parserfunktion fuer Pflicht- und optionale Geldwerte.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung

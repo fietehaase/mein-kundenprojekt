@@ -62,20 +62,25 @@ export function optionalDate(value: string, label: string): Date | null {
 }
 
 export function requiredMoney(value: string, label: string): string {
-  const normalizedValue = value.replace(",", ".").trim();
-  const numberValue = Number(normalizedValue);
-
-  if (!normalizedValue || Number.isNaN(numberValue) || numberValue < 0) {
-    throw new Error(`${label} muss eine Zahl ab 0 sein.`);
-  }
-
-  return numberValue.toFixed(2);
+  return parseNonNegativeMoney(value, label, { required: true }) as string;
 }
 
 export function optionalMoney(value: string, label: string): string | null {
+  return parseNonNegativeMoney(value, label, { required: false });
+}
+
+function parseNonNegativeMoney(
+  value: string,
+  label: string,
+  options: { required: boolean },
+): string | null {
   const normalizedValue = value.replace(",", ".").trim();
 
   if (!normalizedValue) {
+    if (options.required) {
+      throw new Error(`${label} muss eine Zahl ab 0 sein.`);
+    }
+
     return null;
   }
 
