@@ -120,7 +120,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F018 - Tool-Ersetzung und Integration
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Es soll geklaert werden, welche bestehenden Tools ersetzt und welche nur ergaenzt werden. Daraus koennen Import-, Export- oder Integrationsanforderungen entstehen. Die Funktion dient dazu, das System sauber in bestehende Arbeitsablaeufe einzupassen.
 

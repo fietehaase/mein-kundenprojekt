@@ -488,6 +488,27 @@ Nur Gaeste mit Status `angemeldet` oder `bestaetigt` zaehlen als aktive Gaeste. 
 
 ---
 
+## 2026-07-15 - Bestehende Tools vorerst ergaenzen
+
+**Kontext:** F018 verlangt die Klaerung, welche bestehenden Tools ersetzt und welche nur ergaenzt werden.
+
+### Entscheidung
+
+Das System ersetzt aktuell keine bestehenden Tools vollstaendig. Es wird als lokale Planungs- und Steuerungszentrale verstanden; Importe, Exporte und Synchronisationen werden erst nach konkreter Tool-Liste spezifiziert.
+
+### Alternativen verworfen
+
+- Pauschale Tool-Ersetzung: Ohne Ist-Systeme und Datenformate nicht belastbar.
+- Generische Import-/Exportfunktionen bauen: Wuerde Scheingenauigkeit erzeugen und Wartungskosten erhoehen.
+
+### Konsequenzen
+
+- F018 ist fachlich entschieden und in `docs/concepts/tool-ersetzung-und-integration.md` dokumentiert.
+- Der aktuelle Scope bleibt integrationsfrei.
+- Spaetere Integrationen brauchen konkrete Quell- und Zielsysteme.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung
