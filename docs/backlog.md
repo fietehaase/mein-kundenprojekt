@@ -108,7 +108,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F016 - Rollen und Kundenansicht
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Es soll geklaert werden, ob Rollen wie Assistenz, Eventmanagerin oder Kundenansicht benoetigt werden. Daraus ergeben sich unterschiedliche Rechte, Sichten und Workflows. Diese Funktion erweitert das System von einer Einzelansicht zu rollenbasiertem Arbeiten.
 

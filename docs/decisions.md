@@ -446,6 +446,27 @@ Dienstleister erhalten im aktuellen Solo-Projekt keinen direkten Schreibzugriff 
 
 ---
 
+## 2026-07-15 - Keine Rollen und Kundenansicht im aktuellen Scope
+
+**Kontext:** F016 verlangt die Klaerung, ob Rollen wie Assistenz, Eventmanagerin oder Kundenansicht benoetigt werden.
+
+### Entscheidung
+
+Das System bleibt fuer den aktuellen Solo-Scope eine interne Einzelansicht ohne Rollenmodell und ohne Kundenansicht.
+
+### Alternativen verworfen
+
+- Rollen ohne Authentifizierung einfuehren: Waere fachlich irrefuehrend und technisch nicht belastbar.
+- Kundenansicht als reine Filteransicht bauen: Ohne Freigabe- und Sichtbarkeitsregeln zu riskant.
+
+### Konsequenzen
+
+- F016 ist fachlich entschieden und in `docs/concepts/rollen-und-kundenansicht.md` dokumentiert.
+- Die bestehende App bleibt ein internes Arbeitswerkzeug.
+- Ein echtes Rollenmodell bleibt an Authentifizierung und Rechtekonzept gebunden.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung
