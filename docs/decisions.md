@@ -362,6 +362,27 @@ Ablaufpunkte werden nicht mehr direkt im aktuellen Ablaufplan veraendert. Beim H
 
 ---
 
+## 2026-07-15 - Verbindliche Kommunikation als Grundlage
+
+**Kontext:** F012 verlangt, dass nur Kommunikation mit `ist_verbindlich = true` als verbindliche Grundlage gilt.
+
+### Entscheidung
+
+Verbindlichkeit wird fachlich ausschliesslich ueber `istVerbindlich` bestimmt. Die Event-Karte zeigt verbindliche Grundlagen separat und filtert unverbindliche Kommunikationsnotizen aus dieser Grundlage heraus.
+
+### Alternativen verworfen
+
+- Alle Kommunikationsereignisse als Grundlage behandeln: Widerspricht der Spec-Regel.
+- Verbindlichkeit aus Kanal oder Text ableiten: Zu fehleranfaellig und nicht explizit genug.
+
+### Konsequenzen
+
+- F012 ist als explizite Geschaeftsregel umgesetzt.
+- Unverbindliche Kontakte bleiben im Kommunikationsprotokoll sichtbar, zaehlen aber nicht als Grundlage.
+- Die Regel ist durch einen eigenen Helper mit Unit-Test abgesichert.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung

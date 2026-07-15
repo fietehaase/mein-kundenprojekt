@@ -30,6 +30,7 @@ import {
   COMMUNICATION_CHANNELS,
   parseCommunicationInput,
 } from "@/lib/communication-input";
+import { filterBindingCommunications } from "@/lib/communication-binding";
 import { parseBudgetInput } from "@/lib/budget-input";
 import {
   EVENT_PROVIDER_STATUSES,
@@ -852,6 +853,9 @@ function EventCard({
   const availableProviders = providers.filter(
     (provider) => !assignedProviderIds.has(provider.id),
   );
+  const bindingCommunications = filterBindingCommunications(
+    event.kommunikationen,
+  );
 
   return (
     <article className={styles.eventCard}>
@@ -1504,7 +1508,10 @@ function EventCard({
       >
         <div className={styles.subHeader}>
           <h4>Kommunikation</h4>
-          <span>{event.kommunikationen.length} Eintraege</span>
+          <span>
+            {bindingCommunications.length} verbindlich ·{" "}
+            {event.kommunikationen.length} gesamt
+          </span>
         </div>
 
         <form action={createCommunication} className={styles.communicationForm}>
@@ -1552,49 +1559,67 @@ function EventCard({
             Noch keine Kommunikation erfasst.
           </p>
         ) : (
-          <div className={styles.communicationList}>
-            {event.kommunikationen.map((communication) => (
-              <article
-                key={communication.id}
-                className={styles.communicationItem}
-              >
-                <div>
-                  <div className={styles.badgeRow}>
-                    <span className={styles.status}>
-                      {formatCommunicationChannel(communication.kanal)}
-                    </span>
-                    <span
-                      className={
-                        communication.istVerbindlich
-                          ? styles.bindingBadge
-                          : styles.noteBadge
-                      }
-                    >
-                      {communication.istVerbindlich
-                        ? "Verbindlich"
-                        : "Notiz"}
-                    </span>
-                  </div>
-                  <strong>{formatDateTime(communication.datum)}</strong>
-                  <p>{communication.inhalt}</p>
-                  <p>
-                    Beteiligte: {communication.beteiligte || "nicht erfasst"} ·{" "}
-                    Erstellt von: {communication.erstelltVon || "nicht erfasst"}
-                  </p>
-                </div>
+          <>
+            <div className={styles.bindingSummary}>
+              <h5>Verbindliche Grundlagen</h5>
+              {bindingCommunications.length === 0 ? (
+                <p>Keine verbindlichen Absprachen erfasst.</p>
+              ) : (
+                <ul>
+                  {bindingCommunications.map((communication) => (
+                    <li key={communication.id}>
+                      <strong>{formatDateTime(communication.datum)}</strong>
+                      <span>{communication.inhalt}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
 
-                <form
-                  action={deleteCommunication}
-                  className={styles.communicationActions}
+            <div className={styles.communicationList}>
+              {event.kommunikationen.map((communication) => (
+                <article
+                  key={communication.id}
+                  className={styles.communicationItem}
                 >
-                  <input type="hidden" name="id" value={communication.id} />
-                  <button className={styles.dangerButton} type="submit">
-                    Loeschen
-                  </button>
-                </form>
-              </article>
-            ))}
-          </div>
+                  <div>
+                    <div className={styles.badgeRow}>
+                      <span className={styles.status}>
+                        {formatCommunicationChannel(communication.kanal)}
+                      </span>
+                      <span
+                        className={
+                          communication.istVerbindlich
+                            ? styles.bindingBadge
+                            : styles.noteBadge
+                        }
+                      >
+                        {communication.istVerbindlich
+                          ? "Verbindlich"
+                          : "Notiz"}
+                      </span>
+                    </div>
+                    <strong>{formatDateTime(communication.datum)}</strong>
+                    <p>{communication.inhalt}</p>
+                    <p>
+                      Beteiligte: {communication.beteiligte || "nicht erfasst"} ·{" "}
+                      Erstellt von: {communication.erstelltVon || "nicht erfasst"}
+                    </p>
+                  </div>
+
+                  <form
+                    action={deleteCommunication}
+                    className={styles.communicationActions}
+                  >
+                    <input type="hidden" name="id" value={communication.id} />
+                    <button className={styles.dangerButton} type="submit">
+                      Loeschen
+                    </button>
+                  </form>
+                </article>
+              ))}
+            </div>
+          </>
         )}
       </section>
     </article>

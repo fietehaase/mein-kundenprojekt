@@ -82,7 +82,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F012 - Verbindliche Kommunikation
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Nur Kommunikation mit `ist_verbindlich = true` soll als verbindliche Grundlage gelten. Das System muss verbindliche Absprachen klar von unverbindlichen Kontakten unterscheiden. Dadurch lassen sich Entscheidungen und Zusagen spaeter fachlich belastbar nachvollziehen.
 
