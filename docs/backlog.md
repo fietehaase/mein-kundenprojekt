@@ -114,7 +114,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F017 - Wartelisten-Management
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Das Wartelisten-Management fuer Gaeste muss fachlich konkretisiert und umgesetzt werden. Es soll regeln, wie Gaeste auf die Warteliste kommen, wann sie nachruecken und wie ihr Status sichtbar wird. Diese Funktion erweitert die Gaesteverwaltung um einen kontrollierten Kapazitaetsworkflow.
 

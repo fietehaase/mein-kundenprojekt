@@ -467,6 +467,27 @@ Das System bleibt fuer den aktuellen Solo-Scope eine interne Einzelansicht ohne 
 
 ---
 
+## 2026-07-15 - Wartelisten-Management nach Event-Kapazitaet
+
+**Kontext:** F017 verlangt einen kontrollierten Kapazitaetsworkflow fuer Gaeste auf der Warteliste.
+
+### Entscheidung
+
+Nur Gaeste mit Status `angemeldet` oder `bestaetigt` zaehlen als aktive Gaeste. Wenn die geplante Gaestezahl erreicht ist, werden neue aktive Anfragen automatisch auf `warteliste` gesetzt; wird Kapazitaet frei, ruecken Wartelisten-Gaeste nach ID-Reihenfolge automatisch auf `bestaetigt` nach.
+
+### Alternativen verworfen
+
+- Warteliste nur als manueller Status: Wuerde Kapazitaeten nicht schuetzen.
+- Zufalls- oder Prioritaetslogik: Im aktuellen Datenmodell gibt es keine fachliche Prioritaet.
+
+### Konsequenzen
+
+- F017 ist als Kapazitaetsworkflow umgesetzt.
+- Die Event-Karte zeigt aktive Gaeste und Wartelisten-Gaeste getrennt.
+- VIP- oder Prioritaetsregeln koennen spaeter auf dieser Basis ergaenzt werden.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung

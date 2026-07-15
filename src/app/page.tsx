@@ -42,6 +42,11 @@ import {
   isTaskBlockedByDependency,
 } from "@/lib/task-dependency";
 import { triggersProviderOutageEscalation } from "@/lib/provider-escalation";
+import {
+  ACTIVE_GUEST_STATUSES,
+  isActiveGuestStatus,
+  resolveGuestStatusForCapacity,
+} from "@/lib/waitlist";
 
 export const dynamic = "force-dynamic";
 
@@ -169,10 +174,29 @@ async function createGuest(formData: FormData) {
     vipAnforderungen: String(formData.get("vipAnforderungen") ?? ""),
   });
 
+  const [event, activeGuests] = await Promise.all([
+    prisma.event.findUnique({
+      where: { id: input.eventId },
+      select: { gaesteanzahlGeplant: true },
+    }),
+    countActiveGuestsForEvent(input.eventId),
+  ]);
+
+  if (!event) {
+    throw new Error("Event nicht gefunden.");
+  }
+
   await prisma.gast.create({
-    data: input,
+    data: {
+      ...input,
+      anmeldestatus: resolveGuestStatusForCapacity(
+        input.anmeldestatus,
+        event.gaesteanzahlGeplant,
+        activeGuests,
+      ),
+    },
   });
-  await syncEventGuestCount(input.eventId);
+  await reconcileEventGuestCapacity(input.eventId);
 
   revalidatePath("/");
 }
@@ -186,11 +210,37 @@ async function updateGuestStatus(formData: FormData) {
     String(formData.get("anmeldestatus") ?? ""),
   );
 
+  const [event, guest, activeGuests] = await Promise.all([
+    prisma.event.findUnique({
+      where: { id: eventId },
+      select: { gaesteanzahlGeplant: true },
+    }),
+    prisma.gast.findUnique({
+      where: { id },
+      select: { anmeldestatus: true },
+    }),
+    countActiveGuestsForEvent(eventId),
+  ]);
+
+  if (!event || !guest) {
+    throw new Error("Event oder Gast nicht gefunden.");
+  }
+
+  const activeGuestsWithoutGuest = isActiveGuestStatus(guest.anmeldestatus)
+    ? activeGuests - 1
+    : activeGuests;
+
   await prisma.gast.update({
     where: { id },
-    data: { anmeldestatus },
+    data: {
+      anmeldestatus: resolveGuestStatusForCapacity(
+        anmeldestatus,
+        event.gaesteanzahlGeplant,
+        activeGuestsWithoutGuest,
+      ),
+    },
   });
-  await syncEventGuestCount(eventId);
+  await reconcileEventGuestCapacity(eventId);
 
   revalidatePath("/");
 }
@@ -204,21 +254,64 @@ async function deleteGuest(formData: FormData) {
   await prisma.gast.delete({
     where: { id },
   });
-  await syncEventGuestCount(eventId);
+  await reconcileEventGuestCapacity(eventId);
 
   revalidatePath("/");
 }
 
-async function syncEventGuestCount(eventId: number) {
-  const [activeGuests, event] = await Promise.all([
-    prisma.gast.count({
+async function countActiveGuestsForEvent(eventId: number) {
+  return prisma.gast.count({
+    where: {
+      eventId,
+      anmeldestatus: {
+        in: ACTIVE_GUEST_STATUSES,
+      },
+    },
+  });
+}
+
+async function reconcileEventGuestCapacity(eventId: number) {
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    select: { gaesteanzahlGeplant: true },
+  });
+
+  if (!event) {
+    throw new Error("Event nicht gefunden.");
+  }
+
+  const activeBeforePromotion = await countActiveGuestsForEvent(eventId);
+  const freeSeats = Math.max(
+    event.gaesteanzahlGeplant - activeBeforePromotion,
+    0,
+  );
+
+  if (freeSeats > 0) {
+    const waitlistGuests = await prisma.gast.findMany({
       where: {
         eventId,
-        anmeldestatus: {
-          not: "abgesagt",
-        },
+        anmeldestatus: "warteliste",
       },
-    }),
+      orderBy: [{ id: "asc" }],
+      take: freeSeats,
+    });
+
+    await Promise.all(
+      waitlistGuests.map((guest) =>
+        prisma.gast.update({
+          where: { id: guest.id },
+          data: { anmeldestatus: "bestaetigt" },
+        }),
+      ),
+    );
+  }
+
+  await syncEventGuestCount(eventId);
+}
+
+async function syncEventGuestCount(eventId: number) {
+  const [activeGuests, event] = await Promise.all([
+    countActiveGuestsForEvent(eventId),
     prisma.event.findUnique({
       where: { id: eventId },
       select: { gaesteanzahlAktuell: true },
@@ -891,6 +984,9 @@ function EventCard({
   providers: ProviderListItem[];
 }) {
   const activeGuests = countActiveGuests(event);
+  const waitlistGuests = event.gaeste.filter(
+    (guest) => guest.anmeldestatus === "warteliste",
+  ).length;
   const currentSchedule = event.ablaufplaene.find(
     (schedule) => schedule.istAktuell,
   );
@@ -1263,7 +1359,9 @@ function EventCard({
       <section className={styles.guestSection} aria-label={`Gaeste ${event.name}`}>
         <div className={styles.subHeader}>
           <h4>Gaeste</h4>
-          <span>{event.gaeste.length} Datensaetze</span>
+          <span>
+            {activeGuests} aktiv · {waitlistGuests} Warteliste
+          </span>
         </div>
 
         <form action={createGuest} className={styles.guestForm}>
@@ -1719,7 +1817,7 @@ function EventCard({
 }
 
 function countActiveGuests(event: EventListItem) {
-  return event.gaeste.filter((guest) => guest.anmeldestatus !== "abgesagt")
+  return event.gaeste.filter((guest) => isActiveGuestStatus(guest.anmeldestatus))
     .length;
 }
 
