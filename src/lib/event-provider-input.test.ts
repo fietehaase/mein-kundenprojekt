@@ -40,7 +40,7 @@ describe("parseEventProviderInput", () => {
 
   it("validiert Status und Vertrags-URL", () => {
     expect(() => parseEventProviderStatus("unbekannt")).toThrow(
-      "Ungueltiger Event-Dienstleister-Status.",
+      "Ungültiger Event-Dienstleister-Status.",
     );
 
     expect(() =>
@@ -52,6 +52,6 @@ describe("parseEventProviderInput", () => {
         stornofrist: "",
         kritisch: null,
       }),
-    ).toThrow("Die Vertrags-URL ist ungueltig.");
+    ).toThrow("Die Vertrags-URL ist ungültig.");
   });
 });

@@ -5,7 +5,7 @@ describe("parseSchedulePlanInput", () => {
   it("validiert die Event-ID", () => {
     expect(parseSchedulePlanInput({ eventId: "7" })).toEqual({ eventId: 7 });
     expect(() => parseSchedulePlanInput({ eventId: "0" })).toThrow(
-      "Event-ID ist ungueltig.",
+      "Event-ID ist ungültig.",
     );
   });
 });
@@ -29,7 +29,7 @@ describe("parseScheduleItemInput", () => {
     expect(item.sichtbarFuerDienstleister).toBe(true);
   });
 
-  it("verhindert ungueltige Zeiten und leere Bezeichnungen", () => {
+  it("verhindert ungültige Zeiten und leere Bezeichnungen", () => {
     expect(() =>
       parseScheduleItemInput({
         ablaufplanId: "3",

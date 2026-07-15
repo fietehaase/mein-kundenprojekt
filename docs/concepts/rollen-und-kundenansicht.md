@@ -4,23 +4,23 @@ _Stand: 2026-07-15_
 
 ## Entscheidung
 
-Das System bleibt im aktuellen Scope eine interne Einzelansicht fuer das Event-Team. Rollen wie Assistenz, Eventmanagerin oder Kundenansicht werden vorerst nicht eingefuehrt.
+Das System bleibt im aktuellen Scope eine interne Einzelansicht für das Event-Team. Rollen wie Assistenz, Eventmanagerin oder Kundenansicht werden vorerst nicht eingeführt.
 
-## Begruendung
+## Begründung
 
 - Das Projekt ist als Solo-Projekt angelegt.
 - Es gibt noch keine Authentifizierung und keine Rechteverwaltung.
-- Eine Kundenansicht wuerde Freigaben, Sichtbarkeiten und Datenschutzregeln benoetigen.
+- Eine Kundenansicht würde Freigaben, Sichtbarkeiten und Datenschutzregeln benötigen.
 
-## Konsequenz fuer die App
+## Konsequenz für die App
 
 - Alle vorhandenen Funktionen bleiben interne Arbeitsfunktionen.
 - Externe Sichtbarkeit wird nicht simuliert.
-- Kundentaugliche Freigaben werden ueber verbindliche Kommunikation dokumentiert, nicht ueber ein Kundenportal.
+- Kundentaugliche Freigaben werden über verbindliche Kommunikation dokumentiert, nicht über ein Kundenportal.
 
-## Voraussetzungen fuer spaetere Rollen
+## Voraussetzungen für spätere Rollen
 
 - Authentifizierung.
 - Rechte- und Rollenkonzept.
-- Sichtbarkeitsregeln pro Entitaet und Feld.
+- Sichtbarkeitsregeln pro Entität und Feld.
 - Auditierbare Freigabeprozesse.

@@ -13,7 +13,7 @@ export function optionalId(value: string, label: string): number | null {
   const id = Number(trimmedValue);
 
   if (!Number.isInteger(id) || id <= 0) {
-    throw new Error(`${label} ist ungueltig.`);
+    throw new Error(`${label} ist ungültig.`);
   }
 
   return id;
@@ -27,7 +27,7 @@ export function requiredDateTime(value: string, label: string): Date {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    throw new Error(`${label} ist ungueltig.`);
+    throw new Error(`${label} ist ungültig.`);
   }
 
   return date;
@@ -41,7 +41,7 @@ export function optionalDateTime(value: string, label: string): Date | null {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    throw new Error(`${label} ist ungueltig.`);
+    throw new Error(`${label} ist ungültig.`);
   }
 
   return date;
@@ -55,7 +55,7 @@ export function optionalDate(value: string, label: string): Date | null {
   const date = new Date(`${value}T00:00:00.000`);
 
   if (Number.isNaN(date.getTime())) {
-    throw new Error(`${label} ist ungueltig.`);
+    throw new Error(`${label} ist ungültig.`);
   }
 
   return date;

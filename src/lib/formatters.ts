@@ -81,7 +81,7 @@ export function formatGuestStatus(status: string) {
     angemeldet: "Angemeldet",
     abgesagt: "Abgesagt",
     warteliste: "Warteliste",
-    bestaetigt: "Bestaetigt",
+    bestaetigt: "Bestätigt",
   };
 
   return labels[status] ?? status;
@@ -105,7 +105,7 @@ export function formatEventProviderStatus(status: string) {
   const labels: Record<string, string> = {
     angefragt: "Angefragt",
     vertrag_offen: "Vertrag offen",
-    bestaetigt: "Bestaetigt",
+    bestaetigt: "Bestätigt",
     storniert: "Storniert",
     ausgefallen: "Ausgefallen",
   };
@@ -117,7 +117,7 @@ export function formatTaskStatus(status: string) {
   const labels: Record<string, string> = {
     offen: "Offen",
     erledigt: "Erledigt",
-    ueberfaellig: "Ueberfaellig",
+    ueberfaellig: "Überfällig",
   };
 
   return labels[status] ?? status;

@@ -21,13 +21,13 @@ describe("parseEventInput", () => {
     expect(event.notizen).toBe("intern");
   });
 
-  it("verhindert ungueltige Statuswerte", () => {
+  it("verhindert ungültige Statuswerte", () => {
     expect(() => parseEventStatus("archiviert")).toThrow(
-      "Ungueltiger Event-Status.",
+      "Ungültiger Event-Status.",
     );
   });
 
-  it("verhindert ungueltige Kalenderdaten", () => {
+  it("verhindert ungültige Kalenderdaten", () => {
     expect(() =>
       parseEventInput({
         name: "Sommerfest",
@@ -38,6 +38,6 @@ describe("parseEventInput", () => {
         budgetGesamt: "15000",
         notizen: "",
       }),
-    ).toThrow("Das Event-Datum ist ungueltig.");
+    ).toThrow("Das Event-Datum ist ungültig.");
   });
 });

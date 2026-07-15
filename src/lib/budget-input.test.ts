@@ -20,7 +20,7 @@ describe("parseBudgetInput", () => {
     expect(budget.dienstleisterId).toBe(7);
   });
 
-  it("erlaubt optionale Betraege und Dienstleister", () => {
+  it("erlaubt optionale Beträge und Dienstleister", () => {
     const budget = parseBudgetInput({
       eventId: "3",
       bezeichnung: "Location",
@@ -36,7 +36,7 @@ describe("parseBudgetInput", () => {
     expect(budget.dienstleisterId).toBeNull();
   });
 
-  it("validiert Pflichtfelder und Betraege", () => {
+  it("validiert Pflichtfelder und Beträge", () => {
     expect(() =>
       parseBudgetInput({
         eventId: "3",

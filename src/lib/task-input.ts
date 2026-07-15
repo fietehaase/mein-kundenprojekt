@@ -35,9 +35,9 @@ export function parseTaskInput(input: TaskFormInput): ParsedTaskInput {
   return {
     eventId: parseId(input.eventId, "Event-ID"),
     bezeichnung,
-    faelligAm: optionalDateTime(input.faelligAm, "Faelligkeit"),
+    faelligAm: optionalDateTime(input.faelligAm, "Fälligkeit"),
     status: parseTaskStatus(input.status),
-    abhaengigVonId: optionalId(input.abhaengigVonId, "Vorgaenger-Aufgabe"),
+    abhaengigVonId: optionalId(input.abhaengigVonId, "Vorgänger-Aufgabe"),
     zugewiesenAn: optionalText(input.zugewiesenAn),
     erinnerungAm: optionalDateTime(input.erinnerungAm, "Erinnerung"),
   };
@@ -48,5 +48,5 @@ export function parseTaskStatus(status: string): TaskStatus {
     return status as TaskStatus;
   }
 
-  throw new Error("Ungueltiger Aufgabenstatus.");
+  throw new Error("Ungültiger Aufgabenstatus.");
 }

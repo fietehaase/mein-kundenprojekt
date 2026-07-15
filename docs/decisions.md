@@ -1,12 +1,12 @@
 # decisions.md - Architektur- und Produktentscheidungen
 
-_Chronologisches Log aller Entscheidungen, die spaeter nachvollziehbar sein muessen._
+_Chronologisches Log aller Entscheidungen, die später nachvollziehbar sein müssen._
 
 ---
 
 ## 2026-07-10 - Spec ersetzt PRD
 
-**Kontext:** Die Modus-Operandi-Methodik nutzt normalerweise `docs/prd.md` als strategische Produktquelle. In diesem Projekt existiert bereits `docs/spec.md` aus der Discovery und soll diese Rolle uebernehmen.
+**Kontext:** Die Modus-Operandi-Methodik nutzt normalerweise `docs/prd.md` als strategische Produktquelle. In diesem Projekt existiert bereits `docs/spec.md` aus der Discovery und soll diese Rolle übernehmen.
 
 ### Entscheidung
 
@@ -14,19 +14,19 @@ _Chronologisches Log aller Entscheidungen, die spaeter nachvollziehbar sein mues
 
 ### Alternativen verworfen
 
-- `spec.md` nach `prd.md` kopieren: Wuerde doppelte Pflege und Drift erzeugen.
-- Zusaetzliche `prd.md` aus Template anlegen: Fuer den aktuellen Solo-Scope zu schwergewichtig.
+- `spec.md` nach `prd.md` kopieren: Würde doppelte Pflege und Drift erzeugen.
+- Zusätzliche `prd.md` aus Template anlegen: Für den aktuellen Solo-Scope zu schwergewichtig.
 
 ### Konsequenzen
 
-- Agenten und Menschen lesen fuer Scope und fachliche Anforderungen zuerst `docs/spec.md`.
+- Agenten und Menschen lesen für Scope und fachliche Anforderungen zuerst `docs/spec.md`.
 - Methodik-Verweise auf `prd.md` werden projektspezifisch als Verweis auf `docs/spec.md` interpretiert.
 
 ---
 
 ## 2026-07-10 - Solo-Setup ohne Team-Artefakte
 
-**Kontext:** Das Projekt wird solo gefuehrt. Die Referenzmethodik enthaelt optionale Team-Strukturen wie Meetings, Results, Mission-Dokumente und INBOX.
+**Kontext:** Das Projekt wird solo geführt. Die Referenzmethodik enthält optionale Team-Strukturen wie Meetings, Results, Mission-Dokumente und INBOX.
 
 ### Entscheidung
 
@@ -34,20 +34,20 @@ Das Projekt nutzt nur die Solo-relevanten Artefakte: `AGENTS.md`, `docs/spec.md`
 
 ### Alternativen verworfen
 
-- Meeting- und Results-Ordner vorab anlegen: Nicht noetig und erzeugt ungenutzte Struktur.
+- Meeting- und Results-Ordner vorab anlegen: Nicht nötig und erzeugt ungenutzte Struktur.
 - `INBOX.md` vorab anlegen: Solo-sequenziell aktuell nicht notwendig.
 - `backlog.md` sofort anlegen: Erst sinnvoll, wenn Feature-IDs und operatives Status-Tracking gebraucht werden.
 
 ### Konsequenzen
 
 - Die Dokumentation bleibt schlank.
-- Neue Artefakte werden erst eingefuehrt, wenn ein konkreter Bedarf entsteht.
+- Neue Artefakte werden erst eingeführt, wenn ein konkreter Bedarf entsteht.
 
 ---
 
 ## 2026-07-10 - Next.js, Prisma und SQLite als App-Stack
 
-**Kontext:** Das Projekt braucht ein initiales App-Grundgeruest fuer ein Solo-Projekt. Die Spec setzt SQLite als verpflichtende Datenbank.
+**Kontext:** Das Projekt braucht ein initiales App-Grundgerüst für ein Solo-Projekt. Die Spec setzt SQLite als verpflichtende Datenbank.
 
 ### Entscheidung
 
@@ -55,7 +55,7 @@ Das Projekt verwendet Next.js 16 mit App Router und TypeScript, Prisma 7 als ORM
 
 ### Alternativen verworfen
 
-- Separates Frontend plus Backend: Fuer den aktuellen Solo-Scope zu viel Infrastruktur.
+- Separates Frontend plus Backend: Für den aktuellen Solo-Scope zu viel Infrastruktur.
 - Direkte SQL-Zugriffe ohne ORM: Weniger Typisierung und weniger nachvollziehbare Migrationen.
 - PostgreSQL oder andere Serverdatenbanken: Widerspricht der aktuellen Spec-Vorgabe SQLite.
 
@@ -70,7 +70,7 @@ Das Projekt verwendet Next.js 16 mit App Router und TypeScript, Prisma 7 als ORM
 
 ## 2026-07-10 - Initiales Prisma-Datenmodell aus Spec
 
-**Kontext:** Die Kernentitaeten aus `docs/spec.md` muessen vor der Implementierung als Datenbankschema verfuegbar sein.
+**Kontext:** Die Kernentitäten aus `docs/spec.md` müssen vor der Implementierung als Datenbankschema verfügbar sein.
 
 ### Entscheidung
 
@@ -78,20 +78,20 @@ Das initiale Prisma-Schema bildet Event, Gast, Dienstleister, Ablaufplan, Ablauf
 
 ### Alternativen verworfen
 
-- Schema spaeter aus der UI ableiten: Risiko fuer Drift zur Spec.
-- Nur Platzhaltermodell anlegen: Keine brauchbare Basis fuer Phase 1.
+- Schema später aus der UI ableiten: Risiko für Drift zur Spec.
+- Nur Platzhaltermodell anlegen: Keine brauchbare Basis für Phase 1.
 
 ### Konsequenzen
 
 - F001 bis F009 sind im Datenbankschema begonnen, aber noch keine fertigen Nutzer-Workflows.
 - F009 ist als lokale SQLite-Persistenz umgesetzt.
-- Geschaeftsregeln aus Phase 2 bleiben separat zu implementieren.
+- Geschäftsregeln aus Phase 2 bleiben separat zu implementieren.
 
 ---
 
 ## 2026-07-10 - Prisma 7 mit SQLite-Adapter
 
-**Kontext:** Prisma 7 erwartet fuer SQLite einen Driver Adapter. Der parameterlose PrismaClient kompiliert nicht.
+**Kontext:** Prisma 7 erwartet für SQLite einen Driver Adapter. Der parameterlose PrismaClient kompiliert nicht.
 
 ### Entscheidung
 
@@ -99,8 +99,8 @@ Der Prisma Client wird mit `@prisma/adapter-better-sqlite3` initialisiert. Der g
 
 ### Alternativen verworfen
 
-- Generierten Client committen: Erzeugt unnoetigen Versionsrauschen.
-- Aeltere Prisma-Version verwenden: Nicht noetig, der Adapter loest das Problem.
+- Generierten Client committen: Erzeugt unnötigen Versionsrauschen.
+- Ältere Prisma-Version verwenden: Nicht nötig, der Adapter löst das Problem.
 
 ### Konsequenzen
 
@@ -116,54 +116,54 @@ Der Prisma Client wird mit `@prisma/adapter-better-sqlite3` initialisiert. Der g
 
 ### Entscheidung
 
-Die Startseite `/` ist die Event-Zentrale. Sie liest Events serverseitig ueber Prisma, bietet ein Formular zum Anlegen, Statuswechsel und Loeschen per Server Actions und zeigt Kennzahlen fuer Events, Gaeste und Budget.
+Die Startseite `/` ist die Event-Zentrale. Sie liest Events serverseitig über Prisma, bietet ein Formular zum Anlegen, Statuswechsel und Löschen per Server Actions und zeigt Kennzahlen für Events, Gäste und Budget.
 
 ### Alternativen verworfen
 
-- Separate Detailseiten vor F002-F008: Fuer F001 zu gross und noch ohne fachliche Detailfunktionen.
-- Clientseitige API-Schicht: Nicht noetig, Server Components und Server Actions reichen fuer diesen MVP-Schritt.
+- Separate Detailseiten vor F002-F008: Für F001 zu groß und noch ohne fachliche Detailfunktionen.
+- Clientseitige API-Schicht: Nicht nötig, Server Components und Server Actions reichen für diesen MVP-Schritt.
 
 ### Konsequenzen
 
 - F001 ist als nutzbarer Event-Einstieg umgesetzt.
 - Die Seite ist `force-dynamic`, damit SQLite-Daten nicht als Build-Snapshot ausgeliefert werden.
-- Detailfunktionen fuer Gaeste, Ablauf, Aufgaben, Kommunikation, Budget und Dienstleister bleiben eigene Backlog-Features.
+- Detailfunktionen für Gäste, Ablauf, Aufgaben, Kommunikation, Budget und Dienstleister bleiben eigene Backlog-Features.
 
 ---
 
-## 2026-07-10 - Gaesteverwaltung in Event-Karten
+## 2026-07-10 - Gästeverwaltung in Event-Karten
 
-**Kontext:** F002 verlangt eine Gaesteverwaltung, die direkt an Events haengt und Grundlage fuer Gaestezahlen sowie spaetere Wartelistenlogik ist.
+**Kontext:** F002 verlangt eine Gästeverwaltung, die direkt an Events hängt und Grundlage für Gästezahlen sowie spätere Wartelistenlogik ist.
 
 ### Entscheidung
 
-Gaeste werden innerhalb der Event-Karten gepflegt. Pro Event koennen Gaeste angelegt, mit Kontaktdaten, Typ, Anmeldestatus und Anforderungen erfasst, im Status geaendert und geloescht werden.
+Gäste werden innerhalb der Event-Karten gepflegt. Pro Event können Gäste angelegt, mit Kontaktdaten, Typ, Anmeldestatus und Anforderungen erfasst, im Status geändert und gelöscht werden.
 
 ### Alternativen verworfen
 
-- Eigene Gast-Detailseiten: Fuer den MVP-Schritt zu schwergewichtig.
-- Gaeste als freie Notizen am Event: Nicht strukturiert genug fuer Status, Typen und spaetere Wartelistenlogik.
+- Eigene Gast-Detailseiten: Für den MVP-Schritt zu schwergewichtig.
+- Gäste als freie Notizen am Event: Nicht strukturiert genug für Status, Typen und spätere Wartelistenlogik.
 
 ### Konsequenzen
 
-- F002 ist als nutzbare Event-bezogene Gaesteverwaltung umgesetzt.
-- Die aktuelle Gaestezahl wird aus nicht abgesagten Gaesten synchronisiert.
-- Die Pruefbedarfsregel bei Gaestezahlsaenderungen bleibt F010.
+- F002 ist als nutzbare Event-bezogene Gästeverwaltung umgesetzt.
+- Die aktuelle Gästezahl wird aus nicht abgesagten Gästen synchronisiert.
+- Die Prüfbedarfsregel bei Gästezahlsaenderungen bleibt F010.
 
 ---
 
 ## 2026-07-10 - Zentrale Dienstleisterverwaltung
 
-**Kontext:** F003 verlangt eine Verwaltung externer Anbieter mit Kategorie, Kontaktinformationen, Zuverlaessigkeitsnotiz und optionalem Backup-Bezug.
+**Kontext:** F003 verlangt eine Verwaltung externer Anbieter mit Kategorie, Kontaktinformationen, Zuverlässigkeitsnotiz und optionalem Backup-Bezug.
 
 ### Entscheidung
 
-Dienstleister werden in einem eigenen Bereich auf der Startseite gepflegt. Anbieter koennen angelegt und geloescht werden; ein Dienstleister kann als Backup fuer einen anderen Dienstleister referenziert werden.
+Dienstleister werden in einem eigenen Bereich auf der Startseite gepflegt. Anbieter können angelegt und gelöscht werden; ein Dienstleister kann als Backup für einen anderen Dienstleister referenziert werden.
 
 ### Alternativen verworfen
 
-- Dienstleister direkt in Event-Karten verwalten: Vermischt Stammdaten mit der spaeteren Event-Zuordnung aus F008.
-- Backup-Beziehungen als Freitext erfassen: Nicht belastbar fuer spaetere Ausfall- und Eskalationslogik.
+- Dienstleister direkt in Event-Karten verwalten: Vermischt Stammdaten mit der späteren Event-Zuordnung aus F008.
+- Backup-Beziehungen als Freitext erfassen: Nicht belastbar für spätere Ausfall- und Eskalationslogik.
 
 ### Konsequenzen
 
@@ -175,16 +175,16 @@ Dienstleister werden in einem eigenen Bereich auf der Startseite gepflegt. Anbie
 
 ## 2026-07-10 - Ablaufplanung pro Event
 
-**Kontext:** F004 verlangt Ablaufplaene pro Event mit einzelnen Ablaufpunkten, Zeiten, Verantwortlichen, Pufferkennzeichen und Dienstleister-Sichtbarkeit.
+**Kontext:** F004 verlangt Ablaufpläne pro Event mit einzelnen Ablaufpunkten, Zeiten, Verantwortlichen, Pufferkennzeichen und Dienstleister-Sichtbarkeit.
 
 ### Entscheidung
 
-Ablaufplanung wird innerhalb der Event-Karten gepflegt. Pro Event kann ein aktueller Ablaufplan v1 angelegt werden; darin koennen Ablaufpunkte erfasst und geloescht werden.
+Ablaufplanung wird innerhalb der Event-Karten gepflegt. Pro Event kann ein aktueller Ablaufplan v1 angelegt werden; darin können Ablaufpunkte erfasst und gelöscht werden.
 
 ### Alternativen verworfen
 
-- Separate Ablaufseiten: Fuer den MVP zu schwergewichtig.
-- Versionierung direkt in F004 bauen: Gehoert laut Backlog zu F011.
+- Separate Ablaufseiten: Für den MVP zu schwergewichtig.
+- Versionierung direkt in F004 bauen: Gehört laut Backlog zu F011.
 
 ### Konsequenzen
 
@@ -196,64 +196,64 @@ Ablaufplanung wird innerhalb der Event-Karten gepflegt. Pro Event kann ein aktue
 
 ## 2026-07-10 - Aufgabensteuerung in Event-Karten
 
-**Kontext:** F005 verlangt Aufgaben pro Event mit Faelligkeit, Status, optionaler Abhaengigkeit, Zuweisung und Erinnerung.
+**Kontext:** F005 verlangt Aufgaben pro Event mit Fälligkeit, Status, optionaler Abhängigkeit, Zuweisung und Erinnerung.
 
 ### Entscheidung
 
-Aufgaben werden innerhalb der Event-Karten gepflegt. Pro Event koennen Aufgaben angelegt, im Status geaendert, geloescht und optional mit einer Vorgaenger-Aufgabe verknuepft werden.
+Aufgaben werden innerhalb der Event-Karten gepflegt. Pro Event können Aufgaben angelegt, im Status geändert, gelöscht und optional mit einer Vorgänger-Aufgabe verknüpft werden.
 
 ### Alternativen verworfen
 
-- Eigenes Aufgabenmodul vor dem MVP: Zu gross fuer den aktuellen Arbeitsschritt.
-- Abhaengigkeiten nur als Text speichern: Nicht ausreichend fuer spaetere Regelpruefung.
+- Eigenes Aufgabenmodul vor dem MVP: Zu groß für den aktuellen Arbeitsschritt.
+- Abhängigkeiten nur als Text speichern: Nicht ausreichend für spätere Regelprüfung.
 
 ### Konsequenzen
 
 - F005 ist als nutzbare Aufgabensteuerung umgesetzt.
-- Abhaengigkeiten sind strukturiert im Datenmodell vorhanden.
-- Die harte Regel, dass abhaengige Aufgaben erst nach erledigter Vorgaenger-Aufgabe erledigt werden duerfen, bleibt F013.
+- Abhängigkeiten sind strukturiert im Datenmodell vorhanden.
+- Die harte Regel, dass abhängige Aufgaben erst nach erledigter Vorgänger-Aufgabe erledigt werden dürfen, bleibt F013.
 
 ---
 
 ## 2026-07-10 - Kommunikationsprotokoll in Event-Karten
 
-**Kontext:** F006 verlangt nachvollziehbare Kommunikationsvorgaenge pro Event mit Kanal, Datum, Inhalt, Beteiligten, Ersteller und Verbindlichkeitskennzeichen.
+**Kontext:** F006 verlangt nachvollziehbare Kommunikationsvorgänge pro Event mit Kanal, Datum, Inhalt, Beteiligten, Ersteller und Verbindlichkeitskennzeichen.
 
 ### Entscheidung
 
-Kommunikation wird innerhalb der Event-Karten protokolliert. Pro Event koennen Eintraege angelegt, geloescht und nach Datum absteigend angezeigt werden.
+Kommunikation wird innerhalb der Event-Karten protokolliert. Pro Event können Einträge angelegt, gelöscht und nach Datum absteigend angezeigt werden.
 
 ### Alternativen verworfen
 
-- Separate Kommunikationsseiten: Fuer den MVP zu schwergewichtig.
-- Kommunikation als Event-Notiz: Nicht strukturiert genug fuer Kanal, Beteiligte und Verbindlichkeit.
+- Separate Kommunikationsseiten: Für den MVP zu schwergewichtig.
+- Kommunikation als Event-Notiz: Nicht strukturiert genug für Kanal, Beteiligte und Verbindlichkeit.
 
 ### Konsequenzen
 
 - F006 ist als nutzbares Kommunikationsprotokoll umgesetzt.
-- Verbindliche Eintraege sind sichtbar von unverbindlichen Notizen getrennt.
+- Verbindliche Einträge sind sichtbar von unverbindlichen Notizen getrennt.
 - Die fachliche Regel, dass nur verbindliche Kommunikation als Grundlage gilt, bleibt F012.
 
 ---
 
-## 2026-07-10 - Budgetuebersicht in Event-Karten
+## 2026-07-10 - Budgetübersicht in Event-Karten
 
-**Kontext:** F007 verlangt Budgetpositionen pro Event mit Angebotsbetrag, bestaetigtem Betrag, bezahltem Betrag und optionalem Dienstleisterbezug.
+**Kontext:** F007 verlangt Budgetpositionen pro Event mit Angebotsbetrag, bestätigtem Betrag, bezahltem Betrag und optionalem Dienstleisterbezug.
 
 ### Entscheidung
 
-Budgetpositionen werden innerhalb der Event-Karten gepflegt. Pro Event werden Summen fuer Angebot, bestaetigte Kosten und bezahlte Kosten angezeigt; einzelne Positionen koennen optional einem zentralen Dienstleister zugeordnet werden.
+Budgetpositionen werden innerhalb der Event-Karten gepflegt. Pro Event werden Summen für Angebot, bestätigte Kosten und bezahlte Kosten angezeigt; einzelne Positionen können optional einem zentralen Dienstleister zugeordnet werden.
 
 ### Alternativen verworfen
 
-- Eigenes Budgetmodul vor dem MVP: Fuer den aktuellen Kernumfang zu gross.
-- Budget als Freitext am Event: Nicht auswertbar fuer Zahlungsstand und Dienstleisterbezug.
+- Eigenes Budgetmodul vor dem MVP: Für den aktuellen Kernumfang zu groß.
+- Budget als Freitext am Event: Nicht auswertbar für Zahlungsstand und Dienstleisterbezug.
 
 ### Konsequenzen
 
-- F007 ist als nutzbare Budgetuebersicht umgesetzt.
+- F007 ist als nutzbare Budgetübersicht umgesetzt.
 - Budgetpositionen bleiben eventbezogen und nutzen die vorhandene Dienstleister-Stammdatenverwaltung.
-- Die Pruefbedarfsregel bei Gaestezahlsaenderungen bleibt F010.
+- Die Prüfbedarfsregel bei Gästezahlsaenderungen bleibt F010.
 
 ---
 
@@ -267,13 +267,13 @@ Event-Dienstleister-Zuordnungen werden innerhalb der Event-Karten gepflegt. Die 
 
 ### Alternativen verworfen
 
-- Dienstleisterdaten pro Event duplizieren: Wuerde Stammdaten und Event-Zuordnung vermischen.
-- Zuordnungen nur ueber Budgetpositionen abbilden: Nicht ausreichend fuer Vertragsstatus und Stornofrist.
+- Dienstleisterdaten pro Event duplizieren: Würde Stammdaten und Event-Zuordnung vermischen.
+- Zuordnungen nur über Budgetpositionen abbilden: Nicht ausreichend für Vertragsstatus und Stornofrist.
 
 ### Konsequenzen
 
 - F008 ist als nutzbare Event-Dienstleister-Zuordnung umgesetzt.
-- Dienstleister koennen pro Event angelegt, bearbeitet und entfernt werden, ohne die Stammdaten zu loeschen.
+- Dienstleister können pro Event angelegt, bearbeitet und entfernt werden, ohne die Stammdaten zu löschen.
 - Ausfall- und Eskalationslogik bleibt F014.
 
 ---
@@ -284,81 +284,81 @@ Event-Dienstleister-Zuordnungen werden innerhalb der Event-Karten gepflegt. Die 
 
 ### Entscheidung
 
-SQLite bleibt die lokale Datenbank unter `prisma/dev.db`. Prisma verwaltet das relationale Kernmodell ueber `prisma/schema.prisma` und Migrationen unter `prisma/migrations/`; der Zugriff erfolgt zentral ueber `src/lib/prisma.ts`.
+SQLite bleibt die lokale Datenbank unter `prisma/dev.db`. Prisma verwaltet das relationale Kernmodell über `prisma/schema.prisma` und Migrationen unter `prisma/migrations/`; der Zugriff erfolgt zentral über `src/lib/prisma.ts`.
 
 ### Alternativen verworfen
 
-- Andere Datenbank fuer den MVP: Widerspricht der Spec-Vorgabe.
-- Persistenz ohne Migrationen: Nicht nachvollziehbar genug fuer ein wachsendes Kernmodell.
+- Andere Datenbank für den MVP: Widerspricht der Spec-Vorgabe.
+- Persistenz ohne Migrationen: Nicht nachvollziehbar genug für ein wachsendes Kernmodell.
 
 ### Konsequenzen
 
 - F009 ist als technische Persistenzbasis umgesetzt.
 - Die lokale Datenbankdatei bleibt nicht versioniert.
-- Ein Test prueft SQLite-Konfiguration und vorhandene Kernmodelle.
+- Ein Test prüft SQLite-Konfiguration und vorhandene Kernmodelle.
 
 ---
 
 ## 2026-07-10 - Formular-Parser-Helfer zentralisieren
 
-**Kontext:** Beim Codequalitaetsdurchlauf nach F009 fielen mehrfach duplizierte Hilfsfunktionen fuer optionale Texte, IDs, Datumswerte und Geldwerte in den fachlichen Input-Parsern auf.
+**Kontext:** Beim Codequalitätsdurchlauf nach F009 fielen mehrfach duplizierte Hilfsfunktionen für optionale Texte, IDs, Datumswerte und Geldwerte in den fachlichen Input-Parsern auf.
 
 ### Entscheidung
 
-Neutrale Formular-Normalisierung liegt zentral in `src/lib/form-input.ts`. Fachliche Parser behalten ihre Pflichtfeld-, Status- und Entitaetsregeln, verwenden aber gemeinsame Helfer fuer wiederkehrende Eingabetypen.
+Neutrale Formular-Normalisierung liegt zentral in `src/lib/form-input.ts`. Fachliche Parser behalten ihre Pflichtfeld-, Status- und Entitätsregeln, verwenden aber gemeinsame Helfer für wiederkehrende Eingabetypen.
 
 ### Alternativen verworfen
 
-- Duplikate in jedem Parser behalten: Erhoeht Wartungsaufwand und Risiko auseinanderlaufender Validierung.
-- Parser komplett generisch machen: Fuer den aktuellen Scope zu abstrakt und schlechter lesbar.
+- Duplikate in jedem Parser behalten: Erhöht Wartungsaufwand und Risiko auseinanderlaufender Validierung.
+- Parser komplett generisch machen: Für den aktuellen Scope zu abstrakt und schlechter lesbar.
 
 ### Konsequenzen
 
 - Die Parser enthalten weniger doppelte Logik.
 - Bestehendes Verhalten bleibt durch die vorhandenen Unit-Tests abgesichert.
-- Neue Formular-Parser koennen gemeinsame Helfer wiederverwenden.
+- Neue Formular-Parser können gemeinsame Helfer wiederverwenden.
 
 ---
 
-## 2026-07-10 - Pruefbedarf bei Gaestezahlsaenderung
+## 2026-07-10 - Prüfbedarf bei Gästezahlsaenderung
 
-**Kontext:** F010 verlangt, dass Aenderungen der aktuellen Gaestezahl betroffene Aufgaben und Budgetbereiche als pruefbeduerftig markieren.
+**Kontext:** F010 verlangt, dass Änderungen der aktuellen Gästezahl betroffene Aufgaben und Budgetbereiche als prüfbedürftig markieren.
 
 ### Entscheidung
 
-Die Gaestezahl-Synchronisierung vergleicht den neu berechneten Wert mit der gespeicherten aktuellen Gaestezahl. Nur bei einer echten Aenderung werden das Event, alle Aufgaben des Events und alle Budgetpositionen des Events als pruefbeduerftig markiert.
+Die Gästezahl-Synchronisierung vergleicht den neu berechneten Wert mit der gespeicherten aktuellen Gästezahl. Nur bei einer echten Änderung werden das Event, alle Aufgaben des Events und alle Budgetpositionen des Events als prüfbedürftig markiert.
 
 ### Alternativen verworfen
 
-- Immer nach jeder Gaesteaktion markieren: Wuerde auch Statuswechsel ohne Auswirkung unnoetig eskalieren.
-- Nur das Event markieren: Aufgaben und Budgetpositionen waeren nicht direkt sichtbar betroffen.
+- Immer nach jeder Gästeaktion markieren: Würde auch Statuswechsel ohne Auswirkung unnötig eskalieren.
+- Nur das Event markieren: Aufgaben und Budgetpositionen wären nicht direkt sichtbar betroffen.
 
 ### Konsequenzen
 
-- F010 ist als Geschaeftsregel umgesetzt.
-- Pruefbedarf ist in Event-Karten, Aufgaben und Budgetpositionen sichtbar.
-- Eine spaetere Funktion zum Zuruecksetzen von Pruefbedarf ist noch nicht Teil des Backlogs.
+- F010 ist als Geschäftsregel umgesetzt.
+- Prüfbedarf ist in Event-Karten, Aufgaben und Budgetpositionen sichtbar.
+- Eine spätere Funktion zum Zurücksetzen von Prüfbedarf ist noch nicht Teil des Backlogs.
 
 ---
 
-## 2026-07-15 - Versionierte Ablaufplaene
+## 2026-07-15 - Versionierte Ablaufpläne
 
-**Kontext:** F011 verlangt, dass Aenderungen an Ablaufplaenen neue Versionen erzeugen und pro Event nur eine Version aktuell ist.
+**Kontext:** F011 verlangt, dass Änderungen an Ablaufplänen neue Versionen erzeugen und pro Event nur eine Version aktuell ist.
 
 ### Entscheidung
 
-Ablaufpunkte werden nicht mehr direkt im aktuellen Ablaufplan veraendert. Beim Hinzufuegen oder Loeschen eines Ablaufpunkts wird der aktuelle Ablaufplan archiviert und eine neue aktuelle Version mit kopierten Ablaufpunkten plus Aenderung erstellt.
+Ablaufpunkte werden nicht mehr direkt im aktuellen Ablaufplan verändert. Beim Hinzufuegen oder Löschen eines Ablaufpunkts wird der aktuelle Ablaufplan archiviert und eine neue aktuelle Version mit kopierten Ablaufpunkten plus Änderung erstellt.
 
 ### Alternativen verworfen
 
-- Ablaufpunkte direkt mutieren: Historie waere verloren.
-- Separate Detailseite fuer Versionsverwaltung: Fuer die bestehende Event-Karten-UI zu gross.
+- Ablaufpunkte direkt mutieren: Historie wäre verloren.
+- Separate Detailseite für Versionsverwaltung: Für die bestehende Event-Karten-UI zu groß.
 
 ### Konsequenzen
 
 - F011 ist als versionierte Ablaufplanung umgesetzt.
 - Die Event-Karte zeigt die Ablaufversionen und markiert die aktuelle Version.
-- Das Datenmodell bleibt unveraendert, weil Version und `istAktuell` bereits vorhanden waren.
+- Das Datenmodell bleibt unverändert, weil Version und `istAktuell` bereits vorhanden waren.
 
 ---
 
@@ -368,37 +368,37 @@ Ablaufpunkte werden nicht mehr direkt im aktuellen Ablaufplan veraendert. Beim H
 
 ### Entscheidung
 
-Verbindlichkeit wird fachlich ausschliesslich ueber `istVerbindlich` bestimmt. Die Event-Karte zeigt verbindliche Grundlagen separat und filtert unverbindliche Kommunikationsnotizen aus dieser Grundlage heraus.
+Verbindlichkeit wird fachlich ausschliesslich über `istVerbindlich` bestimmt. Die Event-Karte zeigt verbindliche Grundlagen separat und filtert unverbindliche Kommunikationsnotizen aus dieser Grundlage heraus.
 
 ### Alternativen verworfen
 
 - Alle Kommunikationsereignisse als Grundlage behandeln: Widerspricht der Spec-Regel.
-- Verbindlichkeit aus Kanal oder Text ableiten: Zu fehleranfaellig und nicht explizit genug.
+- Verbindlichkeit aus Kanal oder Text ableiten: Zu fehleranfällig und nicht explizit genug.
 
 ### Konsequenzen
 
-- F012 ist als explizite Geschaeftsregel umgesetzt.
-- Unverbindliche Kontakte bleiben im Kommunikationsprotokoll sichtbar, zaehlen aber nicht als Grundlage.
+- F012 ist als explizite Geschäftsregel umgesetzt.
+- Unverbindliche Kontakte bleiben im Kommunikationsprotokoll sichtbar, zählen aber nicht als Grundlage.
 - Die Regel ist durch einen eigenen Helper mit Unit-Test abgesichert.
 
 ---
 
-## 2026-07-15 - Aufgabenabhaengigkeiten erzwingen
+## 2026-07-15 - Aufgabenabhängigkeiten erzwingen
 
-**Kontext:** F013 verlangt, dass abhaengige Aufgaben erst erledigt werden duerfen, wenn ihre Vorgaenger-Aufgabe erledigt ist.
+**Kontext:** F013 verlangt, dass abhängige Aufgaben erst erledigt werden dürfen, wenn ihre Vorgänger-Aufgabe erledigt ist.
 
 ### Entscheidung
 
-Der Statuswechsel auf `erledigt` wird serverseitig blockiert, solange eine verknuepfte Vorgaenger-Aufgabe nicht erledigt ist. Die Event-Karte markiert solche Aufgaben mit einem Blockiert-Badge.
+Der Statuswechsel auf `erledigt` wird serverseitig blockiert, solange eine verknuepfte Vorgänger-Aufgabe nicht erledigt ist. Die Event-Karte markiert solche Aufgaben mit einem Blockiert-Badge.
 
 ### Alternativen verworfen
 
-- Nur visuell warnen: Wuerde unzulaessige Statuswechsel nicht verhindern.
-- Einen neuen Status `blockiert` einfuehren: Widerspricht den Statuswerten aus der Spec.
+- Nur visuell warnen: Würde unzulässige Statuswechsel nicht verhindern.
+- Einen neuen Status `blockiert` einführen: Widerspricht den Statuswerten aus der Spec.
 
 ### Konsequenzen
 
-- F013 ist als wirksame Geschaeftsregel umgesetzt.
+- F013 ist als wirksame Geschäftsregel umgesetzt.
 - Blockierte Aufgaben bleiben im bestehenden Statusmodell sichtbar.
 - Die Regel ist durch einen eigenen Helper mit Unit-Test abgesichert.
 
@@ -406,57 +406,57 @@ Der Statuswechsel auf `erledigt` wird serverseitig blockiert, solange eine verkn
 
 ## 2026-07-15 - Dienstleister-Ausfalleskalation
 
-**Kontext:** F014 verlangt sichtbare Eskalation, wenn ein kritischer Dienstleister ausfaellt.
+**Kontext:** F014 verlangt sichtbare Eskalation, wenn ein kritischer Dienstleister ausfällt.
 
 ### Entscheidung
 
-Event-Dienstleister-Zuordnungen koennen als kritisch markiert und auf `ausgefallen` gesetzt werden. Sobald mindestens ein kritischer Dienstleister eines Events ausgefallen ist, werden alle Aufgaben und die Ablaufpunkte des aktuellen Ablaufplans dieses Events als eskaliert markiert.
+Event-Dienstleister-Zuordnungen können als kritisch markiert und auf `ausgefallen` gesetzt werden. Sobald mindestens ein kritischer Dienstleister eines Events ausgefallen ist, werden alle Aufgaben und die Ablaufpunkte des aktuellen Ablaufplans dieses Events als eskaliert markiert.
 
 ### Alternativen verworfen
 
-- Ausfall nur als Status anzeigen: Wuerde betroffene operative Elemente nicht sichtbar machen.
-- Feingranulare Zuordnung einzelner Aufgaben und Ablaufpunkte zu Dienstleistern: Im aktuellen Datenmodell nicht vorhanden und fuer F014 zu gross.
+- Ausfall nur als Status anzeigen: Würde betroffene operative Elemente nicht sichtbar machen.
+- Feingranulare Zuordnung einzelner Aufgaben und Ablaufpunkte zu Dienstleistern: Im aktuellen Datenmodell nicht vorhanden und für F014 zu groß.
 
 ### Konsequenzen
 
 - F014 ist als sichtbare Eskalationsregel umgesetzt.
-- Beim Aufloesen oder Entfernen kritischer Ausfaelle wird die Eskalation fuer das Event neu berechnet.
+- Beim Auflösen oder Entfernen kritischer Ausfälle wird die Eskalation für das Event neu berechnet.
 - Konfigurierbare Eskalationslogik bleibt F019.
 
 ---
 
-## 2026-07-15 - Keine direkte Dienstleister-Aenderungseinreichung
+## 2026-07-15 - Keine direkte Dienstleister-Änderungseinreichung
 
-**Kontext:** F015 verlangt die Klaerung, ob Dienstleister Aenderungen selbst einreichen duerfen.
+**Kontext:** F015 verlangt die Klärung, ob Dienstleister Änderungen selbst einreichen dürfen.
 
 ### Entscheidung
 
-Dienstleister erhalten im aktuellen Solo-Projekt keinen direkten Schreibzugriff und reichen keine Aenderungen im System ein. Aenderungen werden extern angenommen, vom Event-Team geprueft und danach intern eingetragen.
+Dienstleister erhalten im aktuellen Solo-Projekt keinen direkten Schreibzugriff und reichen keine Änderungen im System ein. Änderungen werden extern angenommen, vom Event-Team geprüft und danach intern eingetragen.
 
 ### Alternativen verworfen
 
-- Externe Aenderungsvorschlaege im System: Ohne Rollen- und Rechtekonzept zu riskant.
-- Automatisches Ueberschreiben von Planungsdaten: Wuerde verbindliche Daten ungeprueft veraendern.
+- Externe Änderungsvorschlaege im System: Ohne Rollen- und Rechtekonzept zu riskant.
+- Automatisches Überschreiben von Planungsdaten: Würde verbindliche Daten ungeprüft verändern.
 
 ### Konsequenzen
 
 - F015 ist fachlich entschieden und in `docs/concepts/dienstleister-aenderungseinreichung.md` dokumentiert.
-- Verbindliche externe Zusagen werden ueber das Kommunikationsprotokoll festgehalten.
+- Verbindliche externe Zusagen werden über das Kommunikationsprotokoll festgehalten.
 - Ein externer Freigabe-Workflow bleibt ausserhalb des aktuellen Scopes.
 
 ---
 
 ## 2026-07-15 - Keine Rollen und Kundenansicht im aktuellen Scope
 
-**Kontext:** F016 verlangt die Klaerung, ob Rollen wie Assistenz, Eventmanagerin oder Kundenansicht benoetigt werden.
+**Kontext:** F016 verlangt die Klärung, ob Rollen wie Assistenz, Eventmanagerin oder Kundenansicht benötigt werden.
 
 ### Entscheidung
 
-Das System bleibt fuer den aktuellen Solo-Scope eine interne Einzelansicht ohne Rollenmodell und ohne Kundenansicht.
+Das System bleibt für den aktuellen Solo-Scope eine interne Einzelansicht ohne Rollenmodell und ohne Kundenansicht.
 
 ### Alternativen verworfen
 
-- Rollen ohne Authentifizierung einfuehren: Waere fachlich irrefuehrend und technisch nicht belastbar.
+- Rollen ohne Authentifizierung einführen: Wäre fachlich irreführend und technisch nicht belastbar.
 - Kundenansicht als reine Filteransicht bauen: Ohne Freigabe- und Sichtbarkeitsregeln zu riskant.
 
 ### Konsequenzen
@@ -467,45 +467,45 @@ Das System bleibt fuer den aktuellen Solo-Scope eine interne Einzelansicht ohne 
 
 ---
 
-## 2026-07-15 - Wartelisten-Management nach Event-Kapazitaet
+## 2026-07-15 - Wartelisten-Management nach Event-Kapazität
 
-**Kontext:** F017 verlangt einen kontrollierten Kapazitaetsworkflow fuer Gaeste auf der Warteliste.
+**Kontext:** F017 verlangt einen kontrollierten Kapazitätsworkflow für Gäste auf der Warteliste.
 
 ### Entscheidung
 
-Nur Gaeste mit Status `angemeldet` oder `bestaetigt` zaehlen als aktive Gaeste. Wenn die geplante Gaestezahl erreicht ist, werden neue aktive Anfragen automatisch auf `warteliste` gesetzt; wird Kapazitaet frei, ruecken Wartelisten-Gaeste nach ID-Reihenfolge automatisch auf `bestaetigt` nach.
+Nur Gäste mit Status `angemeldet` oder `bestaetigt` zählen als aktive Gäste. Wenn die geplante Gästezahl erreicht ist, werden neue aktive Anfragen automatisch auf `warteliste` gesetzt; wird Kapazität frei, rücken Wartelisten-Gäste nach ID-Reihenfolge automatisch auf `bestaetigt` nach.
 
 ### Alternativen verworfen
 
-- Warteliste nur als manueller Status: Wuerde Kapazitaeten nicht schuetzen.
-- Zufalls- oder Prioritaetslogik: Im aktuellen Datenmodell gibt es keine fachliche Prioritaet.
+- Warteliste nur als manueller Status: Würde Kapazitäten nicht schützen.
+- Zufalls- oder Prioritätslogik: Im aktuellen Datenmodell gibt es keine fachliche Priorität.
 
 ### Konsequenzen
 
-- F017 ist als Kapazitaetsworkflow umgesetzt.
-- Die Event-Karte zeigt aktive Gaeste und Wartelisten-Gaeste getrennt.
-- VIP- oder Prioritaetsregeln koennen spaeter auf dieser Basis ergaenzt werden.
+- F017 ist als Kapazitätsworkflow umgesetzt.
+- Die Event-Karte zeigt aktive Gäste und Wartelisten-Gäste getrennt.
+- VIP- oder Prioritätsregeln können später auf dieser Basis ergänzt werden.
 
 ---
 
-## 2026-07-15 - Bestehende Tools vorerst ergaenzen
+## 2026-07-15 - Bestehende Tools vorerst ergänzen
 
-**Kontext:** F018 verlangt die Klaerung, welche bestehenden Tools ersetzt und welche nur ergaenzt werden.
+**Kontext:** F018 verlangt die Klärung, welche bestehenden Tools ersetzt und welche nur ergänzt werden.
 
 ### Entscheidung
 
-Das System ersetzt aktuell keine bestehenden Tools vollstaendig. Es wird als lokale Planungs- und Steuerungszentrale verstanden; Importe, Exporte und Synchronisationen werden erst nach konkreter Tool-Liste spezifiziert.
+Das System ersetzt aktuell keine bestehenden Tools vollständig. Es wird als lokale Planungs- und Steuerungszentrale verstanden; Importe, Exporte und Synchronisationen werden erst nach konkreter Tool-Liste spezifiziert.
 
 ### Alternativen verworfen
 
 - Pauschale Tool-Ersetzung: Ohne Ist-Systeme und Datenformate nicht belastbar.
-- Generische Import-/Exportfunktionen bauen: Wuerde Scheingenauigkeit erzeugen und Wartungskosten erhoehen.
+- Generische Import-/Exportfunktionen bauen: Würde Scheingenauigkeit erzeugen und Wartungskosten erhöhen.
 
 ### Konsequenzen
 
 - F018 ist fachlich entschieden und in `docs/concepts/tool-ersetzung-und-integration.md` dokumentiert.
 - Der aktuelle Scope bleibt integrationsfrei.
-- Spaetere Integrationen brauchen konkrete Quell- und Zielsysteme.
+- Spätere Integrationen brauchen konkrete Quell- und Zielsysteme.
 
 ---
 
@@ -515,86 +515,103 @@ Das System ersetzt aktuell keine bestehenden Tools vollstaendig. Es wird als lok
 
 ### Entscheidung
 
-Die Dienstleister-Ausfalleskalation nutzt eine zentrale Konfiguration in `src/lib/escalation-config.ts`. Dort sind der ausloesende Status und die betroffenen Zielbereiche hinterlegt.
+Die Dienstleister-Ausfalleskalation nutzt eine zentrale Konfiguration in `src/lib/escalation-config.ts`. Dort sind der auslösende Status und die betroffenen Zielbereiche hinterlegt.
 
 ### Alternativen verworfen
 
 - Regelwerte direkt in Server Actions behalten: Schlechter wartbar und schwerer erweiterbar.
-- Datenbankmodell fuer Regeln einfuehren: Fuer den aktuellen Scope zu gross.
+- Datenbankmodell für Regeln einführen: Für den aktuellen Scope zu groß.
 
 ### Konsequenzen
 
 - F019 ist als zentrale Code-Konfiguration umgesetzt und in `docs/concepts/konfigurierbare-eskalationen.md` dokumentiert.
 - Die bestehende Eskalationsregel bleibt funktional gleich.
-- Eine spaetere UI fuer Regelpflege kann auf der zentralen Struktur aufbauen.
+- Eine spätere UI für Regelpflege kann auf der zentralen Struktur aufbauen.
 
 ---
 
 ## 2026-07-15 - Anzeigeformatierung aus der Startseite extrahieren
 
-**Kontext:** Beim projektweiten Codequalitaetsdurchlauf fiel auf, dass `src/app/page.tsx` neben Server Actions und UI auch alle Datums-, Waehrungs- und Label-Formatierer enthielt.
+**Kontext:** Beim projektweiten Codequalitätsdurchlauf fiel auf, dass `src/app/page.tsx` neben Server Actions und UI auch alle Datums-, Währungs- und Label-Formatierer enthielt.
 
 ### Entscheidung
 
-Anzeigeformatierung liegt zentral in `src/lib/formatters.ts`. `src/app/page.tsx` importiert diese Helfer und enthaelt dadurch weniger nicht-seitenspezifische Logik.
+Anzeigeformatierung liegt zentral in `src/lib/formatters.ts`. `src/app/page.tsx` importiert diese Helfer und enthält dadurch weniger nicht-seitenspezifische Logik.
 
 ### Alternativen verworfen
 
-- Formatierer in der Seite belassen: Erhoeht die Groesse und erschwert Wiederverwendung.
-- Formatierung in mehrere fachliche Einzelmodule zerlegen: Fuer den aktuellen Umfang zu kleinteilig.
+- Formatierer in der Seite belassen: Erhöht die Größe und erschwert Wiederverwendung.
+- Formatierung in mehrere fachliche Einzelmodule zerlegen: Für den aktuellen Umfang zu kleinteilig.
 
 ### Konsequenzen
 
 - Die Startseite ist kuerzer und fokussierter.
-- Formatierungslogik kann spaeter in weiteren Views wiederverwendet werden.
-- Die Geldvalidierung in `src/lib/form-input.ts` nutzt intern eine gemeinsame Parserfunktion fuer Pflicht- und optionale Geldwerte.
+- Formatierungslogik kann später in weiteren Views wiederverwendet werden.
+- Die Geldvalidierung in `src/lib/form-input.ts` nutzt intern eine gemeinsame Parserfunktion für Pflicht- und optionale Geldwerte.
 
 ---
 
 ## 2026-07-15 - Projektansicht klarer strukturieren
 
-**Kontext:** Die Event-Zentrale wurde mit wachsendem Funktionsumfang unuebersichtlich, aggregierte Kopfkennzahlen vermischten mehrere Projekte, und einzelne Arbeitsbereiche waren innerhalb eines Events schwer voneinander zu trennen.
+**Kontext:** Die Event-Zentrale wurde mit wachsendem Funktionsumfang unübersichtlich, aggregierte Kopfkennzahlen vermischten mehrere Projekte, und einzelne Arbeitsbereiche waren innerhalb eines Events schwer voneinander zu trennen.
 
 ### Entscheidung
 
-Die Startseite zeigt keine projektuebergreifenden Budget- und Gaestesummen mehr. Jedes Event ist als eigenes Projekt mit eigenen Kennzahlen dargestellt; Detailbereiche wie Budget, Gaeste, Ablauf, Aufgaben, Kommunikation und Dienstleister sind als klar getrennte aufklappbare Abschnitte organisiert.
+Die Startseite zeigt keine projektübergreifenden Budget- und Gästesummen mehr. Jedes Event ist als eigenes Projekt mit eigenen Kennzahlen dargestellt; Detailbereiche wie Budget, Gäste, Ablauf, Aufgaben, Kommunikation und Dienstleister sind als klar getrennte aufklappbare Abschnitte organisiert.
 
 ### Alternativen verworfen
 
 - Aggregierte Kopfkennzahlen behalten: Bei mehreren Events schwer interpretierbar.
-- Separate Seiten pro Arbeitsbereich sofort einfuehren: Fuer den aktuellen App Router Scope zu grosser Umbau.
+- Separate Seiten pro Arbeitsbereich sofort einführen: Für den aktuellen App Router Scope zu großer Umbau.
 
 ### Konsequenzen
 
-- Events sind visuell staerker voneinander getrennt.
+- Events sind visuell stärker voneinander getrennt.
 - Die wichtigsten Projektkennzahlen stehen direkt am jeweiligen Event.
-- Weniger genutzte Detailbereiche koennen eingeklappt bleiben.
+- Weniger genutzte Detailbereiche können eingeklappt bleiben.
 
 ---
 
 ## 2026-07-15 - Stammdaten und Eingaben ergonomischer machen
 
-**Kontext:** Dienstleister mussten bisher geloescht und neu angelegt werden, der Gaeste-Statusbutton war missverstaendlich, und das native Datumsfeld war fuer die Event-Erfassung zu umstaendlich.
+**Kontext:** Dienstleister mussten bisher gelöscht und neu angelegt werden, der Gäste-Statusbutton war missverständlich, und das native Datumsfeld war für die Event-Erfassung zu umständlich.
 
 ### Entscheidung
 
-Dienstleister-Stammdaten koennen direkt in der Dienstleisterkarte bearbeitet werden. Der Gaeste-Statuswechsel ist als Formular mit Label `Neuer Status` und Button `Speichern` formuliert. Das Event-Datum wird in der Neuanlage ueber getrennte Jahr-, Monat- und Tag-Auswahlfelder erfasst und serverseitig streng validiert.
+Dienstleister-Stammdaten können direkt in der Dienstleisterkarte bearbeitet werden. Der Gäste-Statuswechsel ist als Formular mit Label `Neuer Status` und Button `Speichern` formuliert. Das Event-Datum wird in der Neuanlage über getrennte Jahr-, Monat- und Tag-Auswahlfelder erfasst und serverseitig streng validiert.
 
 ### Alternativen verworfen
 
-- Statusbutton unveraendert lassen: Die Aktion war nicht eindeutig genug.
-- Dienstleister nur loeschen und neu anlegen: Unnoetig fehleranfaellig bei bestehenden Zuordnungen.
-- Datum nur clientseitig pruefen: Server Actions muessen ungueltige Kalenderdaten selbst abweisen.
+- Statusbutton unverändert lassen: Die Aktion war nicht eindeutig genug.
+- Dienstleister nur löschen und neu anlegen: Unnötig fehleranfällig bei bestehenden Zuordnungen.
+- Datum nur clientseitig prüfen: Server Actions müssen ungültige Kalenderdaten selbst abweisen.
 
 ### Konsequenzen
 
-- Lieferanten koennen ohne Datenverlust angepasst werden.
-- Gaeste-Statuswechsel sind in der UI eindeutiger.
-- Ungueltige kombinierte Datumswerte werden nicht still normalisiert.
+- Lieferanten können ohne Datenverlust angepasst werden.
+- Gäste-Statuswechsel sind in der UI eindeutiger.
+- Ungültige kombinierte Datumswerte werden nicht still normalisiert.
 
 ---
 
-<!-- Vorlage fuer neue Entscheidungen:
+---
+
+## 2026-07-15 - Umlaute in sichtbaren Texten
+
+**Kontext:** Die App und Dokumentation enthielten deutsche Wörter mit ASCII-Umschreibungen wie `ae` oder `oe`, obwohl die Oberfläche deutschsprachig ist.
+
+### Entscheidung
+
+Sichtbare deutsche Texte, Fehlermeldungen, Tests und Dokumentation verwenden Umlaute. Technische Identifier, gespeicherte Enum-Werte und Datenbankfelder bleiben stabil, damit Prisma-Schema, Datenbestand und Imports nicht brechen.
+
+### Konsequenzen
+
+- Die Oberfläche und Dokumentation lesen sich natürlicher.
+- Code-nahe Namen wie `backupFuerId` oder `bestaetigt` bleiben unverändert.
+
+---
+
+<!-- Vorlage für neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung
 

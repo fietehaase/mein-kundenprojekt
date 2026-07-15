@@ -5,7 +5,7 @@ describe("parseTaskInput", () => {
   it("normalisiert valide Aufgaben", () => {
     const task = parseTaskInput({
       eventId: "4",
-      bezeichnung: " Catering bestaetigen ",
+      bezeichnung: " Catering bestätigen ",
       faelligAm: "2026-07-10T12:00",
       status: "offen",
       abhaengigVonId: "2",
@@ -14,7 +14,7 @@ describe("parseTaskInput", () => {
     });
 
     expect(task.eventId).toBe(4);
-    expect(task.bezeichnung).toBe("Catering bestaetigen");
+    expect(task.bezeichnung).toBe("Catering bestätigen");
     expect(task.status).toBe("offen");
     expect(task.abhaengigVonId).toBe(2);
     expect(task.zugewiesenAn).toBe("Team Planung");
@@ -53,7 +53,7 @@ describe("parseTaskInput", () => {
     ).toThrow("Die Aufgaben-Bezeichnung ist erforderlich.");
 
     expect(() => parseTaskStatus("blockiert")).toThrow(
-      "Ungueltiger Aufgabenstatus.",
+      "Ungültiger Aufgabenstatus.",
     );
   });
 });

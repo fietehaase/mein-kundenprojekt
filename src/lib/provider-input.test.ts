@@ -51,7 +51,7 @@ describe("parseProviderInput", () => {
     ).toThrow("Der Dienstleister-Name ist erforderlich.");
 
     expect(() => parseProviderCategory("transport")).toThrow(
-      "Ungueltige Dienstleister-Kategorie.",
+      "Ungültige Dienstleister-Kategorie.",
     );
   });
 });

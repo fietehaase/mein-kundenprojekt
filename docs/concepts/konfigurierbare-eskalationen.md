@@ -4,19 +4,19 @@ _Stand: 2026-07-15_
 
 ## Entscheidung
 
-Eskalationsregeln liegen zentral in `src/lib/escalation-config.ts`. Der aktuelle Scope konfiguriert Dienstleister-Ausfaelle ueber einen kritischen Status und Zielbereiche.
+Eskalationsregeln liegen zentral in `src/lib/escalation-config.ts`. Der aktuelle Scope konfiguriert Dienstleister-Ausfälle über einen kritischen Status und Zielbereiche.
 
 ## Aktuelle Regel
 
-- Ausloeser: kritische Event-Dienstleister-Zuordnung mit Status `ausgefallen`.
+- Auslöser: kritische Event-Dienstleister-Zuordnung mit Status `ausgefallen`.
 - Zielbereiche: Aufgaben und Ablaufpunkte des aktuellen Ablaufplans.
 - Wirkung: Zielbereiche werden als `eskaliert` markiert.
 
-## Begruendung
+## Begründung
 
-- Die Regel ist nicht mehr ueber mehrere Server Actions verstreut.
-- Zielbereiche koennen spaeter an einer Stelle angepasst werden.
-- Das Datenmodell muss fuer diesen Schritt nicht erweitert werden.
+- Die Regel ist nicht mehr über mehrere Server Actions verstreut.
+- Zielbereiche können später an einer Stelle angepasst werden.
+- Das Datenmodell muss für diesen Schritt nicht erweitert werden.
 
 ## Nicht enthalten
 

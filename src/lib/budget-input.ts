@@ -32,7 +32,7 @@ export function parseBudgetInput(input: BudgetFormInput): ParsedBudgetInput {
     betragAngebot: optionalMoney(input.betragAngebot, "Angebotsbetrag"),
     betragBestaetigt: optionalMoney(
       input.betragBestaetigt,
-      "Bestaetigter Betrag",
+      "Bestätigter Betrag",
     ),
     betragBezahlt: optionalMoney(input.betragBezahlt, "Bezahlter Betrag"),
     dienstleisterId: optionalId(input.dienstleisterId, "Dienstleister"),

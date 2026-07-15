@@ -35,11 +35,11 @@ export function parseEventInput(input: EventFormInput): ParsedEventInput {
   const status = parseEventStatus(input.status);
   const gaesteanzahlGeplant = parseNonNegativeInteger(
     input.gaesteanzahlGeplant,
-    "Geplante Gaestezahl",
+    "Geplante Gästezahl",
   );
   const gaesteanzahlAktuell = parseNonNegativeInteger(
     input.gaesteanzahlAktuell,
-    "Aktuelle Gaestezahl",
+    "Aktuelle Gästezahl",
   );
   const budgetGesamt = requiredMoney(input.budgetGesamt, "Das Gesamtbudget");
 
@@ -49,7 +49,7 @@ export function parseEventInput(input: EventFormInput): ParsedEventInput {
 
   if (gaesteanzahlAktuell > gaesteanzahlGeplant) {
     throw new Error(
-      "Die aktuelle Gaestezahl darf nicht groesser als die geplante Gaestezahl sein.",
+      "Die aktuelle Gästezahl darf nicht größer als die geplante Gästezahl sein.",
     );
   }
 
@@ -69,7 +69,7 @@ export function parseEventStatus(status: string): EventStatus {
     return status as EventStatus;
   }
 
-  throw new Error("Ungueltiger Event-Status.");
+  throw new Error("Ungültiger Event-Status.");
 }
 
 function parseDateInput(value: string): Date {
@@ -86,7 +86,7 @@ function parseDateInput(value: string): Date {
     date.getMonth() + 1 !== month ||
     date.getDate() !== day
   ) {
-    throw new Error("Das Event-Datum ist ungueltig.");
+    throw new Error("Das Event-Datum ist ungültig.");
   }
 
   return date;

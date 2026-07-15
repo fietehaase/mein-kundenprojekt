@@ -10,7 +10,7 @@ describe("parseCommunicationInput", () => {
       eventId: "5",
       kanal: "email",
       datum: "2026-07-10T14:30",
-      inhalt: " Catering bestaetigt ",
+      inhalt: " Catering bestätigt ",
       istVerbindlich: "on",
       beteiligte: " Kunde, Catering ",
       erstelltVon: " Event-Team ",
@@ -18,7 +18,7 @@ describe("parseCommunicationInput", () => {
 
     expect(communication.eventId).toBe(5);
     expect(communication.kanal).toBe("email");
-    expect(communication.inhalt).toBe("Catering bestaetigt");
+    expect(communication.inhalt).toBe("Catering bestätigt");
     expect(communication.istVerbindlich).toBe(true);
     expect(communication.beteiligte).toBe("Kunde, Catering");
     expect(communication.erstelltVon).toBe("Event-Team");
@@ -30,7 +30,7 @@ describe("parseCommunicationInput", () => {
       eventId: "5",
       kanal: "telefon",
       datum: "2026-07-10T14:30",
-      inhalt: "Rueckfrage zur Technik",
+      inhalt: "Rückfrage zur Technik",
       istVerbindlich: null,
       beteiligte: "",
       erstelltVon: " ",
@@ -55,7 +55,7 @@ describe("parseCommunicationInput", () => {
     ).toThrow("Der Kommunikationsinhalt ist erforderlich.");
 
     expect(() => parseCommunicationChannel("sms")).toThrow(
-      "Ungueltiger Kommunikationskanal.",
+      "Ungültiger Kommunikationskanal.",
     );
   });
 });

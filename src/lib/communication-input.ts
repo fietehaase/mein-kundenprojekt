@@ -57,5 +57,5 @@ export function parseCommunicationChannel(
     return channel as CommunicationChannel;
   }
 
-  throw new Error("Ungueltiger Kommunikationskanal.");
+  throw new Error("Ungültiger Kommunikationskanal.");
 }

@@ -70,7 +70,7 @@ export function parseGuestStatus(status: string): GuestStatus {
     return status as GuestStatus;
   }
 
-  throw new Error("Ungueltiger Anmeldestatus.");
+  throw new Error("Ungültiger Anmeldestatus.");
 }
 
 export function parseGuestType(type: string): GuestType {
@@ -78,14 +78,14 @@ export function parseGuestType(type: string): GuestType {
     return type as GuestType;
   }
 
-  throw new Error("Ungueltiger Gasttyp.");
+  throw new Error("Ungültiger Gasttyp.");
 }
 
 export function parseId(value: string, label: string): number {
   const id = Number(value);
 
   if (!Number.isInteger(id) || id <= 0) {
-    throw new Error(`${label} ist ungueltig.`);
+    throw new Error(`${label} ist ungültig.`);
   }
 
   return id;

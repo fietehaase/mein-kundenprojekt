@@ -4,13 +4,13 @@ _Stand: 2026-07-10_
 
 ## Zweck
 
-Dieses Dokument haelt den technischen Rahmen fuer das Event Management System fest. Die fachliche Quelle ist `docs/spec.md`.
+Dieses Dokument hält den technischen Rahmen für das Event Management System fest. Die fachliche Quelle ist `docs/spec.md`.
 
 ## Projektstatus
 
-- Phase: App-Grundgeruest initialisiert.
+- Phase: App-Grundgerüst initialisiert.
 - Fachliche Grundlage: `docs/spec.md`.
-- Offene fachliche Punkte stehen in `docs/spec.md` und muessen vor betroffenen Implementierungen geklaert werden.
+- Offene fachliche Punkte stehen in `docs/spec.md` und müssen vor betroffenen Implementierungen geklärt werden.
 
 ## Architekturentscheidung: Framework, ORM und Datenbank
 
@@ -20,28 +20,28 @@ Das Projekt verwendet:
 - ORM: Prisma 7 mit generiertem Client unter `src/generated/prisma`.
 - Datenbank: SQLite, lokal unter `prisma/dev.db`.
 
-Begruendung:
+Begründung:
 
-- Next.js deckt UI, Routing und serverseitige Funktionen in einem Projekt ab. Das passt zu einem Solo-Projekt, weil weniger Infrastruktur und weniger Integrationsaufwand noetig sind.
-- TypeScript erhoeht die Sicherheit beim Arbeiten mit dem fachlichen Datenmodell aus `docs/spec.md`.
+- Next.js deckt UI, Routing und serverseitige Funktionen in einem Projekt ab. Das passt zu einem Solo-Projekt, weil weniger Infrastruktur und weniger Integrationsaufwand nötig sind.
+- TypeScript erhöht die Sicherheit beim Arbeiten mit dem fachlichen Datenmodell aus `docs/spec.md`.
 - Prisma bildet das relationale Modell lesbar im Repo ab, erzeugt nachvollziehbare Migrationen und liefert einen typisierten Client.
-- SQLite ist laut Spec verpflichtend, lokal leicht betreibbar und fuer ein fruehes, minimal lauffaehiges System ausreichend.
+- SQLite ist laut Spec verpflichtend, lokal leicht betreibbar und für ein frühes, minimal lauffähiges System ausreichend.
 
 ## Persistenz
 
-SQLite ist verpflichtend und wird ueber Prisma verwaltet.
+SQLite ist verpflichtend und wird über Prisma verwaltet.
 
 Konsequenzen:
 
 - Relationale Modellierung bleibt der Default.
 - Fremdschluessel und Constraints sollen fachliche Regeln absichern, soweit SQLite sie praktikabel abbildet.
-- Versionierte Ablaufplaene und verbindliche Kommunikation muessen historisch nachvollziehbar bleiben.
+- Versionierte Ablaufpläne und verbindliche Kommunikation müssen historisch nachvollziehbar bleiben.
 - Migrationen liegen unter `prisma/migrations/`.
 - Die lokale Entwicklungsdatenbank `prisma/dev.db` wird nicht versioniert.
 
 ## Fachliches Kernmodell
 
-Die initiale Datenmodellierung orientiert sich an diesen Entitaeten aus `docs/spec.md`:
+Die initiale Datenmodellierung orientiert sich an diesen Entitäten aus `docs/spec.md`:
 
 - Event
 - Gast
@@ -56,18 +56,18 @@ Die initiale Datenmodellierung orientiert sich an diesen Entitaeten aus `docs/sp
 ## Wichtige fachliche Invarianten
 
 - Pro Event darf nur ein Ablaufplan als aktuell markiert sein.
-- Aenderungen an Ablaufplaenen erzeugen neue Versionen.
-- Aufgaben mit Abhaengigkeit duerfen erst abgeschlossen werden, wenn die Vorgaenger-Aufgabe erledigt ist.
+- Änderungen an Ablaufplänen erzeugen neue Versionen.
+- Aufgaben mit Abhängigkeit dürfen erst abgeschlossen werden, wenn die Vorgänger-Aufgabe erledigt ist.
 - Nur Kommunikation mit `ist_verbindlich = true` ist fachlich verbindlich.
-- Dienstleister-Ausfaelle muessen betroffene Aufgaben und Ablaufpunkte sichtbar machen.
-- Aenderungen der Gaesteanzahl markieren betroffene Aufgaben und Budgetbereiche als pruefbeduerftig.
+- Dienstleister-Ausfälle müssen betroffene Aufgaben und Ablaufpunkte sichtbar machen.
+- Änderungen der Gästeanzahl markieren betroffene Aufgaben und Budgetbereiche als prüfbedürftig.
 
 ## Noch offen
 
-Vor der fachlichen Implementierung noch klaeren und in `docs/decisions.md` dokumentieren:
+Vor der fachlichen Implementierung noch klären und in `docs/decisions.md` dokumentieren:
 
-- Authentifizierung und Rollenmodell, falls Kundenansicht oder Assistenzrollen benoetigt werden.
-- Deployment-Ziel und Backup-Strategie fuer die SQLite-Datenbank.
+- Authentifizierung und Rollenmodell, falls Kundenansicht oder Assistenzrollen benötigt werden.
+- Deployment-Ziel und Backup-Strategie für die SQLite-Datenbank.
 
 ## Projektstruktur
 

@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest";
 import { isActiveGuestStatus, resolveGuestStatusForCapacity } from "./waitlist";
 
 describe("Wartelisten-Management", () => {
-  it("zaehlt nur angemeldete und bestaetigte Gaeste als aktiv", () => {
+  it("zählt nur angemeldete und bestätigte Gäste als aktiv", () => {
     expect(isActiveGuestStatus("angemeldet")).toBe(true);
     expect(isActiveGuestStatus("bestaetigt")).toBe(true);
     expect(isActiveGuestStatus("warteliste")).toBe(false);
     expect(isActiveGuestStatus("abgesagt")).toBe(false);
   });
 
-  it("setzt aktive Anfragen bei voller Kapazitaet auf Warteliste", () => {
+  it("setzt aktive Anfragen bei voller Kapazität auf Warteliste", () => {
     expect(resolveGuestStatusForCapacity("angemeldet", 10, 10)).toBe(
       "warteliste",
     );

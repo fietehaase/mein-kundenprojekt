@@ -4,12 +4,12 @@ _Stand: 2026-07-15_
 
 ## Entscheidung
 
-Das Event Management System ersetzt im aktuellen Scope keine bestehenden Tools vollstaendig. Es ergaenzt bestehende Arbeitsablaeufe als lokale Planungs- und Steuerungszentrale.
+Das Event Management System ersetzt im aktuellen Scope keine bestehenden Tools vollständig. Es ergänzt bestehende Arbeitsabläufe als lokale Planungs- und Steuerungszentrale.
 
-## Begruendung
+## Begründung
 
 - Es liegt keine konkrete Liste bestehender Tools vor.
-- Ohne Quelldaten, Datenqualitaet und Nutzungsfrequenz koennen Importe und Exporte nicht belastbar spezifiziert werden.
+- Ohne Quelldaten, Datenqualität und Nutzungsfrequenz können Importe und Exporte nicht belastbar spezifiziert werden.
 - Der aktuelle SQLite-Scope ist auf lokale Planung ausgelegt, nicht auf Systemintegration.
 
 ## Aktueller Integrationsumfang
@@ -18,9 +18,9 @@ Das Event Management System ersetzt im aktuellen Scope keine bestehenden Tools v
 - Keine automatischen Exporte.
 - Keine Synchronisation mit Kalendern, Tabellen, CRM oder Buchhaltung.
 
-## Voraussetzungen fuer spaetere Integrationen
+## Voraussetzungen für spätere Integrationen
 
-- Liste der zu ersetzenden oder zu ergaenzenden Tools.
+- Liste der zu ersetzenden oder zu ergänzenden Tools.
 - Datenfelder und Exportformate je Tool.
-- Konfliktregeln bei Aenderungen in mehreren Systemen.
-- Verantwortlichkeit fuer Datenkorrektur und Backups.
+- Konfliktregeln bei Änderungen in mehreren Systemen.
+- Verantwortlichkeit für Datenkorrektur und Backups.

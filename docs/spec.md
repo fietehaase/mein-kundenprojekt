@@ -6,15 +6,15 @@ Backend-Vorgabe: SQLite ist verpflichtend.
 
 ## Ziel
 
-Das System unterstuetzt die Planung und Steuerung von Events. Es soll
-Abhaengigkeiten, Dienstleister-Ausfaelle, Ablaufplan-Versionen, verbindliche
+Das System unterstützt die Planung und Steuerung von Events. Es soll
+Abhängigkeiten, Dienstleister-Ausfälle, Ablaufplan-Versionen, verbindliche
 Kommunikation und Budgetinformationen nachvollziehbar machen.
 
-## Entitaeten
+## Entitäten
 
 ### Event
 
-Kernobjekt fuer eine Veranstaltung.
+Kernobjekt für eine Veranstaltung.
 
 Wichtige Attribute: `id`, `name`, `datum`, `status`,
 `gaesteanzahl_geplant`, `gaesteanzahl_aktuell`, `budget_gesamt`,
@@ -36,7 +36,7 @@ Anmeldestatus: `angemeldet`, `abgesagt`, `warteliste`, `bestaetigt`.
 
 ### Dienstleister
 
-Externer Anbieter fuer ein Event.
+Externer Anbieter für ein Event.
 
 Wichtige Attribute: `id`, `name`, `kategorie`, `ansprechpartner`,
 `telefon_mobil`, `email`, `zuverlaessigkeits_notiz`, `backup_fuer`.
@@ -46,7 +46,7 @@ Kategorien: `catering`, `technik`, `location`, `dekoration`,
 
 ### Ablaufplan
 
-Versionierter Ablauf fuer ein Event.
+Versionierter Ablauf für ein Event.
 
 Wichtige Attribute: `id`, `event_id`, `version`, `ist_aktuell`,
 `erstellt_am`.
@@ -61,7 +61,7 @@ Wichtige Attribute: `id`, `ablaufplan_id`, `uhrzeit_start`,
 
 ### Aufgabe
 
-To-do mit Faelligkeit und optionaler Abhaengigkeit.
+To-do mit Fälligkeit und optionaler Abhängigkeit.
 
 Wichtige Attribute: `id`, `event_id`, `bezeichnung`, `faellig_am`,
 `status`, `abhaengig_von`, `zugewiesen_an`, `erinnerung_am`.
@@ -75,18 +75,18 @@ Protokollierter Kommunikationsvorgang zu einem Event.
 Wichtige Attribute: `id`, `event_id`, `kanal`, `datum`, `inhalt`,
 `ist_verbindlich`, `beteiligte`, `erstellt_von`.
 
-Kanaele: `email`, `whatsapp`, `telefon`, `vor_ort`.
+Kanäle: `email`, `whatsapp`, `telefon`, `vor_ort`.
 
 ### Budget-Position
 
-Budgeteintrag fuer Kostenplanung und Zahlungsstand.
+Budgeteintrag für Kostenplanung und Zahlungsstand.
 
 Wichtige Attribute: `id`, `event_id`, `bezeichnung`, `betrag_angebot`,
 `betrag_bestaetigt`, `betrag_bezahlt`, `dienstleister_id`.
 
 ### Event_Dienstleister
 
-Verbindungstabelle fuer die n:m-Beziehung zwischen Events und
+Verbindungstabelle für die n:m-Beziehung zwischen Events und
 Dienstleistern.
 
 Mindestfelder: `event_id`, `dienstleister_id`, `status`, `vertrags_url`,
@@ -94,34 +94,34 @@ Mindestfelder: `event_id`, `dienstleister_id`, `status`, `vertrags_url`,
 
 ## Beziehungen
 
-- Ein Event hat einen oder mehrere Ablaufplaene.
+- Ein Event hat einen oder mehrere Ablaufpläne.
 - Ein Ablaufplan hat mehrere Ablaufpunkte.
 - Ein Event hat mehrere Aufgaben.
-- Eine Aufgabe kann von einer anderen Aufgabe abhaengen.
+- Eine Aufgabe kann von einer anderen Aufgabe abhängen.
 - Ein Event hat mehrere Budget-Positionen.
 - Eine Budget-Position kann einem Dienstleister zugeordnet sein.
-- Ein Event kann mehrere Kommunikations-Eintraege haben.
+- Ein Event kann mehrere Kommunikations-Einträge haben.
 - Ein Dienstleister kann einen Backup-Dienstleister referenzieren.
-- Events und Dienstleister stehen in einer n:m-Beziehung ueber
+- Events und Dienstleister stehen in einer n:m-Beziehung über
   `Event_Dienstleister`.
 
-## Geschaeftsregeln
+## Geschäftsregeln
 
-- Wenn sich die Gaesteanzahl aendert, werden betroffene Aufgaben und
-  Budgetbereiche als pruefbeduerftig markiert.
-- Aenderungen an einem Ablaufplan erzeugen eine neue Version; nur eine
+- Wenn sich die Gästeanzahl ändert, werden betroffene Aufgaben und
+  Budgetbereiche als prüfbedürftig markiert.
+- Änderungen an einem Ablaufplan erzeugen eine neue Version; nur eine
   Version ist aktuell.
 - Nur Kommunikation mit `ist_verbindlich = true` gilt als verbindliche
   Grundlage.
-- Eine abhaengige Aufgabe darf erst erledigt werden, wenn ihre
-  Vorgaenger-Aufgabe erledigt ist.
-- Faellt ein kritischer Dienstleister aus, werden betroffene Ablaufpunkte
+- Eine abhängige Aufgabe darf erst erledigt werden, wenn ihre
+  Vorgänger-Aufgabe erledigt ist.
+- Fällt ein kritischer Dienstleister aus, werden betroffene Ablaufpunkte
   und Aufgaben sichtbar eskaliert.
 
 ## Offene fachliche Punkte
 
-- Duerfen Dienstleister Aenderungen selbst einreichen?
+- Dürfen Dienstleister Änderungen selbst einreichen?
 - Soll es Rollen wie Assistenz, Eventmanagerin oder Kundenansicht geben?
 - Wie genau funktioniert Wartelisten-Management?
-- Welche bestehenden Tools werden ersetzt oder nur ergaenzt?
+- Welche bestehenden Tools werden ersetzt oder nur ergänzt?
 - Welche Eskalationssituationen sollen konfigurierbar sein?

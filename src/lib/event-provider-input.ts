@@ -49,7 +49,7 @@ export function parseEventProviderStatus(
     return status as EventProviderStatus;
   }
 
-  throw new Error("Ungueltiger Event-Dienstleister-Status.");
+  throw new Error("Ungültiger Event-Dienstleister-Status.");
 }
 
 function optionalUrl(value: string): string | null {
@@ -66,8 +66,8 @@ function optionalUrl(value: string): string | null {
       return url.toString();
     }
   } catch {
-    throw new Error("Die Vertrags-URL ist ungueltig.");
+    throw new Error("Die Vertrags-URL ist ungültig.");
   }
 
-  throw new Error("Die Vertrags-URL ist ungueltig.");
+  throw new Error("Die Vertrags-URL ist ungültig.");
 }

@@ -175,7 +175,7 @@ async function updateEventStatus(formData: FormData) {
   const status = parseEventStatus(String(formData.get("status") ?? ""));
 
   if (!Number.isInteger(id)) {
-    throw new Error("Ungueltige Event-ID.");
+    throw new Error("Ungültige Event-ID.");
   }
 
   await prisma.event.update({
@@ -192,7 +192,7 @@ async function deleteEvent(formData: FormData) {
   const id = Number(formData.get("id"));
 
   if (!Number.isInteger(id)) {
-    throw new Error("Ungueltige Event-ID.");
+    throw new Error("Ungültige Event-ID.");
   }
 
   await prisma.event.delete({
@@ -505,7 +505,7 @@ async function createScheduleItem(formData: FormData) {
   });
 
   if (!currentPlan || !currentPlan.istAktuell) {
-    throw new Error("Nur der aktuelle Ablaufplan kann geaendert werden.");
+    throw new Error("Nur der aktuelle Ablaufplan kann geändert werden.");
   }
 
   await prisma.$transaction([
@@ -556,7 +556,7 @@ async function deleteScheduleItem(formData: FormData) {
   });
 
   if (!item || !item.ablaufplan.istAktuell) {
-    throw new Error("Nur aktuelle Ablaufpunkte koennen geloescht werden.");
+    throw new Error("Nur aktuelle Ablaufpunkte können gelöscht werden.");
   }
 
   await prisma.$transaction([
@@ -635,7 +635,7 @@ async function updateTaskStatus(formData: FormData) {
 
   if (status === "erledigt" && !canCompleteTask(task)) {
     throw new Error(
-      "Die Aufgabe kann erst erledigt werden, wenn die Vorgaenger-Aufgabe erledigt ist.",
+      "Die Aufgabe kann erst erledigt werden, wenn die Vorgänger-Aufgabe erledigt ist.",
     );
   }
 
@@ -844,7 +844,7 @@ export default async function Home() {
       <header className={styles.header}>
         <div>
           <p className={styles.eyebrow}>Event Management System</p>
-          <h1>Projektuebersicht</h1>
+          <h1>Projektübersicht</h1>
         </div>
         <p className={styles.headerNote}>
           {events.length} Projekte · {providers.length} Dienstleister
@@ -959,7 +959,7 @@ export default async function Home() {
         <section className={styles.eventList} aria-labelledby="events-heading">
           <div className={styles.listHeader}>
             <h2 id="events-heading">Events</h2>
-            <span>{events.length} Eintraege</span>
+            <span>{events.length} Einträge</span>
           </div>
 
           {events.length === 0 ? (
@@ -997,7 +997,7 @@ export default async function Home() {
                 </select>
               </label>
               <label>
-                Backup fuer
+                Backup für
                 <select name="backupFuerId" defaultValue="">
                   <option value="">Keinen</option>
                   {providers.map((provider) => (
@@ -1026,7 +1026,7 @@ export default async function Home() {
             </div>
 
             <label>
-              Zuverlaessigkeit
+              Zuverlässigkeit
               <textarea
                 name="zuverlaessigkeitsNotiz"
                 rows={4}
@@ -1041,7 +1041,7 @@ export default async function Home() {
         <section className={styles.eventList} aria-labelledby="providers-heading">
           <div className={styles.listHeader}>
             <h2 id="providers-heading">Dienstleister</h2>
-            <span>{providers.length} Eintraege</span>
+            <span>{providers.length} Einträge</span>
           </div>
 
           {providers.length === 0 ? (
@@ -1101,7 +1101,7 @@ function EventCard({
         <div>
           <span className={styles.status}>{formatStatus(event.status)}</span>
           {event.budgetPruefbeduerftig ? (
-            <span className={styles.reviewBadge}>Pruefbedarf</span>
+            <span className={styles.reviewBadge}>Prüfbedarf</span>
           ) : null}
           <h3>{event.name}</h3>
         </div>
@@ -1110,7 +1110,7 @@ function EventCard({
 
       <dl className={styles.eventFacts}>
         <div>
-          <dt>Gaeste</dt>
+          <dt>Gäste</dt>
           <dd>
             {activeGuests}/{event.gaesteanzahlGeplant}
           </dd>
@@ -1147,7 +1147,7 @@ function EventCard({
         <form action={deleteEvent}>
           <input type="hidden" name="id" value={event.id} />
           <button className={styles.dangerButton} type="submit">
-            Loeschen
+            Löschen
           </button>
         </form>
       </div>
@@ -1168,7 +1168,7 @@ function EventCard({
             <dd>{formatCurrency(offeredBudget)}</dd>
           </div>
           <div>
-            <dt>Bestaetigt</dt>
+            <dt>Bestätigt</dt>
             <dd>{formatCurrency(confirmedBudget)}</dd>
           </div>
           <div>
@@ -1194,7 +1194,7 @@ function EventCard({
             />
           </label>
           <label>
-            Bestaetigt
+            Bestätigt
             <input
               name="betragBestaetigt"
               type="number"
@@ -1224,7 +1224,7 @@ function EventCard({
               ))}
             </select>
           </label>
-          <button type="submit">Budgetposition hinzufuegen</button>
+          <button type="submit">Budgetposition hinzufügen</button>
         </form>
 
         {event.budgetPositionen.length === 0 ? (
@@ -1237,12 +1237,12 @@ function EventCard({
               <article key={position.id} className={styles.budgetItem}>
                 <div>
                   {position.pruefbeduerftig ? (
-                    <span className={styles.reviewBadge}>Pruefbedarf</span>
+                    <span className={styles.reviewBadge}>Prüfbedarf</span>
                   ) : null}
                   <strong>{position.bezeichnung}</strong>
                   <p>
                     Angebot: {formatOptionalCurrency(position.betragAngebot)} ·{" "}
-                    Bestaetigt:{" "}
+                    Bestätigt:{" "}
                     {formatOptionalCurrency(position.betragBestaetigt)} ·{" "}
                     Bezahlt: {formatOptionalCurrency(position.betragBezahlt)}
                   </p>
@@ -1255,7 +1255,7 @@ function EventCard({
                 <form action={deleteBudgetPosition} className={styles.budgetActions}>
                   <input type="hidden" name="id" value={position.id} />
                   <button className={styles.dangerButton} type="submit">
-                    Loeschen
+                    Löschen
                   </button>
                 </form>
               </article>
@@ -1441,7 +1441,7 @@ function EventCard({
                       value={assignment.dienstleisterId}
                     />
                     <button className={styles.dangerButton} type="submit">
-                      Loeschen
+                      Löschen
                     </button>
                   </form>
                 </div>
@@ -1453,13 +1453,13 @@ function EventCard({
 
       <details className={styles.eventSection} open>
         <summary>
-          <span>Gaeste</span>
+          <span>Gäste</span>
           <small>
             {activeGuests} aktiv · {waitlistGuests} Warteliste
           </small>
         </summary>
         <div className={styles.subHeader}>
-          <h4>Gaeste</h4>
+          <h4>Gäste</h4>
           <span>
             {activeGuests} aktiv · {waitlistGuests} Warteliste
           </span>
@@ -1500,12 +1500,12 @@ function EventCard({
             </select>
           </label>
           <label>
-            Ernaehrung
+            Ernährung
             <input name="ernaehrung" placeholder="vegetarisch" />
           </label>
           <label>
             Allergien
-            <input name="allergien" placeholder="Nuesse" />
+            <input name="allergien" placeholder="Nüsse" />
           </label>
           <label>
             Tisch
@@ -1515,11 +1515,11 @@ function EventCard({
             VIP-Anforderungen
             <input name="vipAnforderungen" placeholder="Transfer, Backstage" />
           </label>
-          <button type="submit">Gast hinzufuegen</button>
+          <button type="submit">Gast hinzufügen</button>
         </form>
 
         {event.gaeste.length === 0 ? (
-          <p className={styles.emptyGuests}>Noch keine Gaeste erfasst.</p>
+          <p className={styles.emptyGuests}>Noch keine Gäste erfasst.</p>
         ) : (
           <div className={styles.guestList}>
             {event.gaeste.map((guest) => (
@@ -1565,7 +1565,7 @@ function EventCard({
                     <input type="hidden" name="id" value={guest.id} />
                     <input type="hidden" name="eventId" value={event.id} />
                     <button className={styles.dangerButton} type="submit">
-                      Loeschen
+                      Löschen
                     </button>
                   </form>
                 </div>
@@ -1634,9 +1634,9 @@ function EventCard({
               </label>
               <label className={styles.checkboxLabel}>
                 <input name="sichtbarFuerDienstleister" type="checkbox" />
-                Fuer Dienstleister sichtbar
+                Für Dienstleister sichtbar
               </label>
-              <button type="submit">Ablaufpunkt hinzufuegen</button>
+              <button type="submit">Ablaufpunkt hinzufügen</button>
             </form>
 
             {currentSchedule.ablaufpunkte.length === 0 ? (
@@ -1666,7 +1666,7 @@ function EventCard({
                     <form action={deleteScheduleItem}>
                       <input type="hidden" name="id" value={item.id} />
                       <button className={styles.dangerButton} type="submit">
-                        Loeschen
+                        Löschen
                       </button>
                     </form>
                   </li>
@@ -1685,11 +1685,11 @@ function EventCard({
       <details className={styles.eventSection}>
         <summary>
           <span>Aufgaben</span>
-          <small>{event.aufgaben.length} Eintraege</small>
+          <small>{event.aufgaben.length} Einträge</small>
         </summary>
         <div className={styles.subHeader}>
           <h4>Aufgaben</h4>
-          <span>{event.aufgaben.length} Eintraege</span>
+          <span>{event.aufgaben.length} Einträge</span>
         </div>
 
         <form action={createTask} className={styles.taskForm}>
@@ -1699,11 +1699,11 @@ function EventCard({
             <input
               name="bezeichnung"
               required
-              placeholder="Catering bestaetigen"
+              placeholder="Catering bestätigen"
             />
           </label>
           <label>
-            Faellig
+            Fällig
             <input name="faelligAm" type="datetime-local" />
           </label>
           <label>
@@ -1717,7 +1717,7 @@ function EventCard({
             </select>
           </label>
           <label>
-            Abhaengig von
+            Abhängig von
             <select name="abhaengigVonId" defaultValue="">
               <option value="">Keine</option>
               {event.aufgaben.map((task) => (
@@ -1735,7 +1735,7 @@ function EventCard({
             Erinnerung
             <input name="erinnerungAm" type="datetime-local" />
           </label>
-          <button type="submit">Aufgabe hinzufuegen</button>
+          <button type="submit">Aufgabe hinzufügen</button>
         </form>
 
         {event.aufgaben.length === 0 ? (
@@ -1758,16 +1758,16 @@ function EventCard({
                       </span>
                     ) : null}
                     {task.pruefbeduerftig ? (
-                      <span className={styles.reviewBadge}>Pruefbedarf</span>
+                      <span className={styles.reviewBadge}>Prüfbedarf</span>
                     ) : null}
                   </div>
                   <strong>{task.bezeichnung}</strong>
                   <p>
-                    Faellig: {task.faelligAm ? formatDateTime(task.faelligAm) : "offen"} ·{" "}
+                    Fällig: {task.faelligAm ? formatDateTime(task.faelligAm) : "offen"} ·{" "}
                     Zugewiesen: {task.zugewiesenAn || "nicht gesetzt"}
                   </p>
                   <p>
-                    Abhaengig von: {task.abhaengigVon?.bezeichnung || "keiner"} ·{" "}
+                    Abhängig von: {task.abhaengigVon?.bezeichnung || "keiner"} ·{" "}
                     Erinnerung:{" "}
                     {task.erinnerungAm ? formatDateTime(task.erinnerungAm) : "keine"}
                   </p>
@@ -1792,7 +1792,7 @@ function EventCard({
                   <form action={deleteTask}>
                     <input type="hidden" name="id" value={task.id} />
                     <button className={styles.dangerButton} type="submit">
-                      Loeschen
+                      Löschen
                     </button>
                   </form>
                 </div>
@@ -1917,7 +1917,7 @@ function EventCard({
                   >
                     <input type="hidden" name="id" value={communication.id} />
                     <button className={styles.dangerButton} type="submit">
-                      Loeschen
+                      Löschen
                     </button>
                   </form>
                 </article>
@@ -1980,7 +1980,7 @@ function ProviderCard({
           </select>
         </label>
         <label>
-          Backup fuer
+          Backup für
           <select name="backupFuerId" defaultValue={provider.backupFuerId ?? ""}>
             <option value="">Keinen</option>
             {providers
@@ -2008,20 +2008,20 @@ function ProviderCard({
           <input name="email" type="email" defaultValue={provider.email ?? ""} />
         </label>
         <label className={styles.wideField}>
-          Zuverlaessigkeit
+          Zuverlässigkeit
           <textarea
             name="zuverlaessigkeitsNotiz"
             rows={3}
             defaultValue={provider.zuverlaessigkeitsNotiz ?? ""}
           />
         </label>
-        <button type="submit">Aenderungen speichern</button>
+        <button type="submit">Änderungen speichern</button>
       </form>
 
       <form action={deleteProvider} className={styles.inlineActions}>
         <input type="hidden" name="id" value={provider.id} />
         <button className={styles.dangerButton} type="submit">
-          Loeschen
+          Löschen
         </button>
       </form>
     </article>

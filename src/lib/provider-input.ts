@@ -57,5 +57,5 @@ export function parseProviderCategory(category: string): ProviderCategory {
     return category as ProviderCategory;
   }
 
-  throw new Error("Ungueltige Dienstleister-Kategorie.");
+  throw new Error("Ungültige Dienstleister-Kategorie.");
 }
