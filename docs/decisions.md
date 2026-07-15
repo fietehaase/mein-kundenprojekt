@@ -594,8 +594,6 @@ Dienstleister-Stammdaten können direkt in der Dienstleisterkarte bearbeitet wer
 
 ---
 
----
-
 ## 2026-07-15 - Umlaute in sichtbaren Texten
 
 **Kontext:** Die App und Dokumentation enthielten deutsche Wörter mit ASCII-Umschreibungen wie `ae` oder `oe`, obwohl die Oberfläche deutschsprachig ist.
@@ -608,6 +606,21 @@ Sichtbare deutsche Texte, Fehlermeldungen, Tests und Dokumentation verwenden Uml
 
 - Die Oberfläche und Dokumentation lesen sich natürlicher.
 - Code-nahe Namen wie `backupFuerId` oder `bestaetigt` bleiben unverändert.
+
+---
+
+## 2026-07-15 - Dashboard-Design konsolidieren
+
+**Kontext:** Die Oberfläche war funktional, aber optisch uneinheitlich und wirkte bei vielen Event-Details zu gedrängt.
+
+### Entscheidung
+
+Das bestehende Markup bleibt unverändert; das UI wird ausschließlich über `src/app/page.module.css` modernisiert. Die App nutzt ein konsistentes Pastell-Farbsystem, ruhigere Karten, pastellgrüne Formular- und Dropdownfelder, weichere Buttons, klarere Formularflächen, stärkere Abschnittshierarchie und zusätzliche Breakpoints für Tablet und Mobile.
+
+### Konsequenzen
+
+- Die bestehende Funktionalität und alle Form Actions bleiben unverändert.
+- Das Dashboard ist auf Desktop und mobilen Breiten besser lesbar.
 
 ---
 
