@@ -41,6 +41,7 @@ import {
   canCompleteTask,
   isTaskBlockedByDependency,
 } from "@/lib/task-dependency";
+import { triggersProviderOutageEscalation } from "@/lib/provider-escalation";
 
 export const dynamic = "force-dynamic";
 
@@ -572,11 +573,13 @@ async function createEventProvider(formData: FormData) {
     status: String(formData.get("status") ?? "angefragt"),
     vertragsUrl: String(formData.get("vertragsUrl") ?? ""),
     stornofrist: String(formData.get("stornofrist") ?? ""),
+    kritisch: formData.get("kritisch") ? "on" : null,
   });
 
   await prisma.eventDienstleister.create({
     data: input,
   });
+  await syncProviderOutageEscalation(input.eventId);
 
   revalidatePath("/");
 }
@@ -590,6 +593,7 @@ async function updateEventProvider(formData: FormData) {
     status: String(formData.get("status") ?? "angefragt"),
     vertragsUrl: String(formData.get("vertragsUrl") ?? ""),
     stornofrist: String(formData.get("stornofrist") ?? ""),
+    kritisch: formData.get("kritisch") ? "on" : null,
   });
 
   await prisma.eventDienstleister.update({
@@ -603,8 +607,10 @@ async function updateEventProvider(formData: FormData) {
       status: input.status,
       vertragsUrl: input.vertragsUrl,
       stornofrist: input.stornofrist,
+      kritisch: input.kritisch,
     },
   });
+  await syncProviderOutageEscalation(input.eventId);
 
   revalidatePath("/");
 }
@@ -626,8 +632,36 @@ async function deleteEventProvider(formData: FormData) {
       },
     },
   });
+  await syncProviderOutageEscalation(eventId);
 
   revalidatePath("/");
+}
+
+async function syncProviderOutageEscalation(eventId: number) {
+  const criticalOutageCount = await prisma.eventDienstleister.count({
+    where: {
+      eventId,
+      kritisch: true,
+      status: "ausgefallen",
+    },
+  });
+  const eskaliert = criticalOutageCount > 0;
+
+  await prisma.$transaction([
+    prisma.aufgabe.updateMany({
+      where: { eventId },
+      data: { eskaliert },
+    }),
+    prisma.ablaufpunkt.updateMany({
+      where: {
+        ablaufplan: {
+          eventId,
+          istAktuell: true,
+        },
+      },
+      data: { eskaliert },
+    }),
+  ]);
 }
 
 export default async function Home() {
@@ -1105,6 +1139,14 @@ function EventCard({
                 disabled={availableProviders.length === 0}
               />
             </label>
+            <label className={styles.checkboxLabel}>
+              <input
+                name="kritisch"
+                type="checkbox"
+                disabled={availableProviders.length === 0}
+              />
+              Kritisch
+            </label>
             <button type="submit" disabled={availableProviders.length === 0}>
               Dienstleister zuordnen
             </button>
@@ -1123,9 +1165,19 @@ function EventCard({
                 className={styles.assignmentItem}
               >
                 <div>
-                  <span className={styles.status}>
-                    {formatEventProviderStatus(assignment.status)}
-                  </span>
+                  <div className={styles.badgeRow}>
+                    <span className={styles.status}>
+                      {formatEventProviderStatus(assignment.status)}
+                    </span>
+                    {assignment.kritisch ? (
+                      <span className={styles.reviewBadge}>Kritisch</span>
+                    ) : null}
+                    {triggersProviderOutageEscalation(assignment) ? (
+                      <span className={styles.escalationBadge}>
+                        Eskalation
+                      </span>
+                    ) : null}
+                  </div>
                   <strong>{assignment.dienstleister.name}</strong>
                   <p>
                     {formatProviderCategory(assignment.dienstleister.kategorie)} ·{" "}
@@ -1178,6 +1230,14 @@ function EventCard({
                         type="date"
                         defaultValue={formatDateInput(assignment.stornofrist)}
                       />
+                    </label>
+                    <label className={styles.checkboxLabel}>
+                      <input
+                        name="kritisch"
+                        type="checkbox"
+                        defaultChecked={assignment.kritisch}
+                      />
+                      Kritisch
                     </label>
                     <button type="submit">Speichern</button>
                   </form>
@@ -1382,6 +1442,11 @@ function EventCard({
                   <li key={item.id} className={styles.scheduleItem}>
                     <div>
                       <time>{formatTimeRange(item.uhrzeitStart, item.uhrzeitEnde)}</time>
+                      {item.eskaliert ? (
+                        <span className={styles.escalationBadge}>
+                          Eskaliert
+                        </span>
+                      ) : null}
                       <strong>{item.bezeichnung}</strong>
                       <p>
                         {item.verantwortlich || "Keine Verantwortung"} ·{" "}
@@ -1478,6 +1543,11 @@ function EventCard({
                     </span>
                     {isTaskBlockedByDependency(task) ? (
                       <span className={styles.blockedBadge}>Blockiert</span>
+                    ) : null}
+                    {task.eskaliert ? (
+                      <span className={styles.escalationBadge}>
+                        Eskaliert
+                      </span>
                     ) : null}
                     {task.pruefbeduerftig ? (
                       <span className={styles.reviewBadge}>Pruefbedarf</span>
@@ -1824,6 +1894,7 @@ function formatEventProviderStatus(status: string) {
     vertrag_offen: "Vertrag offen",
     bestaetigt: "Bestaetigt",
     storniert: "Storniert",
+    ausgefallen: "Ausgefallen",
   };
 
   return labels[status] ?? status;

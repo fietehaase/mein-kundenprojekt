@@ -94,7 +94,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F014 - Dienstleister-Ausfalleskalation
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Wenn ein kritischer Dienstleister ausfaellt, sollen betroffene Ablaufpunkte und Aufgaben sichtbar eskaliert werden. Die Eskalation soll zeigen, welche Teile des Events direkt betroffen sind. Dadurch kann schneller auf Ausfaelle reagiert und ein Backup organisiert werden.
 

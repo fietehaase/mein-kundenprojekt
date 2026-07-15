@@ -12,6 +12,7 @@ describe("parseEventProviderInput", () => {
       status: "bestaetigt",
       vertragsUrl: "https://example.com/vertrag",
       stornofrist: "2026-07-20",
+      kritisch: "on",
     });
 
     expect(assignment.eventId).toBe(4);
@@ -19,6 +20,7 @@ describe("parseEventProviderInput", () => {
     expect(assignment.status).toBe("bestaetigt");
     expect(assignment.vertragsUrl).toBe("https://example.com/vertrag");
     expect(assignment.stornofrist).toBeInstanceOf(Date);
+    expect(assignment.kritisch).toBe(true);
   });
 
   it("erlaubt optionale Vertragsdaten", () => {
@@ -28,10 +30,12 @@ describe("parseEventProviderInput", () => {
       status: "angefragt",
       vertragsUrl: "",
       stornofrist: "",
+      kritisch: null,
     });
 
     expect(assignment.vertragsUrl).toBeNull();
     expect(assignment.stornofrist).toBeNull();
+    expect(assignment.kritisch).toBe(false);
   });
 
   it("validiert Status und Vertrags-URL", () => {
@@ -46,6 +50,7 @@ describe("parseEventProviderInput", () => {
         status: "bestaetigt",
         vertragsUrl: "ftp://example.com/vertrag",
         stornofrist: "",
+        kritisch: null,
       }),
     ).toThrow("Die Vertrags-URL ist ungueltig.");
   });

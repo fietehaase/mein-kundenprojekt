@@ -404,6 +404,27 @@ Der Statuswechsel auf `erledigt` wird serverseitig blockiert, solange eine verkn
 
 ---
 
+## 2026-07-15 - Dienstleister-Ausfalleskalation
+
+**Kontext:** F014 verlangt sichtbare Eskalation, wenn ein kritischer Dienstleister ausfaellt.
+
+### Entscheidung
+
+Event-Dienstleister-Zuordnungen koennen als kritisch markiert und auf `ausgefallen` gesetzt werden. Sobald mindestens ein kritischer Dienstleister eines Events ausgefallen ist, werden alle Aufgaben und die Ablaufpunkte des aktuellen Ablaufplans dieses Events als eskaliert markiert.
+
+### Alternativen verworfen
+
+- Ausfall nur als Status anzeigen: Wuerde betroffene operative Elemente nicht sichtbar machen.
+- Feingranulare Zuordnung einzelner Aufgaben und Ablaufpunkte zu Dienstleistern: Im aktuellen Datenmodell nicht vorhanden und fuer F014 zu gross.
+
+### Konsequenzen
+
+- F014 ist als sichtbare Eskalationsregel umgesetzt.
+- Beim Aufloesen oder Entfernen kritischer Ausfaelle wird die Eskalation fuer das Event neu berechnet.
+- Konfigurierbare Eskalationslogik bleibt F019.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung

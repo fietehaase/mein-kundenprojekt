@@ -6,6 +6,7 @@ export const EVENT_PROVIDER_STATUSES = [
   "vertrag_offen",
   "bestaetigt",
   "storniert",
+  "ausgefallen",
 ] as const;
 
 export type EventProviderStatus = (typeof EVENT_PROVIDER_STATUSES)[number];
@@ -16,6 +17,7 @@ export type EventProviderFormInput = {
   status: string;
   vertragsUrl: string;
   stornofrist: string;
+  kritisch: string | null;
 };
 
 export type ParsedEventProviderInput = {
@@ -24,6 +26,7 @@ export type ParsedEventProviderInput = {
   status: EventProviderStatus;
   vertragsUrl: string | null;
   stornofrist: Date | null;
+  kritisch: boolean;
 };
 
 export function parseEventProviderInput(
@@ -35,6 +38,7 @@ export function parseEventProviderInput(
     status: parseEventProviderStatus(input.status),
     vertragsUrl: optionalUrl(input.vertragsUrl),
     stornofrist: optionalDate(input.stornofrist, "Stornofrist"),
+    kritisch: input.kritisch === "on",
   };
 }
 
