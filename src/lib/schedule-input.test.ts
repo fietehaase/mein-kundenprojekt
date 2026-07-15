@@ -52,6 +52,6 @@ describe("parseScheduleItemInput", () => {
         istPuffer: null,
         sichtbarFuerDienstleister: null,
       }),
-    ).toThrow("Die Bezeichnung des Ablaufpunkts ist erforderlich.");
+    ).toThrow("Bitte gib eine Bezeichnung für den Ablaufpunkt ein.");
   });
 });

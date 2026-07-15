@@ -48,7 +48,7 @@ export function parseGuestInput(input: GuestFormInput): ParsedGuestInput {
   const name = input.name.trim();
 
   if (!name) {
-    throw new Error("Der Gastname ist erforderlich.");
+    throw new Error("Bitte gib einen Gastnamen ein.");
   }
 
   return {
@@ -70,7 +70,7 @@ export function parseGuestStatus(status: string): GuestStatus {
     return status as GuestStatus;
   }
 
-  throw new Error("Ungültiger Anmeldestatus.");
+  throw new Error("Bitte wähle einen gültigen Anmeldestatus.");
 }
 
 export function parseGuestType(type: string): GuestType {
@@ -78,7 +78,7 @@ export function parseGuestType(type: string): GuestType {
     return type as GuestType;
   }
 
-  throw new Error("Ungültiger Gasttyp.");
+  throw new Error("Bitte wähle einen gültigen Gasttyp.");
 }
 
 export function parseId(value: string, label: string): number {

@@ -68,7 +68,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ## Phase 2 - Geschäftsregeln
 
-### F010 - Prüfbedarf bei Gästezahlsaenderung
+### F010 - Prüfbedarf bei Gästezahländerung
 
 **Status:** Erledigt
 
@@ -78,7 +78,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 **Status:** Erledigt
 
-**Ziel:** Änderungen an einem Ablaufplan sollen eine neue Version erzeugen. Pro Event darf nur eine Ablaufplan-Version als aktuell markiert sein. So bleibt nachvollziehbar, welche Ablaufversion gültig ist und wie sich der Plan historisch verändert hat.
+**Ziel:** Änderungen an einem Ablaufplan sollen eine neue Version erzeugen. Pro Event darf nur eine Ablaufplan-Version als aktuell markiert sein; die nächste Versionsnummer wird aus der bisher neuesten Version abgeleitet. So bleibt nachvollziehbar, welche Ablaufversion gültig ist und wie sich der Plan historisch verändert hat.
 
 ### F012 - Verbindliche Kommunikation
 
@@ -90,7 +90,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 **Status:** Erledigt
 
-**Ziel:** Eine abhängige Aufgabe darf erst erledigt werden, wenn ihre Vorgänger-Aufgabe erledigt ist. Das System soll blockierte Aufgaben erkennbar machen und unzulässige Statuswechsel verhindern. Damit werden Abhängigkeiten im Event-Projektplan wirksam abgesichert.
+**Ziel:** Eine abhängige Aufgabe darf erst erledigt werden, wenn ihre Vorgänger-Aufgabe erledigt ist. Vorgänger-Aufgaben müssen zum selben Event gehören, damit keine eventübergreifenden Projektpläne entstehen. Das System soll blockierte Aufgaben erkennbar machen und unzulässige Statuswechsel verhindern. Damit werden Abhängigkeiten im Event-Projektplan wirksam abgesichert.
 
 ### F014 - Dienstleister-Ausfalleskalation
 
@@ -102,15 +102,15 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F015 - Dienstleister-Änderungseinreichung
 
-**Status:** Erledigt
+**Status:** Fachlich entschieden
 
-**Ziel:** Es soll fachlich geklärt werden, ob Dienstleister Änderungen selbst einreichen dürfen. Falls ja, braucht das System einen kontrollierten Weg für externe Änderungsvorschlaege. Die Umsetzung muss verhindern, dass externe Eingaben ungeprüft verbindliche Planungsdaten überschreiben.
+**Ziel:** Es soll fachlich geklärt werden, ob Dienstleister Änderungen selbst einreichen dürfen. Falls ja, braucht das System einen kontrollierten Weg für externe Änderungsvorschläge. Die Umsetzung muss verhindern, dass externe Eingaben ungeprüft verbindliche Planungsdaten überschreiben. Im aktuellen Solo-Scope reichen Dienstleister Änderungen extern ein; ein Systemzugang ist bewusst nicht umgesetzt.
 
 ### F016 - Rollen und Kundenansicht
 
-**Status:** Erledigt
+**Status:** Fachlich entschieden
 
-**Ziel:** Es soll geklärt werden, ob Rollen wie Assistenz, Eventmanagerin oder Kundenansicht benötigt werden. Daraus ergeben sich unterschiedliche Rechte, Sichten und Workflows. Diese Funktion erweitert das System von einer Einzelansicht zu rollenbasiertem Arbeiten.
+**Ziel:** Es soll geklärt werden, ob Rollen wie Assistenz, Eventmanagerin oder Kundenansicht benötigt werden. Daraus ergeben sich unterschiedliche Rechte, Sichten und Workflows. Das System bleibt im aktuellen Solo-Scope eine interne Einzelansicht; Rollen und Kundenansicht benötigen zuerst Authentifizierung, Rechtekonzept und Freigaberegeln.
 
 ### F017 - Wartelisten-Management
 
@@ -120,9 +120,9 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F018 - Tool-Ersetzung und Integration
 
-**Status:** Erledigt
+**Status:** Fachlich entschieden
 
-**Ziel:** Es soll geklärt werden, welche bestehenden Tools ersetzt und welche nur ergänzt werden. Daraus können Import-, Export- oder Integrationsanforderungen entstehen. Die Funktion dient dazu, das System sauber in bestehende Arbeitsabläufe einzupassen.
+**Ziel:** Es soll geklärt werden, welche bestehenden Tools ersetzt und welche nur ergänzt werden. Daraus können Import-, Export- oder Integrationsanforderungen entstehen. Mangels konkreter Tool-Liste ergänzt das System bestehende Arbeitsabläufe zunächst als lokale Planungszentrale; Integrationen bleiben bewusst außerhalb des aktuellen Scopes.
 
 ### F019 - Konfigurierbare Eskalationen
 

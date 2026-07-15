@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { canCompleteTask, isTaskBlockedByDependency } from "./task-dependency";
+import {
+  canCompleteTask,
+  isTaskBlockedByDependency,
+  isTaskDependencyInSameEvent,
+} from "./task-dependency";
 
 describe("Aufgabenabhängigkeiten", () => {
   it("blockiert Aufgaben mit unerledigter Vorgänger-Aufgabe", () => {
@@ -14,5 +18,22 @@ describe("Aufgabenabhängigkeiten", () => {
     expect(canCompleteTask({ abhaengigVon: { status: "erledigt" } })).toBe(
       true,
     );
+  });
+
+  it("erlaubt Abhängigkeiten nur innerhalb desselben Events", () => {
+    expect(
+      isTaskDependencyInSameEvent({
+        eventId: 1,
+        abhaengigVon: { eventId: 1 },
+      }),
+    ).toBe(true);
+    expect(isTaskDependencyInSameEvent({ eventId: 1, abhaengigVon: null }))
+      .toBe(true);
+    expect(
+      isTaskDependencyInSameEvent({
+        eventId: 1,
+        abhaengigVon: { eventId: 2 },
+      }),
+    ).toBe(false);
   });
 });

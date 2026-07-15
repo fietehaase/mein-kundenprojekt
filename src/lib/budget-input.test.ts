@@ -46,7 +46,7 @@ describe("parseBudgetInput", () => {
         betragBezahlt: "",
         dienstleisterId: "",
       }),
-    ).toThrow("Die Budget-Bezeichnung ist erforderlich.");
+    ).toThrow("Bitte gib eine Budget-Bezeichnung ein.");
 
     expect(() =>
       parseBudgetInput({

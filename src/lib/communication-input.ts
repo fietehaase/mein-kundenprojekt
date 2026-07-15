@@ -36,7 +36,7 @@ export function parseCommunicationInput(
   const inhalt = input.inhalt.trim();
 
   if (!inhalt) {
-    throw new Error("Der Kommunikationsinhalt ist erforderlich.");
+    throw new Error("Bitte gib den Kommunikationsinhalt ein.");
   }
 
   return {
@@ -57,5 +57,5 @@ export function parseCommunicationChannel(
     return channel as CommunicationChannel;
   }
 
-  throw new Error("Ungültiger Kommunikationskanal.");
+  throw new Error("Bitte wähle einen gültigen Kommunikationskanal.");
 }

@@ -58,7 +58,7 @@ Optionaler Ort für Codebase-Audit-Berichte. Verwenden nach größeren Meilenste
 2. Ziel klären: Erfolgskriterien und betroffene Dateien benennen.
 3. Planen: Bei mehrschrittigen Aufgaben kurz Plan mit Verifikation formulieren.
 4. Umsetzen: Kleine, gezielte Änderungen. Keine ungefragten Refactorings.
-5. Verifizieren: Tests, Lint, Typecheck oder fachliche Plausibilitätsprüfung ausfuehren, sobald vorhanden.
+5. Verifizieren: Tests, Lint, Typecheck oder fachliche Plausibilitätsprüfung ausführen, sobald vorhanden.
 6. Dokumentieren: `docs/spec.md`, `docs/architecture.md` oder `docs/decisions.md` aktualisieren, wenn sich Projektwissen ändert.
 7. Committen: Kleine Commits mit Conventional Commits.
 

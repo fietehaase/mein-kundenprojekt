@@ -23,7 +23,7 @@ describe("parseEventInput", () => {
 
   it("verhindert ungültige Statuswerte", () => {
     expect(() => parseEventStatus("archiviert")).toThrow(
-      "Ungültiger Event-Status.",
+      "Bitte wähle einen gültigen Event-Status.",
     );
   });
 
@@ -38,6 +38,6 @@ describe("parseEventInput", () => {
         budgetGesamt: "15000",
         notizen: "",
       }),
-    ).toThrow("Das Event-Datum ist ungültig.");
+    ).toThrow("Bitte wähle ein gültiges Event-Datum aus.");
   });
 });

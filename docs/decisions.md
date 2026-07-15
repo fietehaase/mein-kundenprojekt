@@ -104,7 +104,7 @@ Der Prisma Client wird mit `@prisma/adapter-better-sqlite3` initialisiert. Der g
 
 ### Konsequenzen
 
-- `postinstall` fuehrt `prisma generate` aus.
+- `postinstall` führt `prisma generate` aus.
 - `src/lib/prisma.ts` ist die zentrale Prisma-Client-Instanz.
 - `.env.example` dokumentiert `DATABASE_URL="file:./prisma/dev.db"`.
 
@@ -148,7 +148,7 @@ Gäste werden innerhalb der Event-Karten gepflegt. Pro Event können Gäste ange
 
 - F002 ist als nutzbare Event-bezogene Gästeverwaltung umgesetzt.
 - Die aktuelle Gästezahl wird aus nicht abgesagten Gästen synchronisiert.
-- Die Prüfbedarfsregel bei Gästezahlsaenderungen bleibt F010.
+- Die Prüfbedarfsregel bei Gästezahländerungen bleibt F010.
 
 ---
 
@@ -253,7 +253,7 @@ Budgetpositionen werden innerhalb der Event-Karten gepflegt. Pro Event werden Su
 
 - F007 ist als nutzbare Budgetübersicht umgesetzt.
 - Budgetpositionen bleiben eventbezogen und nutzen die vorhandene Dienstleister-Stammdatenverwaltung.
-- Die Prüfbedarfsregel bei Gästezahlsaenderungen bleibt F010.
+- Die Prüfbedarfsregel bei Gästezahländerungen bleibt F010.
 
 ---
 
@@ -320,7 +320,7 @@ Neutrale Formular-Normalisierung liegt zentral in `src/lib/form-input.ts`. Fachl
 
 ---
 
-## 2026-07-10 - Prüfbedarf bei Gästezahlsaenderung
+## 2026-07-10 - Prüfbedarf bei Gästezahländerung
 
 **Kontext:** F010 verlangt, dass Änderungen der aktuellen Gästezahl betroffene Aufgaben und Budgetbereiche als prüfbedürftig markieren.
 
@@ -347,7 +347,7 @@ Die Gästezahl-Synchronisierung vergleicht den neu berechneten Wert mit der gesp
 
 ### Entscheidung
 
-Ablaufpunkte werden nicht mehr direkt im aktuellen Ablaufplan verändert. Beim Hinzufuegen oder Löschen eines Ablaufpunkts wird der aktuelle Ablaufplan archiviert und eine neue aktuelle Version mit kopierten Ablaufpunkten plus Änderung erstellt.
+Ablaufpunkte werden nicht mehr direkt im aktuellen Ablaufplan verändert. Beim Hinzufügen oder Löschen eines Ablaufpunkts wird der aktuelle Ablaufplan archiviert und eine neue aktuelle Version mit kopierten Ablaufpunkten plus Änderung erstellt.
 
 ### Alternativen verworfen
 
@@ -389,7 +389,7 @@ Verbindlichkeit wird fachlich ausschliesslich über `istVerbindlich` bestimmt. D
 
 ### Entscheidung
 
-Der Statuswechsel auf `erledigt` wird serverseitig blockiert, solange eine verknuepfte Vorgänger-Aufgabe nicht erledigt ist. Die Event-Karte markiert solche Aufgaben mit einem Blockiert-Badge.
+Der Statuswechsel auf `erledigt` wird serverseitig blockiert, solange eine verknüpfte Vorgänger-Aufgabe nicht erledigt ist. Die Event-Karte markiert solche Aufgaben mit einem Blockiert-Badge.
 
 ### Alternativen verworfen
 
@@ -435,14 +435,14 @@ Dienstleister erhalten im aktuellen Solo-Projekt keinen direkten Schreibzugriff 
 
 ### Alternativen verworfen
 
-- Externe Änderungsvorschlaege im System: Ohne Rollen- und Rechtekonzept zu riskant.
+- Externe Änderungsvorschläge im System: Ohne Rollen- und Rechtekonzept zu riskant.
 - Automatisches Überschreiben von Planungsdaten: Würde verbindliche Daten ungeprüft verändern.
 
 ### Konsequenzen
 
 - F015 ist fachlich entschieden und in `docs/concepts/dienstleister-aenderungseinreichung.md` dokumentiert.
 - Verbindliche externe Zusagen werden über das Kommunikationsprotokoll festgehalten.
-- Ein externer Freigabe-Workflow bleibt ausserhalb des aktuellen Scopes.
+- Ein externer Freigabe-Workflow bleibt außerhalb des aktuellen Scopes.
 
 ---
 
@@ -545,7 +545,7 @@ Anzeigeformatierung liegt zentral in `src/lib/formatters.ts`. `src/app/page.tsx`
 
 ### Konsequenzen
 
-- Die Startseite ist kuerzer und fokussierter.
+- Die Startseite ist kürzer und fokussierter.
 - Formatierungslogik kann später in weiteren Views wiederverwendet werden.
 - Die Geldvalidierung in `src/lib/form-input.ts` nutzt intern eine gemeinsame Parserfunktion für Pflicht- und optionale Geldwerte.
 
@@ -621,6 +621,129 @@ Das bestehende Markup bleibt unverändert; das UI wird ausschließlich über `sr
 
 - Die bestehende Funktionalität und alle Form Actions bleiben unverändert.
 - Das Dashboard ist auf Desktop und mobilen Breiten besser lesbar.
+
+---
+
+## 2026-07-16 - Aufgabenabhängigkeiten auf Event begrenzen
+
+**Kontext:** F013 war in der UI auf Aufgaben desselben Events begrenzt. Manipulierte Formdaten konnten aber eine Vorgänger-Aufgabe aus einem anderen Event referenzieren.
+
+### Entscheidung
+
+`createTask` prüft serverseitig, dass eine angegebene Vorgänger-Aufgabe existiert und zum selben Event gehört. Die Logik liegt als getesteter Helper in `src/lib/task-dependency.ts`.
+
+### Konsequenzen
+
+- Aufgabenabhängigkeiten bleiben fachlich innerhalb eines Event-Projektplans.
+- Manipulierte Requests erzeugen keine eventübergreifenden Abhängigkeiten.
+
+---
+
+## 2026-07-16 - Ablaufplan-Versionierung als Regel kapseln
+
+**Kontext:** F011 wurde bereits in den Server Actions umgesetzt. Die Berechnung der nächsten Version und die Entscheidung für einen initialen aktuellen Ablaufplan lagen aber direkt in der Seite.
+
+### Entscheidung
+
+Die Versionierungslogik liegt in `src/lib/schedule-versioning.ts` und ist mit Unit-Tests abgesichert. Server Actions verwenden den Helper, um initiale Ablaufpläne und neue Versionen konsistent anzulegen.
+
+### Konsequenzen
+
+- Die Regel ist außerhalb der UI nachvollziehbar testbar.
+- Weitere Ablaufplan-Funktionen können dieselbe Versionslogik wiederverwenden.
+
+---
+
+## 2026-07-16 - Benutzerführung präzisieren
+
+**Kontext:** In der Oberfläche gab es generische Aktionen wie `Speichern`, `Löschen` oder `Status`, bei denen unklar war, welches Objekt betroffen ist.
+
+### Entscheidung
+
+Navigation, Formularlabels, Aktionsbuttons und Fehlermeldungen werden konkreter benannt. Die Änderungen betreffen nur Nutzerführung und Texte; Geschäftslogik, Form Actions und Datenmodell bleiben unverändert.
+
+### Konsequenzen
+
+- Nutzer erkennen schneller, welche Aktion welches Objekt verändert.
+- Fehlermeldungen nennen häufiger den nächsten sinnvollen Schritt.
+
+---
+
+## 2026-07-16 - Server-Action-Validierung härten
+
+**Kontext:** Beim Senior-Review fielen mehrere Stellen auf, an denen versteckte Formularfelder zu stark vertraut wurden oder unnötige Daten geladen wurden.
+
+### Entscheidung
+
+Event-IDs werden in Server Actions einheitlich über `parseId` validiert. Gaststatus- und Gastlöschaktionen prüfen, dass der Gast tatsächlich zum angegebenen Event gehört. Dienstleister dürfen sich nicht selbst als Backup referenzieren. Nicht genutzte Provider-Relationen und tote CSS-Regeln wurden entfernt.
+
+### Konsequenzen
+
+- Manipulierte Formdaten können keine Gastaktion mehr gegen ein fremdes Event ausführen.
+- Dienstleister-Stammdaten bleiben fachlich konsistenter.
+- Die Event-Seite lädt weniger ungenutzte Daten und enthält weniger toten Style-Code.
+
+---
+
+## 2026-07-16 - Destruktive Aktionen und Event-Hinweise verbessern
+
+**Kontext:** Löschaktionen waren direkt ausführbar und wichtige operative Hinweise waren teilweise erst in Detailbereichen sichtbar.
+
+### Entscheidung
+
+Löschaktionen nutzen einen kleinen Client-Button mit Bestätigung vor dem Absenden. Event-Karten zeigen eine Hinweisleiste für Prüfbedarf, Eskalationen, Blockaden und überfällige Aufgaben. Das Gästeformular ist nach Personendaten, Teilnahme und Anforderungen gruppiert. Unerwartete Fehler werden über eine nutzerfreundliche Fehlerseite abgefangen.
+
+### Konsequenzen
+
+- Nutzer müssen destruktive Aktionen bewusst bestätigen.
+- Kritische Hinweise sind schneller sichtbar, ohne Details öffnen zu müssen.
+- Gästedaten lassen sich schneller erfassen und prüfen.
+
+---
+
+## 2026-07-16 - Gästekarten zweispaltig darstellen
+
+**Kontext:** Die Gastinformationen wirkten als vertikale Textliste unübersichtlich und nutzten die Kartenbreite schlecht aus.
+
+### Entscheidung
+
+Gästekarten zeigen Personendaten, Kontaktdaten, Anforderungen, Tisch und Status in einem responsiven zweispaltigen Grid. VIP-Anforderungen stehen bei Bedarf über die volle Breite. Die Aktionsbuttons bleiben funktional unverändert und stehen in einer eigenen Aktionsleiste am unteren rechten Kartenrand.
+
+### Konsequenzen
+
+- Gästedaten sind schneller vergleichbar und besser scanbar.
+- Lange Inhalte umbrechen innerhalb der Karte, ohne das Layout zu zerstören.
+
+---
+
+## 2026-07-16 - Smart-Assistenz als erklärbare Priorisierung
+
+**Kontext:** Für die Bewertung im Modul Smart Applications musste der intelligente Mehrwert klarer sichtbar werden. Die App enthielt bereits Geschäftsregeln, aber keine zusammenfassende Assistenz, die Risiken priorisiert und erklärt.
+
+### Entscheidung
+
+Das Dashboard erhält eine Smart-Assistenz mit priorisierten Hinweisen pro Event. Die Berechnung berücksichtigt Dienstleister-Eskalationen, überfällige oder blockierte Aufgaben, Prüfbedarf, Budgetüberschreitungen, Kapazitätsprobleme und fehlende verbindliche Kommunikation kurz vor dem Event. Die Regel liegt in `src/lib/event-insights.ts` und wird getestet.
+
+### Konsequenzen
+
+- Nutzer sehen auf einen Blick, welche Events zuerst Aufmerksamkeit brauchen.
+- Jeder Hinweis nennt Grund und nächsten Schritt, statt nur einen Status zu zeigen.
+- Die Smart-Logik ist von der UI getrennt und fachlich testbar.
+
+---
+
+## 2026-07-16 - Backlog-Status für Nicht-Scope-Themen präzisieren
+
+**Kontext:** Mehrere Phase-3-Themen waren im Backlog als erledigt markiert, obwohl sie fachlich bewusst nicht umgesetzt wurden.
+
+### Entscheidung
+
+Dienstleister-Änderungseinreichung, Rollen/Kundenansicht und Tool-Integration werden als `Fachlich entschieden` geführt. Die Konzeptdokumente beschreiben, warum diese Themen im aktuellen Solo-Scope nicht implementiert sind.
+
+### Konsequenzen
+
+- Der Projektstatus ist ehrlicher und besser bewertbar.
+- Implementierte Features und bewusste Scope-Entscheidungen werden nicht vermischt.
 
 ---
 

@@ -50,10 +50,10 @@ describe("parseTaskInput", () => {
         zugewiesenAn: "",
         erinnerungAm: "",
       }),
-    ).toThrow("Die Aufgaben-Bezeichnung ist erforderlich.");
+    ).toThrow("Bitte gib eine Aufgaben-Bezeichnung ein.");
 
     expect(() => parseTaskStatus("blockiert")).toThrow(
-      "Ungültiger Aufgabenstatus.",
+      "Bitte wähle einen gültigen Aufgabenstatus.",
     );
   });
 });

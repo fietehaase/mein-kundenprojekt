@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { parseProviderCategory, parseProviderInput } from "./provider-input";
+import {
+  isValidProviderBackupScope,
+  parseProviderCategory,
+  parseProviderInput,
+} from "./provider-input";
 
 describe("parseProviderInput", () => {
   it("normalisiert valide Dienstleister-Eingaben", () => {
@@ -48,10 +52,18 @@ describe("parseProviderInput", () => {
         zuverlaessigkeitsNotiz: "",
         backupFuerId: "",
       }),
-    ).toThrow("Der Dienstleister-Name ist erforderlich.");
+    ).toThrow("Bitte gib einen Dienstleister-Namen ein.");
 
     expect(() => parseProviderCategory("transport")).toThrow(
-      "Ungültige Dienstleister-Kategorie.",
+      "Bitte wähle eine gültige Dienstleister-Kategorie.",
     );
+  });
+
+  it("verhindert Selbstreferenzen als Backup-Dienstleister", () => {
+    expect(isValidProviderBackupScope({ id: 3, backupFuerId: null })).toBe(
+      true,
+    );
+    expect(isValidProviderBackupScope({ id: 3, backupFuerId: 4 })).toBe(true);
+    expect(isValidProviderBackupScope({ id: 3, backupFuerId: 3 })).toBe(false);
   });
 });

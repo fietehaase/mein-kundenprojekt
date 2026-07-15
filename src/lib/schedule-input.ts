@@ -46,7 +46,7 @@ export function parseScheduleItemInput(
   const bezeichnung = input.bezeichnung.trim();
 
   if (!bezeichnung) {
-    throw new Error("Die Bezeichnung des Ablaufpunkts ist erforderlich.");
+    throw new Error("Bitte gib eine Bezeichnung für den Ablaufpunkt ein.");
   }
 
   if (uhrzeitEnde && uhrzeitEnde < uhrzeitStart) {

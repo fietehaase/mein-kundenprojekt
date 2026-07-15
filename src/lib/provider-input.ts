@@ -32,13 +32,18 @@ export type ParsedProviderInput = {
   backupFuerId: number | null;
 };
 
+export type ProviderBackupScopeInput = {
+  id: number;
+  backupFuerId: number | null;
+};
+
 export function parseProviderInput(
   input: ProviderFormInput,
 ): ParsedProviderInput {
   const name = input.name.trim();
 
   if (!name) {
-    throw new Error("Der Dienstleister-Name ist erforderlich.");
+    throw new Error("Bitte gib einen Dienstleister-Namen ein.");
   }
 
   return {
@@ -57,5 +62,9 @@ export function parseProviderCategory(category: string): ProviderCategory {
     return category as ProviderCategory;
   }
 
-  throw new Error("Ungültige Dienstleister-Kategorie.");
+  throw new Error("Bitte wähle eine gültige Dienstleister-Kategorie.");
+}
+
+export function isValidProviderBackupScope(input: ProviderBackupScopeInput) {
+  return input.backupFuerId === null || input.backupFuerId !== input.id;
 }

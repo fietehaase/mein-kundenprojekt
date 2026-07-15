@@ -44,14 +44,16 @@ describe("parseGuestInput", () => {
         tischzuweisung: "",
         vipAnforderungen: "",
       }),
-    ).toThrow("Der Gastname ist erforderlich.");
+    ).toThrow("Bitte gib einen Gastnamen ein.");
   });
 
   it("validiert IDs, Typen und Statuswerte", () => {
     expect(() => parseId("0", "Gast-ID")).toThrow("Gast-ID ist ungültig.");
-    expect(() => parseGuestType("kunde")).toThrow("Ungültiger Gasttyp.");
+    expect(() => parseGuestType("kunde")).toThrow(
+      "Bitte wähle einen gültigen Gasttyp.",
+    );
     expect(() => parseGuestStatus("offen")).toThrow(
-      "Ungültiger Anmeldestatus.",
+      "Bitte wähle einen gültigen Anmeldestatus.",
     );
   });
 });

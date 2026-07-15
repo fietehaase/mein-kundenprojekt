@@ -52,10 +52,10 @@ describe("parseCommunicationInput", () => {
         beteiligte: "",
         erstelltVon: "",
       }),
-    ).toThrow("Der Kommunikationsinhalt ist erforderlich.");
+    ).toThrow("Bitte gib den Kommunikationsinhalt ein.");
 
     expect(() => parseCommunicationChannel("sms")).toThrow(
-      "Ungültiger Kommunikationskanal.",
+      "Bitte wähle einen gültigen Kommunikationskanal.",
     );
   });
 });

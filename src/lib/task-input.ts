@@ -29,7 +29,7 @@ export function parseTaskInput(input: TaskFormInput): ParsedTaskInput {
   const bezeichnung = input.bezeichnung.trim();
 
   if (!bezeichnung) {
-    throw new Error("Die Aufgaben-Bezeichnung ist erforderlich.");
+    throw new Error("Bitte gib eine Aufgaben-Bezeichnung ein.");
   }
 
   return {
@@ -48,5 +48,5 @@ export function parseTaskStatus(status: string): TaskStatus {
     return status as TaskStatus;
   }
 
-  throw new Error("Ungültiger Aufgabenstatus.");
+  throw new Error("Bitte wähle einen gültigen Aufgabenstatus.");
 }

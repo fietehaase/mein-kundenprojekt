@@ -44,7 +44,7 @@ export function parseEventInput(input: EventFormInput): ParsedEventInput {
   const budgetGesamt = requiredMoney(input.budgetGesamt, "Das Gesamtbudget");
 
   if (!name) {
-    throw new Error("Der Event-Name ist erforderlich.");
+    throw new Error("Bitte gib einen Eventnamen ein.");
   }
 
   if (gaesteanzahlAktuell > gaesteanzahlGeplant) {
@@ -69,12 +69,12 @@ export function parseEventStatus(status: string): EventStatus {
     return status as EventStatus;
   }
 
-  throw new Error("Ungültiger Event-Status.");
+  throw new Error("Bitte wähle einen gültigen Event-Status.");
 }
 
 function parseDateInput(value: string): Date {
   if (!value) {
-    throw new Error("Das Event-Datum ist erforderlich.");
+    throw new Error("Bitte wähle ein Event-Datum aus.");
   }
 
   const [year, month, day] = value.split("-").map(Number);
@@ -86,7 +86,7 @@ function parseDateInput(value: string): Date {
     date.getMonth() + 1 !== month ||
     date.getDate() !== day
   ) {
-    throw new Error("Das Event-Datum ist ungültig.");
+    throw new Error("Bitte wähle ein gültiges Event-Datum aus.");
   }
 
   return date;

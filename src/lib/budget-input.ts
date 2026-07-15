@@ -23,7 +23,7 @@ export function parseBudgetInput(input: BudgetFormInput): ParsedBudgetInput {
   const bezeichnung = input.bezeichnung.trim();
 
   if (!bezeichnung) {
-    throw new Error("Die Budget-Bezeichnung ist erforderlich.");
+    throw new Error("Bitte gib eine Budget-Bezeichnung ein.");
   }
 
   return {

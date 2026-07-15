@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import styles from "./page.module.css";
+import { ConfirmSubmitButton } from "./confirm-submit-button";
 import { prisma } from "@/lib/prisma";
 import {
   EVENT_STATUSES,
@@ -15,12 +16,17 @@ import {
 } from "@/lib/guest-input";
 import {
   PROVIDER_CATEGORIES,
+  isValidProviderBackupScope,
   parseProviderInput,
 } from "@/lib/provider-input";
 import {
   parseScheduleItemInput,
   parseSchedulePlanInput,
 } from "@/lib/schedule-input";
+import {
+  nextScheduleVersion,
+  shouldCreateInitialCurrentSchedule,
+} from "@/lib/schedule-versioning";
 import {
   TASK_STATUSES,
   parseTaskInput,
@@ -40,9 +46,15 @@ import { hasGuestCountChanged } from "@/lib/guest-impact";
 import {
   canCompleteTask,
   isTaskBlockedByDependency,
+  isTaskDependencyInSameEvent,
 } from "@/lib/task-dependency";
 import { triggersProviderOutageEscalation } from "@/lib/provider-escalation";
 import { ESCALATION_CONFIG } from "@/lib/escalation-config";
+import {
+  buildEventInsights,
+  type EventInsight,
+  type EventInsightInput,
+} from "@/lib/event-insights";
 import {
   ACTIVE_GUEST_STATUSES,
   isActiveGuestStatus,
@@ -122,10 +134,6 @@ async function getEvents() {
 
 async function getProviders() {
   return prisma.dienstleister.findMany({
-    include: {
-      backupFuer: true,
-      backupDienstleister: true,
-    },
     orderBy: [{ kategorie: "asc" }, { name: "asc" }],
   });
 }
@@ -171,12 +179,8 @@ function readDateInput(formData: FormData, field: string) {
 async function updateEventStatus(formData: FormData) {
   "use server";
 
-  const id = Number(formData.get("id"));
+  const id = parseId(String(formData.get("id") ?? ""), "Event-ID");
   const status = parseEventStatus(String(formData.get("status") ?? ""));
-
-  if (!Number.isInteger(id)) {
-    throw new Error("Ungültige Event-ID.");
-  }
 
   await prisma.event.update({
     where: { id },
@@ -189,11 +193,7 @@ async function updateEventStatus(formData: FormData) {
 async function deleteEvent(formData: FormData) {
   "use server";
 
-  const id = Number(formData.get("id"));
-
-  if (!Number.isInteger(id)) {
-    throw new Error("Ungültige Event-ID.");
-  }
+  const id = parseId(String(formData.get("id") ?? ""), "Event-ID");
 
   await prisma.event.delete({
     where: { id },
@@ -227,7 +227,7 @@ async function createGuest(formData: FormData) {
   ]);
 
   if (!event) {
-    throw new Error("Event nicht gefunden.");
+    throw new Error("Das Event wurde nicht gefunden. Bitte lade die Seite neu.");
   }
 
   await prisma.gast.create({
@@ -261,13 +261,19 @@ async function updateGuestStatus(formData: FormData) {
     }),
     prisma.gast.findUnique({
       where: { id },
-      select: { anmeldestatus: true },
+      select: { anmeldestatus: true, eventId: true },
     }),
     countActiveGuestsForEvent(eventId),
   ]);
 
   if (!event || !guest) {
-    throw new Error("Event oder Gast nicht gefunden.");
+    throw new Error(
+      "Event oder Gast wurde nicht gefunden. Bitte lade die Seite neu.",
+    );
+  }
+
+  if (guest.eventId !== eventId) {
+    throw new Error("Der Gast gehört nicht zu diesem Event.");
   }
 
   const activeGuestsWithoutGuest = isActiveGuestStatus(guest.anmeldestatus)
@@ -294,6 +300,18 @@ async function deleteGuest(formData: FormData) {
 
   const id = parseId(String(formData.get("id") ?? ""), "Gast-ID");
   const eventId = parseId(String(formData.get("eventId") ?? ""), "Event-ID");
+  const guest = await prisma.gast.findUnique({
+    where: { id },
+    select: { eventId: true },
+  });
+
+  if (!guest) {
+    throw new Error("Der Gast wurde nicht gefunden. Bitte lade die Seite neu.");
+  }
+
+  if (guest.eventId !== eventId) {
+    throw new Error("Der Gast gehört nicht zu diesem Event.");
+  }
 
   await prisma.gast.delete({
     where: { id },
@@ -321,7 +339,7 @@ async function reconcileEventGuestCapacity(eventId: number) {
   });
 
   if (!event) {
-    throw new Error("Event nicht gefunden.");
+    throw new Error("Das Event wurde nicht gefunden. Bitte lade die Seite neu.");
   }
 
   const activeBeforePromotion = await countActiveGuestsForEvent(eventId);
@@ -363,7 +381,7 @@ async function syncEventGuestCount(eventId: number) {
   ]);
 
   if (!event) {
-    throw new Error("Event nicht gefunden.");
+    throw new Error("Das Event wurde nicht gefunden. Bitte lade die Seite neu.");
   }
 
   if (!hasGuestCountChanged(event.gaesteanzahlAktuell, activeGuests)) {
@@ -439,6 +457,10 @@ async function updateProvider(formData: FormData) {
     backupFuerId: String(formData.get("backupFuerId") ?? ""),
   });
 
+  if (!isValidProviderBackupScope({ id, backupFuerId: input.backupFuerId })) {
+    throw new Error("Ein Dienstleister kann nicht sein eigener Backup sein.");
+  }
+
   await prisma.dienstleister.update({
     where: { id },
     data: input,
@@ -468,11 +490,11 @@ async function createSchedulePlan(formData: FormData) {
     }),
   ]);
 
-  if (!existingCurrentPlan) {
+  if (shouldCreateInitialCurrentSchedule(Boolean(existingCurrentPlan))) {
     await prisma.ablaufplan.create({
       data: {
         eventId: input.eventId,
-        version: latestPlan ? latestPlan.version + 1 : 1,
+        version: nextScheduleVersion(latestPlan?.version ?? null),
         istAktuell: true,
       },
     });
@@ -505,7 +527,9 @@ async function createScheduleItem(formData: FormData) {
   });
 
   if (!currentPlan || !currentPlan.istAktuell) {
-    throw new Error("Nur der aktuelle Ablaufplan kann geändert werden.");
+    throw new Error(
+      "Nur der aktuelle Ablaufplan kann geändert werden. Bitte lade die Seite neu.",
+    );
   }
 
   await prisma.$transaction([
@@ -516,7 +540,7 @@ async function createScheduleItem(formData: FormData) {
     prisma.ablaufplan.create({
       data: {
         eventId: currentPlan.eventId,
-        version: currentPlan.version + 1,
+        version: nextScheduleVersion(currentPlan.version),
         istAktuell: true,
         ablaufpunkte: {
           create: [
@@ -556,7 +580,9 @@ async function deleteScheduleItem(formData: FormData) {
   });
 
   if (!item || !item.ablaufplan.istAktuell) {
-    throw new Error("Nur aktuelle Ablaufpunkte können gelöscht werden.");
+    throw new Error(
+      "Nur aktuelle Ablaufpunkte können gelöscht werden. Bitte lade die Seite neu.",
+    );
   }
 
   await prisma.$transaction([
@@ -567,7 +593,7 @@ async function deleteScheduleItem(formData: FormData) {
     prisma.ablaufplan.create({
       data: {
         eventId: item.ablaufplan.eventId,
-        version: item.ablaufplan.version + 1,
+        version: nextScheduleVersion(item.ablaufplan.version),
         istAktuell: true,
         ablaufpunkte: {
           create: item.ablaufplan.ablaufpunkte
@@ -612,6 +638,25 @@ async function createTask(formData: FormData) {
     erinnerungAm: String(formData.get("erinnerungAm") ?? ""),
   });
 
+  if (input.abhaengigVonId) {
+    const predecessor = await prisma.aufgabe.findUnique({
+      where: { id: input.abhaengigVonId },
+      select: { eventId: true },
+    });
+
+    if (
+      !predecessor ||
+      !isTaskDependencyInSameEvent({
+        eventId: input.eventId,
+        abhaengigVon: predecessor,
+      })
+    ) {
+      throw new Error(
+        "Die Vorgänger-Aufgabe muss zum selben Event gehören.",
+      );
+    }
+  }
+
   await prisma.aufgabe.create({
     data: input,
   });
@@ -630,7 +675,9 @@ async function updateTaskStatus(formData: FormData) {
   });
 
   if (!task) {
-    throw new Error("Aufgabe nicht gefunden.");
+    throw new Error(
+      "Die Aufgabe wurde nicht gefunden. Bitte lade die Seite neu.",
+    );
   }
 
   if (status === "erledigt" && !canCompleteTask(task)) {
@@ -838,6 +885,10 @@ async function syncProviderOutageEscalation(eventId: number) {
 
 export default async function Home() {
   const [events, providers] = await Promise.all([getEvents(), getProviders()]);
+  const insights = buildEventInsights(events.map(toEventInsightInput)).slice(
+    0,
+    5,
+  );
 
   return (
     <main className={styles.page}>
@@ -846,17 +897,27 @@ export default async function Home() {
           <p className={styles.eyebrow}>Event Management System</p>
           <h1>Projektübersicht</h1>
         </div>
-        <p className={styles.headerNote}>
-          {events.length} Projekte · {providers.length} Dienstleister
-        </p>
+        <div className={styles.headerActions}>
+          <nav className={styles.quickNav} aria-label="Bereiche">
+            <a href="#new-event-heading">Event anlegen</a>
+            <a href="#events-heading">Events prüfen</a>
+            <a href="#new-provider-heading">Dienstleister anlegen</a>
+            <a href="#providers-heading">Dienstleister prüfen</a>
+          </nav>
+          <p className={styles.headerNote}>
+            {events.length} Projekte · {providers.length} Dienstleister
+          </p>
+        </div>
       </header>
+
+      <SmartInsights insights={insights} eventCount={events.length} />
 
       <section className={styles.workspace} aria-label="Event-Zentrale">
         <section className={styles.panel} aria-labelledby="new-event-heading">
-          <h2 id="new-event-heading">Neues Event</h2>
+          <h2 id="new-event-heading">Event anlegen</h2>
           <form action={createEvent} className={styles.form}>
             <label>
-              Name
+              Eventname
               <input name="name" required placeholder="Sommerfest 2026" />
             </label>
 
@@ -908,7 +969,7 @@ export default async function Home() {
 
             <div className={styles.formGrid}>
               <label>
-                Geplant
+                Geplante Gäste
                 <input
                   name="gaesteanzahlGeplant"
                   type="number"
@@ -919,7 +980,7 @@ export default async function Home() {
                 />
               </label>
               <label>
-                Aktuell
+                Aktive Gäste
                 <input
                   name="gaesteanzahlAktuell"
                   type="number"
@@ -932,7 +993,7 @@ export default async function Home() {
             </div>
 
             <label>
-              Gesamtbudget
+              Gesamtbudget (€)
               <input
                 name="budgetGesamt"
                 type="number"
@@ -978,7 +1039,7 @@ export default async function Home() {
 
       <section className={styles.providerWorkspace} aria-label="Dienstleister">
         <section className={styles.panel} aria-labelledby="new-provider-heading">
-          <h2 id="new-provider-heading">Neuer Dienstleister</h2>
+          <h2 id="new-provider-heading">Dienstleister anlegen</h2>
           <form action={createProvider} className={styles.form}>
             <label>
               Name
@@ -997,9 +1058,9 @@ export default async function Home() {
                 </select>
               </label>
               <label>
-                Backup für
+                Backup-Dienstleister
                 <select name="backupFuerId" defaultValue="">
-                  <option value="">Keinen</option>
+                  <option value="">Kein Backup</option>
                   {providers.map((provider) => (
                     <option key={provider.id} value={provider.id}>
                       {provider.name}
@@ -1026,7 +1087,7 @@ export default async function Home() {
             </div>
 
             <label>
-              Zuverlässigkeit
+              Zuverlässigkeitsnotiz
               <textarea
                 name="zuverlaessigkeitsNotiz"
                 rows={4}
@@ -1065,6 +1126,104 @@ export default async function Home() {
   );
 }
 
+function toEventInsightInput(event: EventListItem): EventInsightInput {
+  const currentSchedule = event.ablaufplaene.find(
+    (schedule) => schedule.istAktuell,
+  );
+
+  return {
+    name: event.name,
+    datum: event.datum,
+    gaesteanzahlGeplant: event.gaesteanzahlGeplant,
+    budgetGesamt: Number(event.budgetGesamt),
+    budgetPruefbeduerftig: event.budgetPruefbeduerftig,
+    gaeste: event.gaeste.map((guest) => ({
+      anmeldestatus: guest.anmeldestatus,
+    })),
+    aufgaben: event.aufgaben.map((task) => ({
+      status: task.status,
+      pruefbeduerftig: task.pruefbeduerftig,
+      eskaliert: task.eskaliert,
+      abhaengigVon: task.abhaengigVon
+        ? { status: task.abhaengigVon.status }
+        : null,
+    })),
+    budgetPositionen: event.budgetPositionen.map((position) => ({
+      betragBestaetigt: position.betragBestaetigt
+        ? Number(position.betragBestaetigt)
+        : null,
+      pruefbeduerftig: position.pruefbeduerftig,
+    })),
+    aktuelleAblaufpunkte: currentSchedule
+      ? currentSchedule.ablaufpunkte.map((item) => ({
+          eskaliert: item.eskaliert,
+        }))
+      : [],
+    verbindlicheKommunikation: filterBindingCommunications(
+      event.kommunikationen,
+    ).length,
+  };
+}
+
+function SmartInsights({
+  insights,
+  eventCount,
+}: {
+  insights: EventInsight[];
+  eventCount: number;
+}) {
+  return (
+    <section className={styles.insightPanel} aria-labelledby="insights-heading">
+      <div className={styles.insightHeader}>
+        <div>
+          <p className={styles.eyebrow}>Smart Assistenz</p>
+          <h2 id="insights-heading">Nächste sinnvolle Schritte</h2>
+        </div>
+        <span>{insights.length} Hinweise</span>
+      </div>
+
+      {insights.length === 0 ? (
+        <p className={styles.emptyState}>
+          {eventCount === 0
+            ? "Lege ein Event an, damit die Assistenz Prioritäten berechnen kann."
+            : "Keine kritischen Hinweise. Prüfe Details in den Event-Karten."}
+        </p>
+      ) : (
+        <div className={styles.insightGrid}>
+          {insights.map((insight) => (
+            <article
+              className={styles.insightCard}
+              key={`${insight.eventName}-${insight.title}`}
+            >
+              <div className={styles.insightCardHeader}>
+                <span className={styles[`priority${insight.priority}`]}>
+                  {formatInsightPriority(insight.priority)}
+                </span>
+                <strong>{insight.eventName}</strong>
+              </div>
+              <h3>{insight.title}</h3>
+              <p>{insight.reason}</p>
+              <small>{insight.nextStep}</small>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function formatInsightPriority(priority: EventInsight["priority"]) {
+  if (priority === "hoch") {
+    return "Hohe Priorität";
+  }
+
+  if (priority === "mittel") {
+    return "Mittlere Priorität";
+  }
+
+  return "Niedrige Priorität";
+}
+
 function EventCard({
   event,
   providers,
@@ -1094,6 +1253,17 @@ function EventCard({
   const bindingCommunications = filterBindingCommunications(
     event.kommunikationen,
   );
+  const reviewItems =
+    Number(event.budgetPruefbeduerftig) +
+    event.aufgaben.filter((task) => task.pruefbeduerftig).length +
+    event.budgetPositionen.filter((position) => position.pruefbeduerftig).length;
+  const escalationItems =
+    event.aufgaben.filter((task) => task.eskaliert).length +
+    (currentSchedule?.ablaufpunkte.filter((item) => item.eskaliert).length ?? 0);
+  const blockedTasks = event.aufgaben.filter(isTaskBlockedByDependency).length;
+  const overdueTasks = event.aufgaben.filter(
+    (task) => task.status === "ueberfaellig",
+  ).length;
 
   return (
     <article className={styles.eventCard}>
@@ -1131,24 +1301,47 @@ function EventCard({
 
       {event.notizen ? <p className={styles.notes}>{event.notizen}</p> : null}
 
+      <div className={styles.attentionStrip} aria-label="Wichtige Hinweise">
+        <span>
+          {reviewItems > 0 ? `${reviewItems} Prüfbedarf` : "Kein Prüfbedarf"}
+        </span>
+        <span>
+          {escalationItems > 0
+            ? `${escalationItems} Eskalationen`
+            : "Keine Eskalation"}
+        </span>
+        <span>
+          {blockedTasks > 0 ? `${blockedTasks} blockiert` : "Keine Blockade"}
+        </span>
+        <span>
+          {overdueTasks > 0 ? `${overdueTasks} überfällig` : "Nichts überfällig"}
+        </span>
+      </div>
+
       <div className={styles.cardActions}>
         <form action={updateEventStatus}>
           <input type="hidden" name="id" value={event.id} />
-          <select name="status" defaultValue={event.status}>
-            {EVENT_STATUSES.map((status) => (
-              <option key={status} value={status}>
-                {formatStatus(status)}
-              </option>
-            ))}
-          </select>
-          <button type="submit">Status speichern</button>
+          <label>
+            Event-Status
+            <select name="status" defaultValue={event.status}>
+              {EVENT_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {formatStatus(status)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button type="submit">Event-Status speichern</button>
         </form>
 
         <form action={deleteEvent}>
           <input type="hidden" name="id" value={event.id} />
-          <button className={styles.dangerButton} type="submit">
-            Löschen
-          </button>
+          <ConfirmSubmitButton
+            className={styles.dangerButton}
+            message={`Event "${event.name}" wirklich löschen?`}
+          >
+            Event löschen
+          </ConfirmSubmitButton>
         </form>
       </div>
 
@@ -1180,11 +1373,11 @@ function EventCard({
         <form action={createBudgetPosition} className={styles.budgetForm}>
           <input type="hidden" name="eventId" value={event.id} />
           <label className={styles.wideField}>
-            Position
+            Kostenposition
             <input name="bezeichnung" required placeholder="Catering" />
           </label>
           <label>
-            Angebot
+            Angebot (€)
             <input
               name="betragAngebot"
               type="number"
@@ -1194,7 +1387,7 @@ function EventCard({
             />
           </label>
           <label>
-            Bestätigt
+            Bestätigt (€)
             <input
               name="betragBestaetigt"
               type="number"
@@ -1204,7 +1397,7 @@ function EventCard({
             />
           </label>
           <label>
-            Bezahlt
+            Bezahlt (€)
             <input
               name="betragBezahlt"
               type="number"
@@ -1224,7 +1417,7 @@ function EventCard({
               ))}
             </select>
           </label>
-          <button type="submit">Budgetposition hinzufügen</button>
+          <button type="submit">Kostenposition hinzufügen</button>
         </form>
 
         {event.budgetPositionen.length === 0 ? (
@@ -1254,9 +1447,12 @@ function EventCard({
 
                 <form action={deleteBudgetPosition} className={styles.budgetActions}>
                   <input type="hidden" name="id" value={position.id} />
-                  <button className={styles.dangerButton} type="submit">
-                    Löschen
-                  </button>
+                  <ConfirmSubmitButton
+                    className={styles.dangerButton}
+                    message={`Kostenposition "${position.bezeichnung}" wirklich löschen?`}
+                  >
+                    Kostenposition löschen
+                  </ConfirmSubmitButton>
                 </form>
               </article>
             ))}
@@ -1314,7 +1510,7 @@ function EventCard({
               </select>
             </label>
             <label className={styles.wideField}>
-              Vertrags-URL
+              Vertrag-Link
               <input
                 name="vertragsUrl"
                 type="url"
@@ -1336,7 +1532,7 @@ function EventCard({
                 type="checkbox"
                 disabled={availableProviders.length === 0}
               />
-              Kritisch
+              Kritischer Dienstleister
             </label>
             <button type="submit" disabled={availableProviders.length === 0}>
               Dienstleister zuordnen
@@ -1406,7 +1602,7 @@ function EventCard({
                       </select>
                     </label>
                     <label>
-                      Vertrags-URL
+                      Vertrag-Link
                       <input
                         name="vertragsUrl"
                         type="url"
@@ -1428,9 +1624,9 @@ function EventCard({
                         type="checkbox"
                         defaultChecked={assignment.kritisch}
                       />
-                      Kritisch
+                      Kritischer Dienstleister
                     </label>
-                    <button type="submit">Speichern</button>
+                    <button type="submit">Zuordnung speichern</button>
                   </form>
 
                   <form action={deleteEventProvider}>
@@ -1440,9 +1636,12 @@ function EventCard({
                       name="dienstleisterId"
                       value={assignment.dienstleisterId}
                     />
-                    <button className={styles.dangerButton} type="submit">
-                      Löschen
-                    </button>
+                    <ConfirmSubmitButton
+                      className={styles.dangerButton}
+                      message={`Zuordnung zu "${assignment.dienstleister.name}" wirklich entfernen?`}
+                    >
+                      Zuordnung entfernen
+                    </ConfirmSubmitButton>
                   </form>
                 </div>
               </article>
@@ -1467,54 +1666,65 @@ function EventCard({
 
         <form action={createGuest} className={styles.guestForm}>
           <input type="hidden" name="eventId" value={event.id} />
-          <label>
-            Name
-            <input name="name" required placeholder="Max Mustermann" />
-          </label>
-          <label>
-            E-Mail
-            <input name="email" type="email" placeholder="max@example.com" />
-          </label>
-          <label>
-            Telefon
-            <input name="telefon" placeholder="+49 ..." />
-          </label>
-          <label>
-            Typ
-            <select name="typ" defaultValue="standard">
-              {GUEST_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {formatGuestType(type)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Status
-            <select name="anmeldestatus" defaultValue="angemeldet">
-              {GUEST_STATUSES.map((status) => (
-                <option key={status} value={status}>
-                  {formatGuestStatus(status)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Ernährung
-            <input name="ernaehrung" placeholder="vegetarisch" />
-          </label>
-          <label>
-            Allergien
-            <input name="allergien" placeholder="Nüsse" />
-          </label>
-          <label>
-            Tisch
-            <input name="tischzuweisung" placeholder="Tisch 4" />
-          </label>
-          <label className={styles.wideField}>
-            VIP-Anforderungen
-            <input name="vipAnforderungen" placeholder="Transfer, Backstage" />
-          </label>
+          <fieldset className={styles.formSection}>
+            <legend>Personendaten</legend>
+            <label>
+              Name
+              <input name="name" required placeholder="Max Mustermann" />
+            </label>
+            <label>
+              E-Mail
+              <input name="email" type="email" placeholder="max@example.com" />
+            </label>
+            <label>
+              Telefon
+              <input name="telefon" placeholder="+49 ..." />
+            </label>
+          </fieldset>
+
+          <fieldset className={styles.formSection}>
+            <legend>Teilnahme</legend>
+            <label>
+              Gasttyp
+              <select name="typ" defaultValue="standard">
+                {GUEST_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {formatGuestType(type)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Anmeldestatus
+              <select name="anmeldestatus" defaultValue="angemeldet">
+                {GUEST_STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {formatGuestStatus(status)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Tisch
+              <input name="tischzuweisung" placeholder="Tisch 4" />
+            </label>
+          </fieldset>
+
+          <fieldset className={styles.formSection}>
+            <legend>Anforderungen</legend>
+            <label>
+              Ernährung
+              <input name="ernaehrung" placeholder="vegetarisch" />
+            </label>
+            <label>
+              Allergien
+              <input name="allergien" placeholder="Nüsse" />
+            </label>
+            <label>
+              VIP-Anforderungen
+              <input name="vipAnforderungen" placeholder="Transfer, Backstage" />
+            </label>
+          </fieldset>
           <button type="submit">Gast hinzufügen</button>
         </form>
 
@@ -1524,20 +1734,44 @@ function EventCard({
           <div className={styles.guestList}>
             {event.gaeste.map((guest) => (
               <article key={guest.id} className={styles.guestItem}>
-                <div>
-                  <strong>{guest.name}</strong>
-                  <p>
-                    {formatGuestType(guest.typ)} ·{" "}
-                    {guest.email || "keine E-Mail"} ·{" "}
-                    {guest.telefon || "kein Telefon"}
-                  </p>
-                  <p>
-                    {[guest.ernaehrung, guest.allergien, guest.tischzuweisung]
-                      .filter(Boolean)
-                      .join(" · ") || "Keine Anforderungen erfasst"}
-                  </p>
+                <div className={styles.guestDetails}>
+                  <div className={styles.guestDetail}>
+                    <span>Name</span>
+                    <strong>{guest.name}</strong>
+                  </div>
+                  <div className={styles.guestDetail}>
+                    <span>Typ</span>
+                    <p>{formatGuestType(guest.typ)}</p>
+                  </div>
+                  <div className={styles.guestDetail}>
+                    <span>E-Mail</span>
+                    <p>{guest.email || "keine E-Mail"}</p>
+                  </div>
+                  <div className={styles.guestDetail}>
+                    <span>Telefon</span>
+                    <p>{guest.telefon || "kein Telefon"}</p>
+                  </div>
+                  <div className={styles.guestDetail}>
+                    <span>Ernährung</span>
+                    <p>{guest.ernaehrung || "Keine Angabe"}</p>
+                  </div>
+                  <div className={styles.guestDetail}>
+                    <span>Allergien</span>
+                    <p>{guest.allergien || "Keine Angabe"}</p>
+                  </div>
+                  <div className={styles.guestDetail}>
+                    <span>Tisch</span>
+                    <p>{guest.tischzuweisung || "Nicht zugewiesen"}</p>
+                  </div>
+                  <div className={styles.guestDetail}>
+                    <span>Status</span>
+                    <p>{formatGuestStatus(guest.anmeldestatus)}</p>
+                  </div>
                   {guest.vipAnforderungen ? (
-                    <p>VIP: {guest.vipAnforderungen}</p>
+                    <div className={styles.guestVipDetail}>
+                      <span>VIP-Anforderungen</span>
+                      <p>{guest.vipAnforderungen}</p>
+                    </div>
                   ) : null}
                 </div>
 
@@ -1547,26 +1781,29 @@ function EventCard({
                     <input type="hidden" name="eventId" value={event.id} />
                     <label>
                       Neuer Status
-                    <select
-                      name="anmeldestatus"
-                      defaultValue={guest.anmeldestatus}
-                    >
-                      {GUEST_STATUSES.map((status) => (
-                        <option key={status} value={status}>
-                          {formatGuestStatus(status)}
-                        </option>
-                      ))}
-                    </select>
+                      <select
+                        name="anmeldestatus"
+                        defaultValue={guest.anmeldestatus}
+                      >
+                        {GUEST_STATUSES.map((status) => (
+                          <option key={status} value={status}>
+                            {formatGuestStatus(status)}
+                          </option>
+                        ))}
+                      </select>
                     </label>
-                    <button type="submit">Speichern</button>
+                    <button type="submit">Gaststatus speichern</button>
                   </form>
 
                   <form action={deleteGuest}>
                     <input type="hidden" name="id" value={guest.id} />
                     <input type="hidden" name="eventId" value={event.id} />
-                    <button className={styles.dangerButton} type="submit">
-                      Löschen
-                    </button>
+                    <ConfirmSubmitButton
+                      className={styles.dangerButton}
+                      message={`Gast "${guest.name}" wirklich löschen?`}
+                    >
+                      Gast löschen
+                    </ConfirmSubmitButton>
                   </form>
                 </div>
               </article>
@@ -1636,7 +1873,7 @@ function EventCard({
                 <input name="sichtbarFuerDienstleister" type="checkbox" />
                 Für Dienstleister sichtbar
               </label>
-              <button type="submit">Ablaufpunkt hinzufügen</button>
+              <button type="submit">Programmpunkt hinzufügen</button>
             </form>
 
             {currentSchedule.ablaufpunkte.length === 0 ? (
@@ -1665,9 +1902,12 @@ function EventCard({
                     </div>
                     <form action={deleteScheduleItem}>
                       <input type="hidden" name="id" value={item.id} />
-                      <button className={styles.dangerButton} type="submit">
-                        Löschen
-                      </button>
+                      <ConfirmSubmitButton
+                        className={styles.dangerButton}
+                        message={`Programmpunkt "${item.bezeichnung}" wirklich löschen?`}
+                      >
+                        Programmpunkt löschen
+                      </ConfirmSubmitButton>
                     </form>
                   </li>
                 ))}
@@ -1677,7 +1917,7 @@ function EventCard({
         ) : (
           <form action={createSchedulePlan} className={styles.inlineActions}>
             <input type="hidden" name="eventId" value={event.id} />
-            <button type="submit">Ablaufplan v1 erstellen</button>
+            <button type="submit">Ablaufplan starten</button>
           </form>
         )}
       </details>
@@ -1786,14 +2026,17 @@ function EventCard({
                         </option>
                       ))}
                     </select>
-                    <button type="submit">Status</button>
+                    <button type="submit">Aufgabenstatus speichern</button>
                   </form>
 
                   <form action={deleteTask}>
                     <input type="hidden" name="id" value={task.id} />
-                    <button className={styles.dangerButton} type="submit">
-                      Löschen
-                    </button>
+                    <ConfirmSubmitButton
+                      className={styles.dangerButton}
+                      message={`Aufgabe "${task.bezeichnung}" wirklich löschen?`}
+                    >
+                      Aufgabe löschen
+                    </ConfirmSubmitButton>
                   </form>
                 </div>
               </article>
@@ -1855,7 +2098,7 @@ function EventCard({
             <input name="istVerbindlich" type="checkbox" />
             Verbindlich
           </label>
-          <button type="submit">Kommunikation erfassen</button>
+          <button type="submit">Kommunikation speichern</button>
         </form>
 
         {event.kommunikationen.length === 0 ? (
@@ -1916,9 +2159,12 @@ function EventCard({
                     className={styles.communicationActions}
                   >
                     <input type="hidden" name="id" value={communication.id} />
-                    <button className={styles.dangerButton} type="submit">
-                      Löschen
-                    </button>
+                    <ConfirmSubmitButton
+                      className={styles.dangerButton}
+                      message="Kommunikationseintrag wirklich löschen?"
+                    >
+                      Kommunikation löschen
+                    </ConfirmSubmitButton>
                   </form>
                 </article>
               ))}
@@ -1980,9 +2226,9 @@ function ProviderCard({
           </select>
         </label>
         <label>
-          Backup für
+          Backup-Dienstleister
           <select name="backupFuerId" defaultValue={provider.backupFuerId ?? ""}>
-            <option value="">Keinen</option>
+            <option value="">Kein Backup</option>
             {providers
               .filter((backup) => backup.id !== provider.id)
               .map((backup) => (
@@ -2008,21 +2254,24 @@ function ProviderCard({
           <input name="email" type="email" defaultValue={provider.email ?? ""} />
         </label>
         <label className={styles.wideField}>
-          Zuverlässigkeit
+          Zuverlässigkeitsnotiz
           <textarea
             name="zuverlaessigkeitsNotiz"
             rows={3}
             defaultValue={provider.zuverlaessigkeitsNotiz ?? ""}
           />
         </label>
-        <button type="submit">Änderungen speichern</button>
+        <button type="submit">Dienstleister speichern</button>
       </form>
 
       <form action={deleteProvider} className={styles.inlineActions}>
         <input type="hidden" name="id" value={provider.id} />
-        <button className={styles.dangerButton} type="submit">
-          Löschen
-        </button>
+        <ConfirmSubmitButton
+          className={styles.dangerButton}
+          message={`Dienstleister "${provider.name}" wirklich löschen?`}
+        >
+          Dienstleister löschen
+        </ConfirmSubmitButton>
       </form>
     </article>
   );

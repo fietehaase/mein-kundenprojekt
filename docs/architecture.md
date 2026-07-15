@@ -62,6 +62,10 @@ Die initiale Datenmodellierung orientiert sich an diesen Entitäten aus `docs/sp
 - Dienstleister-Ausfälle müssen betroffene Aufgaben und Ablaufpunkte sichtbar machen.
 - Änderungen der Gästeanzahl markieren betroffene Aufgaben und Budgetbereiche als prüfbedürftig.
 
+## Smart-Assistenz
+
+Die Anwendung enthält eine regelbasierte Assistenz in `src/lib/event-insights.ts`. Sie bewertet vorhandene Event-Daten und erzeugt priorisierte Hinweise mit Grund und nächstem Schritt. Die UI zeigt diese Hinweise im Dashboard; die Geschäftslogik bleibt testbar außerhalb der Page-Komponente.
+
 ## Noch offen
 
 Vor der fachlichen Implementierung noch klären und in `docs/decisions.md` dokumentieren:

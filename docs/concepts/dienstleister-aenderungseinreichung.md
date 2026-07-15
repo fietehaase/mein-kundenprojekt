@@ -14,7 +14,7 @@ Dienstleister dürfen im aktuellen Solo-Projekt keine Änderungen direkt im Syst
 
 ## Arbeitsweise
 
-1. Dienstleister melden Änderungen ausserhalb des Systems.
+1. Dienstleister melden Änderungen außerhalb des Systems.
 2. Das Event-Team prüft die Änderung fachlich.
 3. Verbindliche Zusagen werden als verbindliche Kommunikation dokumentiert.
 4. Erst danach werden betroffene Planungsdaten manuell angepasst.
@@ -22,5 +22,5 @@ Dienstleister dürfen im aktuellen Solo-Projekt keine Änderungen direkt im Syst
 ## Nicht enthalten
 
 - Externe Dienstleister-Zugänge.
-- Automatische Änderungsvorschlaege.
+- Automatische Änderungsvorschläge.
 - Freigabe-Workflow mit Rollen.
