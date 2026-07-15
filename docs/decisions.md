@@ -425,6 +425,27 @@ Event-Dienstleister-Zuordnungen koennen als kritisch markiert und auf `ausgefall
 
 ---
 
+## 2026-07-15 - Keine direkte Dienstleister-Aenderungseinreichung
+
+**Kontext:** F015 verlangt die Klaerung, ob Dienstleister Aenderungen selbst einreichen duerfen.
+
+### Entscheidung
+
+Dienstleister erhalten im aktuellen Solo-Projekt keinen direkten Schreibzugriff und reichen keine Aenderungen im System ein. Aenderungen werden extern angenommen, vom Event-Team geprueft und danach intern eingetragen.
+
+### Alternativen verworfen
+
+- Externe Aenderungsvorschlaege im System: Ohne Rollen- und Rechtekonzept zu riskant.
+- Automatisches Ueberschreiben von Planungsdaten: Wuerde verbindliche Daten ungeprueft veraendern.
+
+### Konsequenzen
+
+- F015 ist fachlich entschieden und in `docs/concepts/dienstleister-aenderungseinreichung.md` dokumentiert.
+- Verbindliche externe Zusagen werden ueber das Kommunikationsprotokoll festgehalten.
+- Ein externer Freigabe-Workflow bleibt ausserhalb des aktuellen Scopes.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung

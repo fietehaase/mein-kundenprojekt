@@ -102,7 +102,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F015 - Dienstleister-Aenderungseinreichung
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Es soll fachlich geklaert werden, ob Dienstleister Aenderungen selbst einreichen duerfen. Falls ja, braucht das System einen kontrollierten Weg fuer externe Aenderungsvorschlaege. Die Umsetzung muss verhindern, dass externe Eingaben ungeprueft verbindliche Planungsdaten ueberschreiben.
 
