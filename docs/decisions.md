@@ -383,6 +383,27 @@ Verbindlichkeit wird fachlich ausschliesslich ueber `istVerbindlich` bestimmt. D
 
 ---
 
+## 2026-07-15 - Aufgabenabhaengigkeiten erzwingen
+
+**Kontext:** F013 verlangt, dass abhaengige Aufgaben erst erledigt werden duerfen, wenn ihre Vorgaenger-Aufgabe erledigt ist.
+
+### Entscheidung
+
+Der Statuswechsel auf `erledigt` wird serverseitig blockiert, solange eine verknuepfte Vorgaenger-Aufgabe nicht erledigt ist. Die Event-Karte markiert solche Aufgaben mit einem Blockiert-Badge.
+
+### Alternativen verworfen
+
+- Nur visuell warnen: Wuerde unzulaessige Statuswechsel nicht verhindern.
+- Einen neuen Status `blockiert` einfuehren: Widerspricht den Statuswerten aus der Spec.
+
+### Konsequenzen
+
+- F013 ist als wirksame Geschaeftsregel umgesetzt.
+- Blockierte Aufgaben bleiben im bestehenden Statusmodell sichtbar.
+- Die Regel ist durch einen eigenen Helper mit Unit-Test abgesichert.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung

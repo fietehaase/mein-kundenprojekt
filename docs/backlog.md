@@ -88,7 +88,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F013 - Aufgabenabhaengigkeiten
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Eine abhaengige Aufgabe darf erst erledigt werden, wenn ihre Vorgaenger-Aufgabe erledigt ist. Das System soll blockierte Aufgaben erkennbar machen und unzulaessige Statuswechsel verhindern. Damit werden Abhaengigkeiten im Event-Projektplan wirksam abgesichert.
 

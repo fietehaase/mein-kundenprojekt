@@ -37,6 +37,10 @@ import {
   parseEventProviderInput,
 } from "@/lib/event-provider-input";
 import { hasGuestCountChanged } from "@/lib/guest-impact";
+import {
+  canCompleteTask,
+  isTaskBlockedByDependency,
+} from "@/lib/task-dependency";
 
 export const dynamic = "force-dynamic";
 
@@ -458,6 +462,20 @@ async function updateTaskStatus(formData: FormData) {
 
   const id = parseId(String(formData.get("id") ?? ""), "Aufgaben-ID");
   const status = parseTaskStatus(String(formData.get("status") ?? ""));
+  const task = await prisma.aufgabe.findUnique({
+    where: { id },
+    include: { abhaengigVon: true },
+  });
+
+  if (!task) {
+    throw new Error("Aufgabe nicht gefunden.");
+  }
+
+  if (status === "erledigt" && !canCompleteTask(task)) {
+    throw new Error(
+      "Die Aufgabe kann erst erledigt werden, wenn die Vorgaenger-Aufgabe erledigt ist.",
+    );
+  }
 
   await prisma.aufgabe.update({
     where: { id },
@@ -466,6 +484,7 @@ async function updateTaskStatus(formData: FormData) {
 
   revalidatePath("/");
 }
+
 async function deleteTask(formData: FormData) {
   "use server";
 
@@ -1457,6 +1476,9 @@ function EventCard({
                     <span className={styles.status}>
                       {formatTaskStatus(task.status)}
                     </span>
+                    {isTaskBlockedByDependency(task) ? (
+                      <span className={styles.blockedBadge}>Blockiert</span>
+                    ) : null}
                     {task.pruefbeduerftig ? (
                       <span className={styles.reviewBadge}>Pruefbedarf</span>
                     ) : null}

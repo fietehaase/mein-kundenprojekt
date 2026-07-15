@@ -319,6 +319,16 @@
   padding: 4px 8px;
 }
 
+.blockedBadge {
+  display: inline-flex;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 8px;
+}
+
 .eventFacts {
   display: grid;
   grid-template-columns: repeat(3, minmax(120px, 1fr));
