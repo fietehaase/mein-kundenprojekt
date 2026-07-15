@@ -509,6 +509,27 @@ Das System ersetzt aktuell keine bestehenden Tools vollstaendig. Es wird als lok
 
 ---
 
+## 2026-07-15 - Eskalationsregeln zentral konfigurieren
+
+**Kontext:** F019 verlangt, dass Eskalationssituationen konfigurierbar werden statt fest verdrahtet zu bleiben.
+
+### Entscheidung
+
+Die Dienstleister-Ausfalleskalation nutzt eine zentrale Konfiguration in `src/lib/escalation-config.ts`. Dort sind der ausloesende Status und die betroffenen Zielbereiche hinterlegt.
+
+### Alternativen verworfen
+
+- Regelwerte direkt in Server Actions behalten: Schlechter wartbar und schwerer erweiterbar.
+- Datenbankmodell fuer Regeln einfuehren: Fuer den aktuellen Scope zu gross.
+
+### Konsequenzen
+
+- F019 ist als zentrale Code-Konfiguration umgesetzt und in `docs/concepts/konfigurierbare-eskalationen.md` dokumentiert.
+- Die bestehende Eskalationsregel bleibt funktional gleich.
+- Eine spaetere UI fuer Regelpflege kann auf der zentralen Struktur aufbauen.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung

@@ -126,6 +126,6 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F019 - Konfigurierbare Eskalationen
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Eskalationssituationen sollen spaeter konfigurierbar werden, statt fest verdrahtet zu sein. Dazu gehoeren Regeln fuer kritische Dienstleister, betroffene Aufgaben und Ablaufpunkte. Diese Funktion macht die Eskalationslogik flexibler fuer unterschiedliche Event-Typen.

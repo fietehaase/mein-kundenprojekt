@@ -1,3 +1,5 @@
+import { ESCALATION_CONFIG } from "./escalation-config";
+
 export type ProviderEscalationInput = {
   status: string;
   kritisch: boolean;
@@ -6,5 +8,8 @@ export type ProviderEscalationInput = {
 export function triggersProviderOutageEscalation(
   assignment: ProviderEscalationInput,
 ) {
-  return assignment.kritisch && assignment.status === "ausgefallen";
+  return (
+    assignment.kritisch &&
+    assignment.status === ESCALATION_CONFIG.providerOutage.criticalStatus
+  );
 }

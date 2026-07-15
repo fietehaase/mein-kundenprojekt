@@ -42,6 +42,7 @@ import {
   isTaskBlockedByDependency,
 } from "@/lib/task-dependency";
 import { triggersProviderOutageEscalation } from "@/lib/provider-escalation";
+import { ESCALATION_CONFIG } from "@/lib/escalation-config";
 import {
   ACTIVE_GUEST_STATUSES,
   isActiveGuestStatus,
@@ -735,26 +736,37 @@ async function syncProviderOutageEscalation(eventId: number) {
     where: {
       eventId,
       kritisch: true,
-      status: "ausgefallen",
+      status: ESCALATION_CONFIG.providerOutage.criticalStatus,
     },
   });
   const eskaliert = criticalOutageCount > 0;
 
-  await prisma.$transaction([
-    prisma.aufgabe.updateMany({
-      where: { eventId },
-      data: { eskaliert },
-    }),
-    prisma.ablaufpunkt.updateMany({
-      where: {
-        ablaufplan: {
-          eventId,
-          istAktuell: true,
+  const updates = [];
+
+  if (ESCALATION_CONFIG.providerOutage.targets.tasks) {
+    updates.push(
+      prisma.aufgabe.updateMany({
+        where: { eventId },
+        data: { eskaliert },
+      }),
+    );
+  }
+
+  if (ESCALATION_CONFIG.providerOutage.targets.currentScheduleItems) {
+    updates.push(
+      prisma.ablaufpunkt.updateMany({
+        where: {
+          ablaufplan: {
+            eventId,
+            istAktuell: true,
+          },
         },
-      },
-      data: { eskaliert },
-    }),
-  ]);
+        data: { eskaliert },
+      }),
+    );
+  }
+
+  await prisma.$transaction(updates);
 }
 
 export default async function Home() {
