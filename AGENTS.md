@@ -49,6 +49,17 @@ Lies [docs/modus-operandi.md](docs/modus-operandi.md).
 - `src/generated/prisma` nicht manuell editieren und nicht committen; der Client wird per `prisma generate` erzeugt.
 - Commit-Messages im Conventional-Commits-Stil schreiben, z.B. `docs: ...`, `feat: ...`, `fix: ...`.
 
+## Definition of Done
+
+Eine Aufgabe gilt erst als abgeschlossen, wenn:
+
+- `npm run lint` erfolgreich war.
+- `npm run build` erfolgreich war.
+- Bestehende Funktionen weiterhin funktionieren.
+- Keine doppelten Komponenten entstanden sind.
+- Keine toten Dateien zurueckbleiben.
+- Betroffene Dokumentation aktualisiert wurde.
+
 ## Bekannte Fallen
 
 - `docs/spec.md` ist keine Rohnotiz, sondern die Projektgrundlage.

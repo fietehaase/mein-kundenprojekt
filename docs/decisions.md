@@ -551,6 +551,49 @@ Anzeigeformatierung liegt zentral in `src/lib/formatters.ts`. `src/app/page.tsx`
 
 ---
 
+## 2026-07-15 - Projektansicht klarer strukturieren
+
+**Kontext:** Die Event-Zentrale wurde mit wachsendem Funktionsumfang unuebersichtlich, aggregierte Kopfkennzahlen vermischten mehrere Projekte, und einzelne Arbeitsbereiche waren innerhalb eines Events schwer voneinander zu trennen.
+
+### Entscheidung
+
+Die Startseite zeigt keine projektuebergreifenden Budget- und Gaestesummen mehr. Jedes Event ist als eigenes Projekt mit eigenen Kennzahlen dargestellt; Detailbereiche wie Budget, Gaeste, Ablauf, Aufgaben, Kommunikation und Dienstleister sind als klar getrennte aufklappbare Abschnitte organisiert.
+
+### Alternativen verworfen
+
+- Aggregierte Kopfkennzahlen behalten: Bei mehreren Events schwer interpretierbar.
+- Separate Seiten pro Arbeitsbereich sofort einfuehren: Fuer den aktuellen App Router Scope zu grosser Umbau.
+
+### Konsequenzen
+
+- Events sind visuell staerker voneinander getrennt.
+- Die wichtigsten Projektkennzahlen stehen direkt am jeweiligen Event.
+- Weniger genutzte Detailbereiche koennen eingeklappt bleiben.
+
+---
+
+## 2026-07-15 - Stammdaten und Eingaben ergonomischer machen
+
+**Kontext:** Dienstleister mussten bisher geloescht und neu angelegt werden, der Gaeste-Statusbutton war missverstaendlich, und das native Datumsfeld war fuer die Event-Erfassung zu umstaendlich.
+
+### Entscheidung
+
+Dienstleister-Stammdaten koennen direkt in der Dienstleisterkarte bearbeitet werden. Der Gaeste-Statuswechsel ist als Formular mit Label `Neuer Status` und Button `Speichern` formuliert. Das Event-Datum wird in der Neuanlage ueber getrennte Jahr-, Monat- und Tag-Auswahlfelder erfasst und serverseitig streng validiert.
+
+### Alternativen verworfen
+
+- Statusbutton unveraendert lassen: Die Aktion war nicht eindeutig genug.
+- Dienstleister nur loeschen und neu anlegen: Unnoetig fehleranfaellig bei bestehenden Zuordnungen.
+- Datum nur clientseitig pruefen: Server Actions muessen ungueltige Kalenderdaten selbst abweisen.
+
+### Konsequenzen
+
+- Lieferanten koennen ohne Datenverlust angepasst werden.
+- Gaeste-Statuswechsel sind in der UI eindeutiger.
+- Ungueltige kombinierte Datumswerte werden nicht still normalisiert.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung

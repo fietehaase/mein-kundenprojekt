@@ -77,9 +77,15 @@ function parseDateInput(value: string): Date {
     throw new Error("Das Event-Datum ist erforderlich.");
   }
 
+  const [year, month, day] = value.split("-").map(Number);
   const date = new Date(`${value}T00:00:00.000`);
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getFullYear() !== year ||
+    date.getMonth() + 1 !== month ||
+    date.getDate() !== day
+  ) {
     throw new Error("Das Event-Datum ist ungueltig.");
   }
 

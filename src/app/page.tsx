@@ -69,6 +69,16 @@ export const dynamic = "force-dynamic";
 type EventListItem = Awaited<ReturnType<typeof getEvents>>[number];
 type ProviderListItem = Awaited<ReturnType<typeof getProviders>>[number];
 
+const EVENT_YEAR_OPTIONS = Array.from({ length: 8 }, (_, index) =>
+  (new Date().getFullYear() + index).toString(),
+);
+const EVENT_MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) =>
+  (index + 1).toString().padStart(2, "0"),
+);
+const EVENT_DAY_OPTIONS = Array.from({ length: 31 }, (_, index) =>
+  (index + 1).toString().padStart(2, "0"),
+);
+
 async function getEvents() {
   return prisma.event.findMany({
     include: {
@@ -125,7 +135,7 @@ async function createEvent(formData: FormData) {
 
   const input = parseEventInput({
     name: String(formData.get("name") ?? ""),
-    datum: String(formData.get("datum") ?? ""),
+    datum: readDateInput(formData, "datum"),
     status: String(formData.get("status") ?? "geplant"),
     gaesteanzahlGeplant: String(formData.get("gaesteanzahlGeplant") ?? "0"),
     gaesteanzahlAktuell: String(formData.get("gaesteanzahlAktuell") ?? "0"),
@@ -138,6 +148,24 @@ async function createEvent(formData: FormData) {
   });
 
   revalidatePath("/");
+}
+
+function readDateInput(formData: FormData, field: string) {
+  const directDate = String(formData.get(field) ?? "");
+
+  if (directDate) {
+    return directDate;
+  }
+
+  const year = String(formData.get(`${field}Jahr`) ?? "");
+  const month = String(formData.get(`${field}Monat`) ?? "");
+  const day = String(formData.get(`${field}Tag`) ?? "");
+
+  if (!year || !month || !day) {
+    return "";
+  }
+
+  return `${year}-${month}-${day}`;
 }
 
 async function updateEventStatus(formData: FormData) {
@@ -390,6 +418,30 @@ async function deleteProvider(formData: FormData) {
 
   await prisma.dienstleister.delete({
     where: { id },
+  });
+
+  revalidatePath("/");
+}
+
+async function updateProvider(formData: FormData) {
+  "use server";
+
+  const id = parseId(String(formData.get("id") ?? ""), "Dienstleister-ID");
+  const input = parseProviderInput({
+    name: String(formData.get("name") ?? ""),
+    kategorie: String(formData.get("kategorie") ?? "sonstige"),
+    ansprechpartner: String(formData.get("ansprechpartner") ?? ""),
+    telefonMobil: String(formData.get("telefonMobil") ?? ""),
+    email: String(formData.get("email") ?? ""),
+    zuverlaessigkeitsNotiz: String(
+      formData.get("zuverlaessigkeitsNotiz") ?? "",
+    ),
+    backupFuerId: String(formData.get("backupFuerId") ?? ""),
+  });
+
+  await prisma.dienstleister.update({
+    where: { id },
+    data: input,
   });
 
   revalidatePath("/");
@@ -786,31 +838,17 @@ async function syncProviderOutageEscalation(eventId: number) {
 
 export default async function Home() {
   const [events, providers] = await Promise.all([getEvents(), getProviders()]);
-  const totalBudget = events.reduce(
-    (sum, event) => sum + Number(event.budgetGesamt),
-    0,
-  );
-  const plannedGuests = events.reduce(
-    (sum, event) => sum + event.gaesteanzahlGeplant,
-    0,
-  );
-  const currentGuests = events.reduce(
-    (sum, event) => sum + countActiveGuests(event),
-    0,
-  );
 
   return (
     <main className={styles.page}>
       <header className={styles.header}>
         <div>
           <p className={styles.eyebrow}>Event Management System</p>
-          <h1>Event-Zentrale</h1>
+          <h1>Projektuebersicht</h1>
         </div>
-        <dl className={styles.metrics} aria-label="Event-Kennzahlen">
-          <Metric label="Events" value={events.length.toString()} />
-          <Metric label="Gaeste" value={`${currentGuests}/${plannedGuests}`} />
-          <Metric label="Budget" value={formatCurrency(totalBudget)} />
-        </dl>
+        <p className={styles.headerNote}>
+          {events.length} Projekte · {providers.length} Dienstleister
+        </p>
       </header>
 
       <section className={styles.workspace} aria-label="Event-Zentrale">
@@ -824,9 +862,38 @@ export default async function Home() {
 
             <div className={styles.formGrid}>
               <label>
-                Datum
-                <input name="datum" type="date" required />
+                Jahr
+                <select name="datumJahr" defaultValue={EVENT_YEAR_OPTIONS[0]}>
+                  {EVENT_YEAR_OPTIONS.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
               </label>
+              <label>
+                Monat
+                <select name="datumMonat" defaultValue="01">
+                  {EVENT_MONTH_OPTIONS.map((month) => (
+                    <option key={month} value={month}>
+                      {month}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Tag
+                <select name="datumTag" defaultValue="01">
+                  {EVENT_DAY_OPTIONS.map((day) => (
+                    <option key={day} value={day}>
+                      {day}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className={styles.formGrid}>
               <label>
                 Status
                 <select name="status" defaultValue="geplant">
@@ -984,22 +1051,17 @@ export default async function Home() {
           ) : (
             <div className={styles.providerGrid}>
               {providers.map((provider) => (
-                <ProviderCard key={provider.id} provider={provider} />
+                <ProviderCard
+                  key={provider.id}
+                  provider={provider}
+                  providers={providers}
+                />
               ))}
             </div>
           )}
         </section>
       </section>
     </main>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt>{label}</dt>
-      <dd>{value}</dd>
-    </div>
   );
 }
 
@@ -1058,6 +1120,10 @@ function EventCard({
           <dd>{formatCurrency(Number(event.budgetGesamt))}</dd>
         </div>
         <div>
+          <dt>Bezahlt</dt>
+          <dd>{formatCurrency(paidBudget)}</dd>
+        </div>
+        <div>
           <dt>Erstellt</dt>
           <dd>{formatDate(event.erstelltAm)}</dd>
         </div>
@@ -1086,10 +1152,11 @@ function EventCard({
         </form>
       </div>
 
-      <section
-        className={styles.guestSection}
-        aria-label={`Budget ${event.name}`}
-      >
+      <details className={styles.eventSection} open>
+        <summary>
+          <span>Budget</span>
+          <small>{event.budgetPositionen.length} Positionen</small>
+        </summary>
         <div className={styles.subHeader}>
           <h4>Budget</h4>
           <span>{event.budgetPositionen.length} Positionen</span>
@@ -1195,12 +1262,13 @@ function EventCard({
             ))}
           </div>
         )}
-      </section>
+      </details>
 
-      <section
-        className={styles.guestSection}
-        aria-label={`Dienstleister ${event.name}`}
-      >
+      <details className={styles.eventSection}>
+        <summary>
+          <span>Dienstleister</span>
+          <small>{event.eventDienstleister.length} Zuordnungen</small>
+        </summary>
         <div className={styles.subHeader}>
           <h4>Dienstleister</h4>
           <span>{event.eventDienstleister.length} Zuordnungen</span>
@@ -1381,9 +1449,15 @@ function EventCard({
             ))}
           </div>
         )}
-      </section>
+      </details>
 
-      <section className={styles.guestSection} aria-label={`Gaeste ${event.name}`}>
+      <details className={styles.eventSection} open>
+        <summary>
+          <span>Gaeste</span>
+          <small>
+            {activeGuests} aktiv · {waitlistGuests} Warteliste
+          </small>
+        </summary>
         <div className={styles.subHeader}>
           <h4>Gaeste</h4>
           <span>
@@ -1471,6 +1545,8 @@ function EventCard({
                   <form action={updateGuestStatus}>
                     <input type="hidden" name="id" value={guest.id} />
                     <input type="hidden" name="eventId" value={event.id} />
+                    <label>
+                      Neuer Status
                     <select
                       name="anmeldestatus"
                       defaultValue={guest.anmeldestatus}
@@ -1481,7 +1557,8 @@ function EventCard({
                         </option>
                       ))}
                     </select>
-                    <button type="submit">Status</button>
+                    </label>
+                    <button type="submit">Speichern</button>
                   </form>
 
                   <form action={deleteGuest}>
@@ -1496,12 +1573,17 @@ function EventCard({
             ))}
           </div>
         )}
-      </section>
+      </details>
 
-      <section
-        className={styles.guestSection}
-        aria-label={`Ablauf ${event.name}`}
-      >
+      <details className={styles.eventSection}>
+        <summary>
+          <span>Ablauf</span>
+          <small>
+            {currentSchedule
+              ? `Version ${currentSchedule.version}`
+              : "Kein Ablaufplan"}
+          </small>
+        </summary>
         <div className={styles.subHeader}>
           <h4>Ablauf</h4>
           <span>
@@ -1598,12 +1680,13 @@ function EventCard({
             <button type="submit">Ablaufplan v1 erstellen</button>
           </form>
         )}
-      </section>
+      </details>
 
-      <section
-        className={styles.guestSection}
-        aria-label={`Aufgaben ${event.name}`}
-      >
+      <details className={styles.eventSection}>
+        <summary>
+          <span>Aufgaben</span>
+          <small>{event.aufgaben.length} Eintraege</small>
+        </summary>
         <div className={styles.subHeader}>
           <h4>Aufgaben</h4>
           <span>{event.aufgaben.length} Eintraege</span>
@@ -1717,12 +1800,16 @@ function EventCard({
             ))}
           </div>
         )}
-      </section>
+      </details>
 
-      <section
-        className={styles.guestSection}
-        aria-label={`Kommunikation ${event.name}`}
-      >
+      <details className={styles.eventSection}>
+        <summary>
+          <span>Kommunikation</span>
+          <small>
+            {bindingCommunications.length} verbindlich ·{" "}
+            {event.kommunikationen.length} gesamt
+          </small>
+        </summary>
         <div className={styles.subHeader}>
           <h4>Kommunikation</h4>
           <span>
@@ -1838,7 +1925,7 @@ function EventCard({
             </div>
           </>
         )}
-      </section>
+      </details>
     </article>
   );
 }
@@ -1858,7 +1945,13 @@ function sumBudgetAmount(
   }, 0);
 }
 
-function ProviderCard({ provider }: { provider: ProviderListItem }) {
+function ProviderCard({
+  provider,
+  providers,
+}: {
+  provider: ProviderListItem;
+  providers: ProviderListItem[];
+}) {
   return (
     <article className={styles.providerCard}>
       <div className={styles.cardMain}>
@@ -1870,35 +1963,60 @@ function ProviderCard({ provider }: { provider: ProviderListItem }) {
         </div>
       </div>
 
-      <dl className={styles.providerFacts}>
-        <div>
-          <dt>Ansprechpartner</dt>
-          <dd>{provider.ansprechpartner || "Nicht hinterlegt"}</dd>
-        </div>
-        <div>
-          <dt>Mobil</dt>
-          <dd>{provider.telefonMobil || "Nicht hinterlegt"}</dd>
-        </div>
-        <div>
-          <dt>E-Mail</dt>
-          <dd>{provider.email || "Nicht hinterlegt"}</dd>
-        </div>
-        <div>
-          <dt>Backup fuer</dt>
-          <dd>{provider.backupFuer?.name || "Keinen"}</dd>
-        </div>
-      </dl>
-
-      {provider.zuverlaessigkeitsNotiz ? (
-        <p className={styles.notes}>{provider.zuverlaessigkeitsNotiz}</p>
-      ) : null}
-
-      {provider.backupDienstleister.length > 0 ? (
-        <p className={styles.notes}>
-          Backup-Dienstleister:{" "}
-          {provider.backupDienstleister.map((backup) => backup.name).join(", ")}
-        </p>
-      ) : null}
+      <form action={updateProvider} className={styles.providerEditForm}>
+        <input type="hidden" name="id" value={provider.id} />
+        <label>
+          Name
+          <input name="name" required defaultValue={provider.name} />
+        </label>
+        <label>
+          Kategorie
+          <select name="kategorie" defaultValue={provider.kategorie}>
+            {PROVIDER_CATEGORIES.map((category) => (
+              <option key={category} value={category}>
+                {formatProviderCategory(category)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Backup fuer
+          <select name="backupFuerId" defaultValue={provider.backupFuerId ?? ""}>
+            <option value="">Keinen</option>
+            {providers
+              .filter((backup) => backup.id !== provider.id)
+              .map((backup) => (
+                <option key={backup.id} value={backup.id}>
+                  {backup.name}
+                </option>
+              ))}
+          </select>
+        </label>
+        <label>
+          Ansprechpartner
+          <input
+            name="ansprechpartner"
+            defaultValue={provider.ansprechpartner ?? ""}
+          />
+        </label>
+        <label>
+          Mobil
+          <input name="telefonMobil" defaultValue={provider.telefonMobil ?? ""} />
+        </label>
+        <label>
+          E-Mail
+          <input name="email" type="email" defaultValue={provider.email ?? ""} />
+        </label>
+        <label className={styles.wideField}>
+          Zuverlaessigkeit
+          <textarea
+            name="zuverlaessigkeitsNotiz"
+            rows={3}
+            defaultValue={provider.zuverlaessigkeitsNotiz ?? ""}
+          />
+        </label>
+        <button type="submit">Aenderungen speichern</button>
+      </form>
 
       <form action={deleteProvider} className={styles.inlineActions}>
         <input type="hidden" name="id" value={provider.id} />

@@ -26,4 +26,18 @@ describe("parseEventInput", () => {
       "Ungueltiger Event-Status.",
     );
   });
+
+  it("verhindert ungueltige Kalenderdaten", () => {
+    expect(() =>
+      parseEventInput({
+        name: "Sommerfest",
+        datum: "2026-02-31",
+        status: "geplant",
+        gaesteanzahlGeplant: "120",
+        gaesteanzahlAktuell: "80",
+        budgetGesamt: "15000",
+        notizen: "",
+      }),
+    ).toThrow("Das Event-Datum ist ungueltig.");
+  });
 });
