@@ -286,18 +286,26 @@ async function createSchedulePlan(formData: FormData) {
   const input = parseSchedulePlanInput({
     eventId: String(formData.get("eventId") ?? ""),
   });
-  const existingCurrentPlan = await prisma.ablaufplan.findFirst({
-    where: {
-      eventId: input.eventId,
-      istAktuell: true,
-    },
-  });
+  const [existingCurrentPlan, latestPlan] = await Promise.all([
+    prisma.ablaufplan.findFirst({
+      where: {
+        eventId: input.eventId,
+        istAktuell: true,
+      },
+    }),
+    prisma.ablaufplan.findFirst({
+      where: {
+        eventId: input.eventId,
+      },
+      orderBy: [{ version: "desc" }],
+    }),
+  ]);
 
   if (!existingCurrentPlan) {
     await prisma.ablaufplan.create({
       data: {
         eventId: input.eventId,
-        version: 1,
+        version: latestPlan ? latestPlan.version + 1 : 1,
         istAktuell: true,
       },
     });
@@ -320,10 +328,45 @@ async function createScheduleItem(formData: FormData) {
       ? "on"
       : null,
   });
-
-  await prisma.ablaufpunkt.create({
-    data: input,
+  const currentPlan = await prisma.ablaufplan.findUnique({
+    where: { id: input.ablaufplanId },
+    include: {
+      ablaufpunkte: {
+        orderBy: [{ uhrzeitStart: "asc" }],
+      },
+    },
   });
+
+  if (!currentPlan || !currentPlan.istAktuell) {
+    throw new Error("Nur der aktuelle Ablaufplan kann geaendert werden.");
+  }
+
+  await prisma.$transaction([
+    prisma.ablaufplan.update({
+      where: { id: currentPlan.id },
+      data: { istAktuell: false },
+    }),
+    prisma.ablaufplan.create({
+      data: {
+        eventId: currentPlan.eventId,
+        version: currentPlan.version + 1,
+        istAktuell: true,
+        ablaufpunkte: {
+          create: [
+            ...currentPlan.ablaufpunkte.map(copyScheduleItem),
+            {
+              uhrzeitStart: input.uhrzeitStart,
+              uhrzeitEnde: input.uhrzeitEnde,
+              bezeichnung: input.bezeichnung,
+              verantwortlich: input.verantwortlich,
+              istPuffer: input.istPuffer,
+              sichtbarFuerDienstleister: input.sichtbarFuerDienstleister,
+            },
+          ],
+        },
+      },
+    }),
+  ]);
 
   revalidatePath("/");
 }
@@ -332,12 +375,61 @@ async function deleteScheduleItem(formData: FormData) {
   "use server";
 
   const id = parseId(String(formData.get("id") ?? ""), "Ablaufpunkt-ID");
-
-  await prisma.ablaufpunkt.delete({
+  const item = await prisma.ablaufpunkt.findUnique({
     where: { id },
+    include: {
+      ablaufplan: {
+        include: {
+          ablaufpunkte: {
+            orderBy: [{ uhrzeitStart: "asc" }],
+          },
+        },
+      },
+    },
   });
 
+  if (!item || !item.ablaufplan.istAktuell) {
+    throw new Error("Nur aktuelle Ablaufpunkte koennen geloescht werden.");
+  }
+
+  await prisma.$transaction([
+    prisma.ablaufplan.update({
+      where: { id: item.ablaufplanId },
+      data: { istAktuell: false },
+    }),
+    prisma.ablaufplan.create({
+      data: {
+        eventId: item.ablaufplan.eventId,
+        version: item.ablaufplan.version + 1,
+        istAktuell: true,
+        ablaufpunkte: {
+          create: item.ablaufplan.ablaufpunkte
+            .filter((scheduleItem) => scheduleItem.id !== id)
+            .map(copyScheduleItem),
+        },
+      },
+    }),
+  ]);
+
   revalidatePath("/");
+}
+
+function copyScheduleItem(item: {
+  uhrzeitStart: Date;
+  uhrzeitEnde: Date | null;
+  bezeichnung: string;
+  verantwortlich: string | null;
+  istPuffer: boolean;
+  sichtbarFuerDienstleister: boolean;
+}) {
+  return {
+    uhrzeitStart: item.uhrzeitStart,
+    uhrzeitEnde: item.uhrzeitEnde,
+    bezeichnung: item.bezeichnung,
+    verantwortlich: item.verantwortlich,
+    istPuffer: item.istPuffer,
+    sichtbarFuerDienstleister: item.sichtbarFuerDienstleister,
+  };
 }
 
 async function createTask(formData: FormData) {
@@ -373,7 +465,6 @@ async function updateTaskStatus(formData: FormData) {
 
   revalidatePath("/");
 }
-
 async function deleteTask(formData: FormData) {
   "use server";
 
@@ -1211,6 +1302,17 @@ function EventCard({
               : "Kein Ablaufplan"}
           </span>
         </div>
+
+        {event.ablaufplaene.length > 0 ? (
+          <div className={styles.scheduleHistory}>
+            {event.ablaufplaene.map((schedule) => (
+              <span key={schedule.id}>
+                Version {schedule.version}
+                {schedule.istAktuell ? " · aktuell" : ""}
+              </span>
+            ))}
+          </div>
+        ) : null}
 
         {currentSchedule ? (
           <>

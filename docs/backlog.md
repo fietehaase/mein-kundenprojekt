@@ -76,7 +76,7 @@ Stabile Feature-IDs aus `docs/spec.md`. Nicht umnummerieren.
 
 ### F011 - Versionierte Ablaufplaene
 
-**Status:** Offen
+**Status:** Erledigt
 
 **Ziel:** Aenderungen an einem Ablaufplan sollen eine neue Version erzeugen. Pro Event darf nur eine Ablaufplan-Version als aktuell markiert sein. So bleibt nachvollziehbar, welche Ablaufversion gueltig ist und wie sich der Plan historisch veraendert hat.
 

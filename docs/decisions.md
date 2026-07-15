@@ -341,6 +341,27 @@ Die Gaestezahl-Synchronisierung vergleicht den neu berechneten Wert mit der gesp
 
 ---
 
+## 2026-07-15 - Versionierte Ablaufplaene
+
+**Kontext:** F011 verlangt, dass Aenderungen an Ablaufplaenen neue Versionen erzeugen und pro Event nur eine Version aktuell ist.
+
+### Entscheidung
+
+Ablaufpunkte werden nicht mehr direkt im aktuellen Ablaufplan veraendert. Beim Hinzufuegen oder Loeschen eines Ablaufpunkts wird der aktuelle Ablaufplan archiviert und eine neue aktuelle Version mit kopierten Ablaufpunkten plus Aenderung erstellt.
+
+### Alternativen verworfen
+
+- Ablaufpunkte direkt mutieren: Historie waere verloren.
+- Separate Detailseite fuer Versionsverwaltung: Fuer die bestehende Event-Karten-UI zu gross.
+
+### Konsequenzen
+
+- F011 ist als versionierte Ablaufplanung umgesetzt.
+- Die Event-Karte zeigt die Ablaufversionen und markiert die aktuelle Version.
+- Das Datenmodell bleibt unveraendert, weil Version und `istAktuell` bereits vorhanden waren.
+
+---
+
 <!-- Vorlage fuer neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung
