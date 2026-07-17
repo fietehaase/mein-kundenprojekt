@@ -747,6 +747,21 @@ Dienstleister-Änderungseinreichung, Rollen/Kundenansicht und Tool-Integration w
 
 ---
 
+## 2026-07-17 - Aufgabenkarte stabilisieren
+
+**Kontext:** In der Aufgabenkarte konnte der linke Inhaltsbereich zu schmal werden, weil die Aktionsspalte im Grid zu viel Platz beanspruchte. Dadurch wurden Metadaten wie Fälligkeit zeichenweise umgebrochen.
+
+### Entscheidung
+
+Aufgabenkarten nutzen ein einspaltiges Kartenlayout mit separater Aktionsleiste unten rechts. Die Metadaten werden in zwei klaren Blöcken dargestellt: Fälligkeit/Zuweisung und Abhängigkeit/Erinnerung. Lange Werte dürfen innerhalb dieser Blöcke umbrechen, ohne die Kartenbreite zu zerstören.
+
+### Konsequenzen
+
+- Aufgabeninformationen bleiben auf Desktop und Mobile lesbar.
+- Die Funktionalität der Status- und Löschaktionen bleibt unverändert.
+
+---
+
 <!-- Vorlage für neue Entscheidungen:
 
 ## JJJJ-MM-TT - Titel der Entscheidung

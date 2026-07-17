@@ -926,13 +926,13 @@
 
 .guestItem,
 .scheduleItem,
-.taskItem,
 .communicationItem,
 .budgetItem {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
-.guestItem {
+.guestItem,
+.taskItem {
   grid-template-columns: minmax(0, 1fr);
 }
 
@@ -997,10 +997,61 @@
 }
 
 .scheduleItem strong,
-.taskItem strong,
 .communicationItem strong,
 .assignmentItem strong {
   margin-top: 6px;
+}
+
+.taskContent {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.taskContent > strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.taskMetaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+.taskMetaBlock {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--surface-muted);
+  padding: 10px;
+}
+
+.taskMetaBlock p {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  color: var(--muted-strong);
+  font-size: 13px;
+  line-height: 1.35;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.taskMetaBlock span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.taskBlockedNote {
+  border-left: 3px solid var(--warning);
+  padding-left: 10px;
 }
 
 .guestItem p,
@@ -1028,6 +1079,10 @@
 .guestActions {
   justify-self: end;
   margin-top: 2px;
+}
+
+.taskActions {
+  justify-self: end;
 }
 
 .guestActions form:first-child,
@@ -1269,6 +1324,7 @@
   .scheduleItem,
   .taskForm,
   .taskForm .wideField,
+  .taskMetaGrid,
   .taskItem,
   .taskActions form:first-child,
   .communicationForm,

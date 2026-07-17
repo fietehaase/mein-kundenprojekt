@@ -1984,7 +1984,7 @@ function EventCard({
           <div className={styles.taskList}>
             {event.aufgaben.map((task) => (
               <article key={task.id} className={styles.taskItem}>
-                <div>
+                <div className={styles.taskContent}>
                   <div className={styles.badgeRow}>
                     <span className={styles.status}>
                       {formatTaskStatus(task.status)}
@@ -2002,17 +2002,37 @@ function EventCard({
                     ) : null}
                   </div>
                   <strong>{task.bezeichnung}</strong>
-                  <p>
-                    Fällig: {task.faelligAm ? formatDateTime(task.faelligAm) : "offen"} ·{" "}
-                    Zugewiesen: {task.zugewiesenAn || "nicht gesetzt"}
-                  </p>
-                  <p>
-                    Abhängig von: {task.abhaengigVon?.bezeichnung || "keiner"} ·{" "}
-                    Erinnerung:{" "}
-                    {task.erinnerungAm ? formatDateTime(task.erinnerungAm) : "keine"}
-                  </p>
+
+                  <div className={styles.taskMetaGrid}>
+                    <div className={styles.taskMetaBlock}>
+                      <p>
+                        <span>Fällig</span>
+                        {task.faelligAm ? formatDateTime(task.faelligAm) : "offen"}
+                      </p>
+                      <p>
+                        <span>Zugewiesen</span>
+                        {task.zugewiesenAn || "nicht gesetzt"}
+                      </p>
+                    </div>
+
+                    <div className={styles.taskMetaBlock}>
+                      <p>
+                        <span>Abhängig von</span>
+                        {task.abhaengigVon?.bezeichnung || "keiner"}
+                      </p>
+                      <p>
+                        <span>Erinnerung</span>
+                        {task.erinnerungAm
+                          ? formatDateTime(task.erinnerungAm)
+                          : "keine"}
+                      </p>
+                    </div>
+                  </div>
+
                   {task.blockiert.length > 0 ? (
-                    <p>Blockiert: {task.blockiert.length} Aufgabe(n)</p>
+                    <p className={styles.taskBlockedNote}>
+                      Blockiert: {task.blockiert.length} Aufgabe(n)
+                    </p>
                   ) : null}
                 </div>
 
